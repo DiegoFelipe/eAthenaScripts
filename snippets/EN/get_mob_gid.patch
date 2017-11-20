@@ -1,0 +1,22 @@
+Index: script.c
+===================================================================
+--- script.c	(revision 14217)
++++ script.c	(working copy)
+@@ -7481,6 +7481,7 @@
+ 	int class_        = script_getnum(st,6);
+ 	int amount        = script_getnum(st,7);
+ 	const char* event = "";
++	int mob_gid;
+ 
+ 	struct map_session_data* sd;
+ 	int m;
+@@ -7513,7 +7514,8 @@
+ 		}
+ 	}
+ 
+-	mob_once_spawn(sd,m,x,y,str,class_,amount,event);
++	mob_gid = mob_once_spawn(sd,m,x,y,str,class_,amount,event);
++	script_pushint(st, mob_gid);
+ 	return 0;
+ }
+ /*==========================================

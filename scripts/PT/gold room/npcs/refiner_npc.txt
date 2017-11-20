@@ -1,0 +1,102 @@
+//===== Cronus / eAthena Script ==============================
+//= NPC Refinador
+//===== By: ==================================================
+//= TecnoCronus
+//= DeMoN (Evanio) - Tradução
+//===== Versão : =============================================
+//= 1.1
+//===== Compativél com: ======================================
+//= eAthena SVN SQL/TXT
+//= Cronus SVN SQL/TXT
+//===== Discrição: ===========================================
+//= Este NPC refina suas armas, mas cobra o preço em GPs
+//============================================================
+ra_in01,292,148,3	script	Refinador#GRRefiner	813,{
+
+	mes "[Refinador]";
+	mes "Olá Sr. "+strcharinfo(0);
+	if(##GRMob == 0 || !##GRmob) {
+		mes "Me desculpe mais você não tem nenhum GP.";
+		mes "Não posso fazer nada por você.";
+		close2;
+		emotion e_sry;
+		end;
+	}
+	mes "Escolha o item que deseja refinar:";
+	next;
+	setarray .@position$[1], "Cabeça","Corpo","Mão Esquerda","Mão Direita","Manto","Sapatos","Acessorio 1","Acessorio 2","Cabeça 2","Cabeça 3";
+	set .@menu$,"";
+	for( set .@i,1; .@i <= 10; set .@i,.@i+1 )
+	{
+		if( getequipisequiped(.@i) )
+			set .@menu$, .@menu$ + .@position$[.@i] + "-" + "[" + getequipname(.@i) + "]";
+		set .@menu$, .@menu$ + ":";
+	}
+	set .@part,select(.@menu$);
+	if(!getequipisequiped(.@part)) {
+		mes "[Refinador]";
+		mes "Você não está usando";
+		mes "nada onde você falou,";
+		mes "sendo assim eu não posso refinar.";
+		close2;
+		emotion 6;
+		end;
+	}
+
+	if(!getequipisenableref(.@part)) {
+		mes "[Refinador]";
+		mes "Eu acho que não posso";
+		mes "refinar este item...";
+		close2;
+		emotion e_sry;
+		end;
+	}
+
+	if(!getequipisidentify(.@part)) {
+		mes "[Refinador]";
+		mes "Eu não posso refinar este";
+		mes "item, pois aparentemente";
+		mes "ele não está identificado.";
+		mes "Identifique-o antes para que";
+		mes "eu possa refina-lo.";
+		close;
+
+	}
+
+	if(getequiprefinerycnt(.@part) >= 10) {
+		mes "[Refinador]";
+		mes "Eu não posso refinar este";
+		mes "item mais. Ele esta no seu";
+		mes "grau de refinação maximo!";
+		close;
+	}
+	mes "Quantas vezes quer que eu refine o seu equipamento ?";
+	set @time, 10 - getequiprefinerycnt(.@part);
+	mes "Você pode refinar este item";
+	mes "no maximo "+@time+" Graus de refinação.";
+	mes "Essa atualização no item ira custar "+$@GRSys_RefPrice;
+	input @up;
+	if(@up > @time) {
+		next;
+		mes "[Refinador]";
+		mes "Eu falei, o limite é "+@time;
+		close2;
+		emotion e_omg;
+		end;
+	}
+	set @price, @up * $@GRSys_RefPrice * getequiprefinerycnt(.@part);
+	if(@price < ##GRMob) {
+		mes "Você não tem a quantidade de GP's que eu preciso.";
+		mes "Eu preciso de "+@price+" GP";
+		close;
+	}
+	
+		for (set @t, 1; @t <= @up; set @t, @t + 1) successrefitem .@part;
+		set ##GRMob, ##GRMob - @price;
+		next;
+		mes "[Refinador]";
+		mes "Obrigado por usar meus serviços ...";
+		close2;
+		emotion e_heh;
+		end;
+}

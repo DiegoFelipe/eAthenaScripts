@@ -1,0 +1,76 @@
+prontera,174,215,6	script	Maya	408,{
+
+	mes "[Maya]";
+
+	if(Disguised > 0) {
+
+		mes "I see that you're disguised now";
+		mes "Do you want back to normal ?";
+
+		if(select("Yes:No")== 1) {
+
+			atcommand "@undisguise";
+			set Disguised, 0;
+
+			mes "All right you look normal now.";
+
+		} else {
+
+			mes "All right";
+			mes "Have fun with your appearance";
+		}
+
+		close;
+
+
+	}
+
+		if(!Agitcheck() || !Agitcheck2()) {
+
+			mes "Hello "+strcharindo(0)+", Busy with your appearance ?";
+			mes "I have a good notice for you";
+			mes "I can disguise you into any monster";
+			mes "But you need to pay 5 poring coins.";
+			mes "Do you have insterest ?";
+
+			if(select("Of Course:No yet")==1) {
+
+				if(countitem(7539) >= 5 ) {
+
+					delitem 7539,5;
+
+					mes "You will type the monster id or mob id ?";
+
+					if(select("Name:Id")==1) {
+
+						input @name$;
+
+						atcommand "@disguise "+@name$;
+
+					} else {
+
+						input @id;
+
+						atcommand "@disguise "+@id;
+
+					}
+
+				mes "Come back here to back to normal";
+				set Disguised, 1;
+				close;
+
+				}
+
+			mes "You haven't enought poring coins sir";
+
+			}
+
+			mes "Feel free to come back again";
+			close;
+		}
+
+	mes "I'm sorry but I can't work while WOE is on";
+
+	close;
+
+}

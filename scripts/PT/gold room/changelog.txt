@@ -1,0 +1,71 @@
+Data	Adicionado
+====	==========
+
+07/01/10
+	* Rev. 11 Concluído a tradução para Português BR de todos os Scripts das pastas "db" e "src".[Evanio]
+	- pasta "db":
+	- Guardian_Code.txt (Em Revisão)
+	- mob_skill_db2.txt (Em Revisão)
+	- pasta "src":
+	- bug_fix.patch (Em Revisão)
+	- source_code.patch (Em Revisão)
+06/01/10
+	* Rev. 10 Concluído a tradução para Português BR de todos os Scripts da pasta "npcs".[Evanio]
+	- pasta "npcs":
+	- buff_system_npc.txt (Em Revisão)
+	- chating_function.txt (Em Revisão)
+	- chating_npcs.txt (Em Revisão)
+	- clone_system_npc.txt (Em Revisão)
+	- configuration.txt (Em Revisão)
+	- events.txt (Em Revisão)
+	- helper.txt (Em Revisão)
+	- manager.txt (Em Revisão)
+	- quest_function.txt (Em Revisão)
+	- questors_npcs.txt (Em Revisão)
+	- refiner_npc.txt (Em Revisão)
+	- shopping_npcs.txt (Em Revisão)
+	- shoping_function.txt (Em Revisão)
+04/01/10
+	* Rev. 9 Iniciado a tradução de todos os Scipts.[Evanio]
+02/09/09
+	* Rev. 8 corrigido um pequeno erro no script de ajuda, ele não estava removendo o efeito de ivencibilidade.[TecnoCronus]
+	- Atualizado o codigo do Mob Guardião.
+	- Atualizado o codigo de skill do Guardião.
+01/09/09
+	* Rev 7. adicionado um npc refinador no Shopping Center. [TecnoCronus]
+	- Ele só funciona se o jogador tiver GP.
+	- O preço é: por Grau que ele quer refinar * lvl do equipamento * $@GRSys_RefPrice.
+	- Corrigido um bug na contagem de mobs, agora ele não conta mais os clones.
+	- Corrigido o nivel permitido para entrada na sala.
+	- Adicionado os codigos de skill do Guardião..
+	- Adicionado um codigo customizado do Guardião.
+31/08/09
+	* Corrigido um bug que quando um jogador mata o limite de monstros a mensagem é mostrada, mas o jogador não é teleportado para prontera. [TecnoCronus]
+25/08/09
+	* Adicionado uma imunidade ao jogador quando ele esta falando com o NPC Ajudante dentro da Gold Room. [TecnoCronus]
+	- IMPORTANTE: por favor, lembre de corrigir o erro do menu.
+20/08/09
+	* Rev. 6 Adicionado o sistema de Buff e de Clones. [TecnoCronus]
+	- Sistema de Buff: Se o jogador tiver feito a missão e ele disser "Buff" dentro da Gold Room ele terá consebidos alguns Buffs.
+	- Sistema de Clones: Se o jogador tiver feito a missão e ele disser "Clone-me por favor" dentro da Gold Room ele será clonado.
+19/08/09
+	* Rev. 5 Adicionado 2 NPCs de evento. [TecnoCronus]
+	- O primeiro evento é de "invasão".
+	- E o segundo evento é do tipo "invocação de monstros".
+17/08/09
+	* Adicionado NPc de Chat, eles podem dar algum GP (Gold Point) por acaso. [TecnoCronus]
+15/08/09
+	* Rev 4. Adicionado Shopping Center em "ra_in01". [TecnoCronus]
+	- Adicionado 5 vendedores dentro do Shopping Center.
+10/08/09
+	* Adicionado uma quantia a pagar para entrar na Gold Rom, de acordo com a variavél '$@GRSys_EnterZeny' [TecnoCronus]
+05/08/09
+	* Rev. 3 Adicionado 4 Missões:  [TecnoCronus]
+	- A primeira é para ser possivel usar clones escravos. 
+	- A segunda é para poder receber Buff.
+	- A tarceira é para adicionar monstros extras a matar por hora.
+	- A quarta é granha um bonus extra (for, des e sor) dentro da Gold Room.
+31/07/09
+	* Rev. 2 Script Reconstruído [TecnoCronus]
+21/12/08
+	* Rev. 1 Primeira versão feita [TecnoCronus]

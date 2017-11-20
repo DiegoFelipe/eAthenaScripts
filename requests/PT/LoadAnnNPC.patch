@@ -1,0 +1,23 @@
+Index: pc.c
+===================================================================
+--- pc.c	(revision 14281)
++++ pc.c	(working copy)
+@@ -3931,6 +3931,7 @@
+ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y, uint8 clrtype)
+ {
+ 	struct party_data *p;
++	struct npc_data* nd;
+ 	int m;
+ 
+ 	nullpo_retr(0, sd);
+@@ -4080,6 +4081,10 @@
+ 		sd->md->ud.dir = sd->ud.dir;
+ 	}
+ 
++	nd = npc_name2id("LoadAnnNPC");
++
++	if(nd != NULL) run_script(nd->u.scr.script, 0, sd->bl.id, nd->bl.id);
++
+ 	return 0;
+ }
+ 

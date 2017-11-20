@@ -1,0 +1,206 @@
+-	script	smartvip_buff	-1,{
+
+	end;
+
+	// Quantidade de Zeny necessária para se buffar
+	if (Zeny < 1000000) {
+		dispbottom Strcharinfo(0)+", você não tem zeny suficiente";
+	} else {
+		while (.@BfID[.@i]) {
+
+			sc_start .@BfID[.@i],.@BfID[(.@i+1)],.@BfID[(.@i+2)];
+			set @i, @i+1;
+		}
+
+		dispbottom "Buffado !";
+	}
+	end;
+
+	OnInit:
+	// Notas:
+	// Os ids dos array são salvo aqui e o tempo que o buff vai durar também
+	// então o primeiro índice [0] = id o segundo [1] = tempo de duração do buff anterior
+	// [2] = id do segundo buff [3] = tempo de duração do buff anterior ...
+
+	setarray .@BfID[0],21,60000,32,12000;
+}
+
+-	script	smartvip_mobsearch	-1,{ atcommand "@mobsearch "+@smartvip_mobsearch$; }
+
+-	script	smartvip_storagepass	-1,{
+
+	cutin "kafra_1",2;
+	while(@menu != 2) {
+		show "[Corporação Kafra]";
+		show "Insira sua Senha para abrir o Amazém";
+		show "Lembrando que é em caso sensitivo";
+		show "Ou seja, se sua senha contém caracteres";
+		show "Em maiúsculo, digite-os em maiúsculo";
+		input @pass$;
+
+		if(@pass$ == #SmartVar_StoragePass$) {
+
+			show "^00FF00Acesso Permitido^000000";
+			close2;
+			set @strpassok, 1;
+			cutin "",255;
+			openstorage;
+			end;
+		}
+
+		show "^FF0000Acesso Negado^000000";
+		show "sua senha está incorreta.";
+		show "Deseja tentar novamente ?";
+		if(select("Sim","Não")==2) {
+			cutin "",255;
+			close;
+		}
+	next;
+	}
+	
+
+	OnPCLoginEvent:
+		set @strpassok, 2;
+		
+
+}
+
+prontera,174,215,4	script	Garota do Armazém	710,{
+
+	show "[Garota do Armazém]";
+	show "Como está indo "+strcharinfo(0)+" ? ";
+	if(getgmlevel == 1) {
+		show "Está cansado de ficar carregando";
+		show "Um monte de coisas em seu inventório ?";
+		if(select("Sim, isto é um fardo para mim.","Não estou bem leve.")==2) {
+
+			show "Que ótimo !";
+			show "Te vejo em breve.";
+
+		}
+	}	else {
+
+			if(getstrlen(#SmartVar_StoragePass$) > 0) {
+
+				show "Vejo que você já protege seu armazém com senha";
+				show "Deseja trocar sua senha ?";
+				if(select("Sim","Não")== 1 && Zeny >= .@zeny2) {
+					show "Insira sua nova senha";
+					input #SmartVar_StoragePass$;
+					show "Senha trocada";
+					set Zeny, Zeny - .@zeny2;
+					close;
+	
+				} else {
+					show strcharinfo(0)+","+Zeny < .@zeny2 ? "Você não tem zeny suficiente" : "Volte Quando quiser !"+".";
+				}
+
+				close;
+	
+			} else {
+
+				show "Por apenas "+.@zeny+" Zenys posso";
+				show "Aumentar a proteção de seu armazém";
+				show "Criando uma senha para protegê-lo";
+				next;
+				show "[Garota do Armazém]";
+				show "Não se preocupe, a corporação";
+				show "Kafra irá cuidar de sunha senha";
+				show "E de seu armazém.";
+				if(select("Boa Idéia","Preciso Ir embora") == 1 && zeny >= .@zeny) {
+	
+					set Zeny, Zeny - .@zeny;
+					show "Insira sua senha:";
+					input #SmartVar_StoragePass$;
+					show "Senha Definida.";
+					close;
+	
+			} else {
+				show strcharinfo(0)+", "+Zeny < .@zeny ? "Você não tem zeny suficiente" : "Volte Quando quiser !"+".";
+			}
+		}
+	}
+	close;
+
+
+	OnInit:
+		// Zeny Necessário para criar uma senha de armazém
+		set .@Zeny, 500000;
+
+		// Zeny Necessário para trocar a senha do armazém
+		set .@Zeny2, 300000;
+}
+-	script	SmartVipConf	-1,{
+
+	end;
+
+	OnWhisperGlobal:
+
+		show "[SmartVip]";
+		if(getgmlevel() == 99) {
+
+			show "Olá administrador, o que você deseja fazer ?";
+			switch(select("Ver/Mudar todas as configurações atuais","Sair")) {
+			case 1:
+				next;
+				show "^FF0000->^000000Tempo em minutos que o jogador";
+				show "Será vip ao usar @takevip: ^FF0000"+getvipconf(1)+"^000000";
+				callfunc ("ChangeVipConf",1);
+				show "^FF0000->^000000Tipo de Pagamento p/ o @takevip:";
+				show "^FF0000"+getvipconf(2) == 1 ? "Zeny" : "Cash" +"^000000";
+				callfunc ("ChangeVipConf",2);
+				show "^FF0000->^000000Zeny para usar @takevip: "^FF0000"+getvipconf(3)+"^000000";
+				callfunc ("ChangeVipConf",3);
+				next;
+
+				show "^FF0000->^000000Dano à + no dano do vip: "+^FF0000"+getvipconf(4)+"^000000";
+				callfunc ("ChangeVipConf",4);
+				show "^FF0000->^000000Zeny para se curar: ^FF0000"+getvipconf(5)+"^000000";
+				callfunc ("ChangeVipConf",5);
+				show "^FF0000->^000000% de hp curado: ^FF0000"+getvipconf(6)+"^000000";
+				callfunc ("ChangeVipConf",6);
+				show "^FF0000->^000000% de sp curado: ^FF0000"+getvipconf(7)+"^000000";
+				callfunc ("ChangeVipConf",7);
+				next;
+
+				show "^FF0000->^000000Limite de vezes p/ usar @takevip: ^FF0000"+getvipconf(8)+"^000000";
+				callfunc ("ChangeVipConf",8);
+				show "^FF0000->^000000Delay do @takevip: ^FF0000:"+getvipconf(9)+"^000000 Seg.";
+				callfunc ("ChangeVipConf",9);
+				show "^FF0000->^000000ASPD Máximo p/ vips: "^FF0000"+getvipconf(10)+"^000000";
+				callfunc ("ChangeVipConf",10);
+				next;
+
+				show "^FF0000->^000000Peso de Carrinho Máximo p/ vips: "^FF0000"+getvipconf(11)+"^000000";
+				callfunc ("ChangeVipConf",11);
+				show "^FF0000->^000000Peso Máximo p/ vips: ^FF0000"+getvipconf(12)+"^000000";
+				callfunc ("ChangeVipConf",12);
+				show "^FF0000->^000000Delay p/ ser curado: ^FF0000"+getvipconf(13)+"^000000";
+				callfunc ("ChangeVipConf",13);
+				break;
+
+			case 2:
+				show "Volte quando mudar de idéia:";
+				break;
+
+			}
+			break;
+		}
+		if (getgmlevel() != 99) show "Você não pode mudar as configurações do SmartVip";
+		close;
+}
+
+function	script	ChangeVipConf	{
+
+		next;
+		show "Deseja mudar esta opção ?";
+		if(select("Sim","Não") == 1) {
+			show "Digite novo valor:";
+			input .@NewVal;
+			set .@IsNewValOk, setvipconf getarg(0),.@NewVal;
+			show "Configuração "+(..@IsNewValOk > 0 ? :"Mudada" "Não foi Mudada" +"!";
+		}
+		next;
+		return;
+
+}

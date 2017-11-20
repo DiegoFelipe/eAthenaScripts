@@ -1,0 +1,64 @@
+prontera,174,215,4	script	Ticket Master	718,{
+
+	mes "[Ticket Master]";
+	mes "Hello "+strcharinfo(0);
+	mes "I'm a lover of tickets";
+	mes "But I love cash too";
+	mes "Well let's do a trade ?";
+	select("Trade Cash->Tickets:Trade Tickets->cash:Leave");
+
+	if(@menu == 1) {
+
+		mes "How much cash you want to trade ?";
+		mes "Remember that each 1000 cash points";
+		mes "Worth 1 ticket";
+		input @cash;
+
+		if(#CASHPOINTS >= @cash) {
+
+			if(#CASHPOINTS % 1000 > 0) {
+
+				mes "You typed a invalid number";
+				mes "Try 1000 or 20000 or 3000";
+				close;
+			}
+
+			mes "Are you sure that you want to trade ?";
+			if(select("Yes:No")==2) close;
+
+			set #CASHPOINTS, #CASHPOINTS - @cash;
+			getitem 19169, #CASHPOINTS / 1000;
+			mes "Done. I hope see you again";
+
+		} else {
+
+			mes "You haven't the cash that you typed";
+			mes "I'm sorry but I can't trade with you now";
+		}
+	close;
+
+	} else if (@menu == 2) {
+
+		mes "How much ticket you want to trade ?";
+		mes "Each ticket worth 1000 Cash";
+		input @tick;
+
+		if(@tick >= countitem(19169)) {
+
+			mes "Are you sure that you want to trade ?";
+			if(select("Yes:No")==2) close;
+			delitem 19769,@tick;
+			set #CASHPOINTS, #CASHPOINTS + @tick;
+			mes "Trade done";
+
+		} else {
+
+			mes "you haven't this amount of ticket";
+			mes "I can't trade with you now.";
+		}
+	close;
+	}
+	mes "Come back again when you want";
+	close;
+}
+	}

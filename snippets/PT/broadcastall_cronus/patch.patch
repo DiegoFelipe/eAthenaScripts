@@ -1,0 +1,29 @@
+Index: atcommand.c
+===================================================================
+--- atcommand.c	(revision 2872)
++++ atcommand.c	(working copy)
+@@ -3241,6 +3241,24 @@
+ 	return 0;
+ }
+ 
++/*=========================================
++ * Invoca o npc do atcommand
++ *-----------------------------------------*/
++int atcommand_broadall(const int fd, struct map_session_data* sd, const char* command, const char* message)
++{
++    struct npc_data* nd;
++    nullpo_retr(-1, sd);
++ 
++    nd = npc_name2id("broadcastall");
++    if( nd == NULL )
++        return -1;
++
++    run_script(nd->u.scr.script, 0, sd->bl.id, nd->bl.id);
++    
++    return 0;
++
++}
++
+ /*==========================================
+  *
+  *------------------------------------------*/

@@ -1,0 +1,59 @@
+/*	    ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___   
+	   /\  \     /\  \     /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\__\     /\  \  
+	   \:\  \   /::\  \   /::\  \   /:| _|_   /::\  \   /::\  \   /::\  \   /::\  \   /:| _|_   /:/ _/_   /::\  \ 
+	   /::\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/\:\__\ /:/\:\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/_/\__\ /\:\:\__\
+	  /:/\/__/ \:\:\/  / \:\ \/__/ \/|::/  / \:\/:/  / \:\ \/__/ \;:::/  / \:\/:/  / \/|::/  / \:\/:/  / \:\:\/__/
+	  \/__/     \:\/  /   \:\__\     |:/  /   \::/  /   \:\__\    |:\/__/   \::/  /    |:/  /   \::/  /   \::/  / 
+        	     \/__/     \/__/     \/__/     \/__/     \/__/     \|__|     \/__/     \/__/     \/__/     \/__/ 
+			          T e c n o C r o n u s  N e t W o r k  P r e s e n t s
+	*----------------------------------------- eAthena Script ---------------------------------------------*
+	* Soul Link Spirit										       *
+	*----------------------------------------------- By: --------------------------------------------------*
+	* TecnoCronus                                                                                          *
+	*----------------------------------------- Current Version: -------------------------------------------*
+	* 1.0												       *
+	*----------------------------------------- Compatible With: -------------------------------------------*
+	* eAthena SQL		             								       *
+	*------------------------------------------- Description: ---------------------------------------------*
+	* Um NPC que dá buffs.										       *												       *
+	*----------------------------------------- Bug Report Link:  ------------------------------------------*
+	* http://trac.xp-dev.com/TC_Scripts/log/scripts/PT/Soul_Linker_Buffer.txt			       *
+	*------------------------------------------------------------------------------------------------------*/
+
+prontera,146,163,6	script	Soul Linker	718,{
+
+	mes "[Kira]";
+	mes "Olá "+strcharinfo(0)+", eu sou o mestre kira";
+	mes "Eu posso abençoar as pessoas";
+	mes "Com os meus buffs de Soul Linker ...";
+	if(Class < 4008 && Class > 4022) {
+		mes "Que pena, meu eu não posso lhe buffar.";
+		next;
+		mes "[Kira]";
+		mes "Tenha um bom dia";
+		close;
+	} else {
+		next;
+		mes "[Kira]";
+		mes "Bem, eu posso lhe buffar por "+.@ReqZeny+" Zenys";
+		mes "Eu preciso desse dinheiro para me manter ...";
+		if(select("Sim, eu quero:Não, Obrigado")==1) {
+			if(Zeny >= .@ReqZeny) {
+				sc_start sc_spirit,360000;
+				set Zeny, Zeny - .@ReqZeny;
+				mes "Buffado.";
+				close;
+			}
+
+			mes "Você infezlimente não tem zeny suficiente";
+			mes "Volte quando tiver.";
+			close;
+
+		} else if (@menu == 2)
+			mes "Tudo bem, volte quando você quiser.";
+	}
+	close;
+
+	OnInit:
+		set .@ReqZeny, 1000000; // Preço, o padrão é 1.000.000 Zenys
+}

@@ -1,0 +1,16 @@
+prontera,174,215,4	script	Statistic	718,{
+
+	mes "^ff0000==========^000000";
+	set .@totalusers, getusers(7);
+	query_sql "SELECT COUNT(`char_id`) FROM `char`", .@numchars;
+	query_sql "SELECT COUNT(`account_id`) FROM `char`", .numaccs;
+	query_sql "SELECT SUM(`zeny`) FROM `char`", .@zeny;
+	query_sql "SELECT `name` FROM `char` ORDER BY `char_id` DESC LIMIT 1 ",.@newstchar$;
+	mes "We have "+.@totalusers+" Players Online.";
+	mes .@numchars+" characters.";
+	mes .@numaccs+" accounts.";
+	mes .@zeny+" Zeny.";
+	mes "Our newest character is "+.@newstchar$+".";
+	mes "^ff0000==========^000000";
+	close;
+}

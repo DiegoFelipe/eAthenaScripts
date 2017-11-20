@@ -1,0 +1,35 @@
+prontera,174,215,4	script	TecnoCronus	718,{
+
+	mes "[TecnoCronus]";
+	mes "Olá, eu estou procurando";
+	mes "Alguém com que eu possa trocar "+getitemname(.@itemid);
+	mes "Por pontos de cash.";
+	mes "Está interessado ?";
+	if(select("Sim, estou:Não, obrigado")==1) {
+		mes "A Cada "+getitemname(.@itemid)+" que você me der lhe darei";
+		mes "Mil pontos de cash, agora digite quantos";
+		mes "Jelops você deseja trocar";
+		input @qnt;
+		if(countitem(.@itemid) >= @qnt) {
+			mes "Você receberá "+(@qnt * 1000)+" pontos de cash";
+			mes "Deseja continuar ?";
+			if(select("Sim:Não")==1) {
+				delitem .@itemid, @qnt;
+				set @qnt, @qnt * 1000;
+				set #CASHPOINTS, #CASHPOINTS + @qnt;
+				mes "Troca feita";
+			} else {
+				mes "Bem, não entendi por que você desistiu agora";
+				mes "Mas está tudo bem.";
+			}
+		} else {
+			mes "Você não tem "+getitemname(.@itemid)+" suficiente";
+		}
+	} else {
+		mes "Tudo bem, quando estiver interessado volte.";
+	}
+	close;
+
+	OnInit:
+		set .@itemid, 504; //PONHA O ID DO ITEM QUE VOCE QUER TROCAR AQUI
+}

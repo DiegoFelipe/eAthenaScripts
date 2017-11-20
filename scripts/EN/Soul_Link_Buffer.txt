@@ -1,0 +1,59 @@
+/*	    ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___   
+	   /\  \     /\  \     /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\__\     /\  \  
+	   \:\  \   /::\  \   /::\  \   /:| _|_   /::\  \   /::\  \   /::\  \   /::\  \   /:| _|_   /:/ _/_   /::\  \ 
+	   /::\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/\:\__\ /:/\:\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/_/\__\ /\:\:\__\
+	  /:/\/__/ \:\:\/  / \:\ \/__/ \/|::/  / \:\/:/  / \:\ \/__/ \;:::/  / \:\/:/  / \/|::/  / \:\/:/  / \:\:\/__/
+	  \/__/     \:\/  /   \:\__\     |:/  /   \::/  /   \:\__\    |:\/__/   \::/  /    |:/  /   \::/  /   \::/  / 
+        	     \/__/     \/__/     \/__/     \/__/     \/__/     \|__|     \/__/     \/__/     \/__/     \/__/ 
+
+
+	*----------------------------------------- Hercules Script --------------------------------------------*
+	* Soul Link Spirit										       *
+	*----------------------------------------------- By: --------------------------------------------------*
+	* TecnoCronus                                                                                          *
+	*----------------------------------------- Current Version: -------------------------------------------*
+	* 1.0												       *
+	*----------------------------------------- Compatible With: -------------------------------------------*
+	* (e)(r)Athena 		             								       *
+	*------------------------------------------- Description: ---------------------------------------------*
+	* A NPC that give Soul Linker Buffs								       *
+	*----------------------------------------- Additional Comments: ---------------------------------------*
+	*												       *
+	*--------------------------------------------- Changelog: ---------------------------------------------*
+	* http://trac.xp-dev.com/TC_Scripts/log/scripts/EN/Soul_Link_Buffer.txt				       *
+	*------------------------------------------------------------------------------------------------------*/
+
+prontera,146,163,6	script	Soul Linker	718,{
+
+	mes "[Kira]";
+	mes "Hello "+strcharinfo(0)+", I'm the master kira";
+	mes "I can bless the peoples with";
+	mes "my Soul Linker buffs ...";
+	if(Class < 4008 || Class > 4022) {
+		mes "Oh, I can't buff you";
+		next;
+		mes "[Kira]";
+		mes "Have a good day";
+	} else {
+		next;
+		mes "[Kira]";
+		mes "Well, I can buff you for "+.@ReqZeny+" Zenys";
+		mes "I need this money to keep my buffs ...";
+		if(select("Ya, I want:No, thanks")==1) {
+			if(Zeny >= .@ReqZeny) {
+				sc_start sc_spirit,360000,0;
+				set Zeny, Zeny - .@ReqZeny;
+				mes "Done.";
+			} else if(Zeny < .@ReqZeny) {
+				mes "You haven't enought money";
+				mes "Come back when you get it.";
+			}
+		} else if(@menu = 2){
+			mes "All right, come back when you wish";
+		}
+	}
+	close;
+
+	OnInit:
+		set .@ReqZeny, 1000000; // Price, by default 1kk
+}

@@ -1,0 +1,356 @@
+//===== Cronus / eAthena Script ==============================
+//= Funções de Quest
+//===== By: ==================================================
+//= TecnoCronus
+//= DeMoN (Evanio) - Tradução
+//===== Versão : =============================================
+//= 1.1
+//===== Compativél com: ======================================
+//= eAthena SVN SQL/TXT
+//= Cronus SVN SQL/TXT
+//===== Discrição: ===========================================
+//= Esta é as funções dos Missionários
+//============================================================
+
+function	script	GRSysQuest	{
+
+	mes "[^FF0000"+getarg(0)+"^000000]";
+	if(!##GRMob) {
+		mes "Vejo que você não sabe muito sobre a Gold Room ...";
+		select("Hã, Gold Room ???");
+		mes "É uma sala onde você mata monstros para ganhar GP (Gold Point)";
+		mes "e troca por ouro ...";
+		if(select("Wow, Fale mais por favor","Argh... Eu não estou interessado")==2) close;
+		mes "Mas, você só pode matar 100 monstros por hora.";
+		next;
+		mes "[^FF0000"+getarg(0)+"^000000]";
+		mes "Mais uma coisa: Depois de trocar seus pontos, você deve esperar alguns minutos para poder entra novamente na Gold Room.";
+		mes "Exemplo: Você trocou seus pontos às 12:55 PM, você pode retornar apenas às 13:00 PM.";
+		next;
+		mes "[^FF0000"+getarg(0)+"^000000]";
+		mes "Assim,se você trocar seus pontos em 13:02 PM, você só pode retornar às 14:00 PM.";
+		mes "Entendido?";
+		close;
+	} else if(##GRMob) {
+			mes "Ei ^FF0001"+strcharinfo(0)+"^000000, Vejo que você já é um usuário da Gold Room ...";
+			select("Sim, você está certo.");
+			mes "Parece que você não conhece sobre as minhas";
+			mes "Missões, elas são bastantes gratificantes ao usuário na Gold Room.";
+			if(select("Verdade ? Fale-me mais, por favor","O que ? Deixe-me sozinho")==2) close;
+				next;
+				mes "[^FF0000"+getarg(0)+"^000000]";
+				mes "Há vários tipos de missões, estas são:";
+				mes "Missão ^0000FF1^000000: Você pode usar Clones para ajuda-lo na Gold Room.";
+				mes "Missão ^0000FF2^000000: Você pode adquirir Buffs para ajudar na Gold Room.";
+				mes "Missão ^0000FF3^000000: Você pode acrescentar a quantidade de monstros por hora em 1.";
+				mes "Missão ^0000FF4^000000: Você pode conseguir pontos extras (For, Des, Sor) por "+$@GRSTTime+", depois este bonus se auto-finaliza.";
+				mes "Você está interessado em alguma missão ?";
+				if(select("Sim","Não")==2) close;
+					mes "Escolha sua missão.";
+					next;
+					switch(select("^1000FF->^000000 1","^2000FF->^000000 2","^3000FF->^000000 3","^3000FF->^000000 4")) {
+					case 1:
+						if(GRM1 && !GRM1UP) {
+							next;
+							mes "[^FF0000"+getarg(0)+"^000000]";
+							mes "Você se esqueceu ?";
+							mes "Ja esta fazendo esta missão.";
+							mes "Então ... Trouxe-me os itens que eu pedi?";
+							if(select("Claro.","Ainda não.")==2) close;
+								for (set @i, 0; $@GRM1[@i]; set @i, @i + 1) {
+									if(countitem($@GRM1[@i]) < $@GRM1A[@i]) {
+										if(!@Left) set @Left, 0;
+										set @Left, @Left + 1;
+									}
+								}
+										if(@Left > 0) {
+											set @Left, 0;
+											mes "Você esqueceu algum item, vá e só volte com todos.";
+											close;
+										}
+									for (set @i, 0; $@GRM1[@i]; set @i, @i + 1) delitem $@GRM1[@i], $@GRM1A[@i];
+									mes "Exelente, agora a Missão 2 está completa ...";
+									set GR_CanClone, 1;
+									set GRMUP1, 1;
+									close;
+	
+						} else if(GRM1 && GRM1UP) {
+							for (set @y, 0; $@GRM12[@y]; set @y,@y+1) {
+								if(countitem($@GRM12[@y]) < $@GRM12A[@y]) {
+										if(!@Left2) set @Left2, 0;
+										set @Left2, @Left2 + 1;
+									}
+								}
+										if(@Left2 == 0 && GR_CanClone < $@GR_CLLimit) {
+											set @Left2, 0;
+											next;
+											mes "Parabéns ! Você conseguil todos os itens";
+											mes "O limite de Clones foi almentado em 1";
+											for (set @i, 0; $@GRM12[@i]; set @i, @i + 1) delitem $@GRM12[@i], $@GRM12A[@i];
+											set GR_CanClone, GR_CanClone + 1;
+											
+										}
+									close;
+								}
+								if(GR_CanClone == $@GR_CLLimit) {
+									next;
+									mes "[^FF0000"+getarg(0)+"^000000]";
+									mes "Me desculpe "+strcharinfo(0)+", você não pode obter mais Clones escravos.";
+									close;
+								}
+								next;
+								mes "[^FF0000"+getarg(0)+"^000000]";
+								mes "Legal, você completou a missão 1.";
+								mes "Se você fizer algo por mim, eu posso aumentar o limite";
+								mes "de Clones Escravos que você poderá usar ..";
+								if(select("uh, Fale-me mais","Você denovo ? Deixe-me ir")==2) {
+									mes "Ok, faça o que você quiser mais não sabe";
+									mes "o que está perdendo ...";
+									close;
+								}
+							next;
+							mes "[^FF0000"+getarg(0)+"^000000]";
+							mes "Eu preciso apenas desses itens:";
+							for(set @x, 0; $@GRM12[@i]; set @x, @x + 1)
+								mes " ^FF0000"+$@GRM12A[@x]+"^000000 unidade de ^CCCCCC"+getitemname($@GRM12[@x])+"^000000";
+							mes "Quer fazer essa missão ?";
+							if(select("Claro","Não")==2) close;
+							mes "Ha Ha Ha Boa Sorte!";
+							close;
+									
+							
+					next;
+					mes "[^FF0000"+getarg(0)+"^000000]";
+					mes "Entendido traga-me esses itens:";
+					for (set @i, 0; $@GRM1[@i]; set @i, @i + 1)
+						mes " ^FF0000"+$@GRM1A[@x]+"^000000 unidades de ^CCCCCC"+$@GRM1[@x]+"^000000";
+					next;
+					mes "[^FF0000"+getarg(0)+"^000000]";
+					mes "Mas, você precisa aceitar a missão,";
+					mes "Você aceita ?";
+					if(select("Claro.","Não, estou ocupado.")==2) {
+						mes "Ei não me faça perder meu tempo.";
+						close;
+					}
+					mes "Oh, Boa sorte para você";
+					set GRM1, 1;
+					close;
+
+					case 2:
+						if(!GR_CanGetBuff && !M2ChkVar) {
+							mes "[^FF0000"+getarg(0)+"^000000]";
+							mes "Você está interessado em receber alguns Buffs ?";
+							if(select("Estou !","Realmente não")==2) close;
+							mes "Para conseguir, traga-me esses itens";
+							next;
+							mes "[^FF0000"+getarg(0)+"^000000]";
+							for (set @i, 0; $@GRM2[@i]; set @i, @i + 1)
+								mes " ^FF0000"+$@GRM2A[@i]+"^000000 unidades de ^CCCCCC"+$@GRM2[@i]+"^000000";
+							if(select("Entendido, eu vou conseguir","Não, eu não vou pegar isso.")==2) {
+								mes "uh, não use meu tempo livre para nada ok?";
+								close;
+							}
+							set M2ChkVar, 1;
+							mes "Ok Eu espero por você.";
+							close;
+						} else if(M2ChkVar && !GR_CanGetBuff) {
+							mes "[^FF0000"+getarg(0)+"^000000]";
+							mes "Bem, você conseguil os itens ?";
+							if(select("Sim","Não ...")==2) {
+								mes "Ok, vou continuar esperando você.";
+								close;
+							}
+							mes "Deixe-me ver se você conseguil todos os itens ..";
+							for (set @i, 0; $@GRM2[@i]; set @i, @i + 1) {
+							if(countitem($@GRM2[@i]) < $@GRM2A[@i]) {
+								if(!@Left3) set @Left3, 0;
+								set @Left3, @Left3 + 1;
+							}
+						}
+							if(@Left3 > 0) {
+								set @Left3, 0;
+								mes "Você esqueceu algum item, volte só com todos que eu pedi.";
+								close;
+							}
+							for (set @i, 0; $@GRM2[@i]; set @i, @i + 1) delitem $@GRM2[@i], $@GRM2A[@i];
+							set GR_CanGetBuff, 1;
+							mes "Parabéns, você conseguil";
+							mes "Buffs apenas dizendo ^FF0000Buff^000000 na";
+							mes "Gold Room";
+							close;
+						}
+						mes "[^FF0000"+getarg(0)+"^000000]";
+						mes "Você ja fez essa Missão, Tchalzinho.";
+						close;
+
+
+
+					case 3:
+						mes "[^FF0000"+getarg(0)+"^000000]";
+						if(MobLim == $@GR_MobLim) {
+							mes "Sinto muito mais você está no limite.";
+							mes "Você pode aumentar o seu limite ...";
+							close;
+						}
+						if(!M3Chk && !M3Done) {
+							mes "Para aumentar o limite de monstros por hora";
+							mes "Dentro Gold Room traga-me:";
+							for (set @i, 0; $@GRM3[@i]; set @i, @i + 1)
+								mes " ^FF0000"+$@GRM3A[@i]+"^000000 unidade de ^CCCCCC"+$@GRM3[@i]+"^000000";
+							mes "Você consegue me trazer esses itens ?";
+							if(select("Sim","Não")==2) close;
+							mes "Ok, Eu espero por você.";
+							set M3Chk, 1;
+							close;
+						} else if(M3Chk && !M3Done) {
+								mes "Você conseguiu todos os itens Sr. "+strcharinfo(0)+" ?";
+								if(select("Sim","Não")==2) {
+									mes "Volte quando tiver conseguido.";
+									close;
+								}
+								mes "Deixe-me verificar ...";
+								for (set @i, 0; $@GRM3[@i]; set @i, @i + 1) {
+								if(countitem($@GRM3[@i]) < $@GRM3A[@i]) {
+									if(!@Left4) set @Left4, 0;
+									set @Left4, @Left4 + 1;
+								}
+								}	
+							if(@Left4 > 0) {
+								set @Left4, 0;
+								mes "Você esqueceu de algum item, volte quando tiver todos eles.";
+								close;
+							}
+							for (set @i, 0; $@GRM3[@i]; set @i, @i + 1) delitem $@GRM3[@i], $@GRM3A[@i];
+							set M3Done, 1;
+							mes "Parabens, agora seu limite foi aumentado em 1.";
+							set ##GRDefault, ##GRDefault + 1;
+							close;
+							}
+					case 4:
+						mes "[^FF0000"+getarg(0)+"^000000]";
+						mes "Que tipo de status você quer conseguir ?";
+						switch(select("For","Des","Sor","^0000FFNada^000000")) {
+						case 1:
+							if(GRSt_Str) {
+								mes "Ei, você já fez essa missão, você não pode fazer novamente.";
+								close;
+							}
+							if(!M4Var && !GRSt_Str) {
+								mes "Traga-me:";
+								next;
+								mes "[^FF0000"+getarg(0)+"^000000]";
+								for (set @i, 0; $@GRM4Str[@i]; set @i, @i + 1)
+										mes " ^FF0000"+$@GRM4StrA[@i]+"^000000 Unidade de ^CCCCCC"+$@GRM4Str[@i]+"^000000";
+								if(select("Ok Vou continuar","Não, eu não quero.")==2) close;
+								set M4Var, 1;
+								mes "Boa Sorte";
+								close;
+							} else if(M4Var && !GRSt_Str) {
+									mes "Você conseguil todos os itens ?";
+									if(select("Sim","Não, volto depois.")==2) close;
+									mes "Deixe-me ver..";
+									for (set @i, 0; $@GRM4Str[@i]; set @i, @i + 1) {
+									if(countitem($@GRM4Str[@i]) < $@GRM4StrA[@i]) {
+										if(!@Left5) set @Left5, 0;
+										set @Left5, @Left5 + 1;
+									}
+									}	
+								if(@Left5 > 0) {
+									set @Left5, 0;
+									mes "Você esqueceu de algum item, volte quando tiver todos eles.";
+									close;
+								}
+								for (set @i, 0; $@GRM4Str[@i]; set @i, @i + 1) delitem $@GRM4Str[@i], $@GRM4StrA[@i];
+								set GRSt_Str, 1;
+								mes "Agora você conseguirá aumetar sua Força enquanto estiver lutando,";
+								mes "Fale com o Ajudante dentro da Goold Room para mais informações ...";
+								close;
+								}
+								
+								
+								
+						case 2:
+							if(GRSt_Dex) {
+								mes "Ei, você já fez essa missão, você não pode fazer novamente.";
+								close;
+							}
+							if(!M42Var && !GRSt_Dex) {
+								mes "Traga-me:";
+								next;
+								mes "[^FF0000"+getarg(0)+"^000000]";
+								for (set @i, 0; $@GRM4Dex[@i]; set @i, @i + 1)
+										mes " ^FF0000"+$@GRM4DexA[@i]+"^000000 unidade de ^CCCCCC"+$@GRM4Dex[@i]+"^000000";
+								if(select("Ok, vou continuar","Não eu não quero.")==2) close;
+								set M42Var, 1;
+								mes "Boa Sorte";
+								close;
+							} else if(M42Var && !GRSt_Dex) {
+									mes "Você trouxe todos os itens ?";
+									if(select("Sim","Não, depois eu trago.")==2) close;
+									mes "Deixe-me ver..";
+									for (set @i, 0; $@GRM4Dex[@i]; set @i, @i + 1) {
+									if(countitem($@GRM4Dex[@i]) < $@GRM4DexA[@i]) {
+										if(!@Left5) set @Left5, 0;
+										set @Left5, @Left5 + 1;
+									}
+									}	
+								if(@Left5 > 0) {
+									set @Left5, 0;
+									mes "Você esqueceu de algum item, volte quando tiver todos eles.";
+									close;
+								}
+								for (set @i, 0; $@GRM4Dex[@i]; set @i, @i + 1) delitem $@GRM4Dex[@i], $@GRM4DexA[@i];
+								set GRSt_Dex, 1;
+								mes "Agora você conseguirá aumetar sua Destreza enquanto estiver lutando,";
+								mes "Fale com o Ajudante dentro da Goold Room para mais informações ...";
+								close;
+								}
+
+						case 3:
+							if(GRSt_Luk) {
+								mes "Ei, você já fez essa missão, você não pode fazer novamente.";
+								close;
+							}
+							if(!M43Var && !GRSt_Luk) {
+								mes "Traga-me:";
+								next;
+								mes "[^FF0000"+getarg(0)+"^000000]";
+								for (set @i, 0; $@GRM4Luk[@i]; set @i, @i + 1)
+										mes " ^FF0000"+$@GRM4LukA[@i]+"^000000 unidades de ^CCCCCC"+$@GRM4Luk[@i]+"^000000";
+								if(select("Ok,vou continuar","Não, eu não quero.")==2) close;
+								set M43Var, 1;
+								mes "Boa Sorte";
+								close;
+							} else if(M3Var && !GRSt_Luk) {
+									mes "Você conseguil todos os itens ?";
+									if(select("Sim","Não, volto depois.")==2) close;
+									mes "Deixe-me ver..";
+									for (set @i, 0; $@GRM4Luk[@i]; set @i, @i + 1) {
+									if(countitem($@GRM4Luk[@i]) < $@GRM4LukA[@i]) {
+										if(!@Left5) set @Left5, 0;
+										set @Left5, @Left5 + 1;
+									}
+									}	
+								if(@Left5 > 0) {
+									set @Left5, 0;
+									mes "Você esqueceu de algum item, volte quando tiver todos eles";
+									close;
+								}
+								for (set @i, 0; $@GRM4Luk[@i]; set @i, @i + 1) delitem $@GRM4Luk[@i], $@GRM4LukA[@i];
+								set GRSt_Luk, 1;
+								mes "Agora você conseguirá aumetar sua Sorte enquanto estiver lutando,";
+								mes "Fale com o Ajudante dentro da Goold Room para mais informações ...";
+								close;
+								}
+								
+						case 4:
+							mes "Ok, mas não me faça";
+							mes "perder meu tempo de novo ok ?";
+							close2;
+							emotion e_pif;
+							end;
+						}
+				}
+									
+		}
+	}

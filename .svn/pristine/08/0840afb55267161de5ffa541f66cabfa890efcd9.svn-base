@@ -1,0 +1,466 @@
+/*	___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___   
+       /\  \     /\  \     /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\__\     /\  \  
+       \:\  \   /::\  \   /::\  \   /:| _|_   /::\  \   /::\  \   /::\  \   /::\  \   /:| _|_   /:/ _/_   /::\  \ 
+       /::\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/\:\__\ /:/\:\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/_/\__\ /\:\:\__\
+      /:/\/__/ \:\:\/  / \:\ \/__/ \/|::/  / \:\/:/  / \:\ \/__/ \;:::/  / \:\/:/  / \/|::/  / \:\/:/  / \:\:\/__/
+      \/__/     \:\/  /   \:\__\     |:/  /   \::/  /   \:\__\    |:\/__/   \::/  /    |:/  /   \::/  /   \::/  / 
+        	 \/__/     \/__/     \/__/     \/__/     \/__/     \|__|     \/__/     \/__/     \/__/     \/__/ 
+ 					           Advanced Scripts
+			    	 	     (c) TecnoCronus, 5 Jan 2009
+	*------------------------------------------ eAthena Script --------------------------------------------*
+	*- Manuntenção + Controle de Contas + Congelamento de Contas					       *
+	*----------------------------------------------- By: --------------------------------------------------*
+	*- TecnoCronus                                                                                         *
+	*------------------------------------------ Current Version: ------------------------------------------*
+	*- 1.0												       *
+	*------------------------------------------ Compatible With: ------------------------------------------*
+	*- eAthena		             								       *
+	*------------------------------------------- Description: ---------------------------------------------*
+	*- 1 NPC que faz manuntenção do Servidor, apaga contas que não logam hà certos meses.		       *
+	*- 2 Controle de Contas: Opções como: Trocar Nome, Trocar Senha.				       *
+	*- 3 Congelamento de Contas: Adiciona 1, 2 ou 3 Meses extras para proteger a conta de ser banida       *
+	*---------------------------------------- Additional Comments: ----------------------------------------*
+	*- 1.0 Trabalha SOMENTE em eAthena MySQL.							       *
+	*- 1.1 Controle de Lag: Como a Manuntenção ocorre todos os dias à meia-noite, você pode optar por não  *
+	*- fazer manuntenção se X% de Players estiverem logados, de acordo com a var "$@MaxUser"	       *
+	*- 1.2 Tudo é automático, até a atualização da Variável que controla o tempo extra de descongelamento, *
+	*- O NPC deleta as contas Automaticamente também
+	*------------------------------------------ Bug Report Link:  -----------------------------------------*
+	*-											               *
+	*------------------------------------------------------------------------------------------------------*/
+prontera,146,164,6	script	Controlador de Contas	718,{
+
+L_MainMenu:
+		mes "[Controlador de Contas]";
+		mes "Olá, o que você deseja ?";
+		switch(select("Trocar Minha Senha","Trocar meu Nome","^FF0000Nada^000000","Congelar Minha Conta","descongelar minha conta","Descongelar outra conta")) {
+
+		case 1:
+
+			mes "Digite sua nova senha";
+			input @NewPass;
+			set @charid, getcharid(0);
+			query_sql "UPDATE `login` SET `user_pass` = `"+@NewPass+"` WHERE `user_id` = `"+@charid+"`";
+			mes "Senha trocada com sucesso !";
+			close;
+
+		case 2:
+			mes "Digite seu novo nome";
+			input @NewName$;
+			set @charid, getcharid(0);
+			query_sql "SELECT `name` FROM `char` WHERE `name` = `"+@NewName$+"`",@check$;
+			if(getstrlen(@check$)<2) {
+			mes "esse nome já existe";
+			close;
+			}
+			query_sql "UPDATE `char` SET `name` = `"+@NewName$+"` WHERE `user_id` = `"+@charid+"`";
+			mes "Nome Trocado";
+			close;
+
+		case 3:
+			close;
+
+
+		case 4:
+			mes "Hum, você sabe como funciona o Congelamento?";
+			if(select("Sim eu Sei","Nah, ainda não")==2) {
+			if(Zeny<$x_Zeny) {
+			mes "Você não tem "+x_Zeny+" para congelar sua conta, volte mais tarde";
+			close;
+			}
+			mes "Insira a Senha para descongelar sua conta, com no mínimo ^FF0001"+$@Pass_Len+"^000000 dígitos";
+			mes "^FF0000 NUNCA ESQUEÇA SUA SENHA, PORQUE SEM ELA VOCÊ NÃO DESCONGELARÁ";
+			mes "SUA CONTA NOVAMENTE^000000";
+L_InputUnFree:
+			input @Unfree$;
+			if(getstrlen(@UnFree$)<$@Pass_Len) {
+			mes "senha muito pequena";
+			close;
+			}
+			mes "Confirmando: "+@UnFree$+"";
+			mes " Continuar com essa senha ?";
+			if(select("Sim","Não")==2) goto L_InPutUnfree; 
+			set #Unfree$, @Unfree$;
+			mes "Quantos meses deseja congelar sua conta ? (Max:^FF00003^000000)";
+			switch(select("1","2","3")) {
+			case 1:
+				query_sql "UPDATE `login` SET `freeze_stats` = `1` WHERE `account_id` = `"+@accid+"`";
+				set Zeny,Zeny-$x_Zeny;
+				set #Freeze_Stats, 1;
+				callfunc "F_Continue";
+				end;
+		
+			case 2:
+				query_sql "UPDATE `login` SET `freeze_stats` = `2` WHERE `account_id` = `"+@accid+"`";
+				set Zeny,Zeny-$x_Zeny;
+				set #Freeze_Stats, 2;
+				callfunc "F_Continue";
+				end;
+
+			case 3:
+				query_sql "UPDATE `login` SET `freeze_stats` = `3` WHERE `account_id` = `"+@accid+"`";
+				set Zeny,Zeny-$x_Zeny;
+				set #Freeze_Stats, 3;
+				callfunc "F_Continue";
+				end;
+				}
+	
+		} else {
+	
+			next;
+			mes "[Controlador de Contas]";
+			mes "Funciona desse jeito: você paga "+$x_Zeny+" Zenys  e você escolhe quantos meses";
+			mes "você deseja congelar sua conta, durante esse tempo seu dinheiro estará guardado";
+			mes "e sua conta não será apagada se você não logar nesse período de tempo";
+			mes "quando você desejar descongelar sua conta, você precisará de uma senha, que você";
+			mes "deve escolher quando congelar sua conta, ^FF0000 Nunca equeça essa senha^000000";
+			next;
+			mes "[Controlador de Contas]";
+			mes "Você também pode bloqueiar sua conta, permitindo que somente você, de seu computador";
+			mes "Logue na sua conta, desse jeito sua conta estará protegida enquanto estiver congelada.";
+			mes "e somente você poderá usá-la enquanto estiver congelada";
+			next;
+			mes "[Controlador de Contas]";
+			mes "Enquanto sua conta estiver congelada, toda vez que alguém logar nela,";
+			mes "O Servidor detectará o Computador, se o Computador não for o seu, ele";
+			mes "pedirá uma senha de acesso temporário à sua conta, que você define a sua senha";
+			mes "de acesso temporário, se a senha estiver correta, a pessoa que estiver logada";
+			mes "poderá continuar usando sua conta.";
+			next;
+			mes "[Controlador de Contas]";
+			mes "Mas, por motivos de Segurança, você pode bloquear sua Conta para que somente ";
+			mes "de seu computador ela possa ser usada.";
+			mes "Se você tiver algum problema com seu computador, você poderá desbloquear sua conta";
+			mes "em outro computador e em otra conta sem problemas, dese que você saiba a senha";
+			mes "Mas você deve informar 1 nome de algum char de sua cont para isso";
+			next;
+			mes "[Controlador de Contas]";
+			mes "Outro tipo de congelamento de conta é que você permita que, durante ela estar congelada,";
+			mes "somente outras pessoas possam logar na sua conta a partir de outro computador, mas";
+			mes "é recomendável que sejam pessoas de sua confiança, e voce pode escolher no máximo 3";
+			next;
+			mes "[Controlador de Contas]";
+			mes "Bem, isso é tudo sobre o congelamento de contas.";
+			mes "Deseja congelar sua conta ?";
+			if(select("Sim","Não")==2) close;
+			close2;
+			goto L_MainMenu;
+			end;
+	}
+			case 5:
+
+			mes "Insira sua senha de descongelamento";
+			input @pass$;
+			if(@pass$!=#Unfree$ || !#Unfree$)
+		{
+			mes "senha incorreta ou você não congelou sua conta";
+			close;
+					}
+			set #Freeze_Stats, 0;
+
+			mes "conta descongelada";
+			if(!#MZeny || #MZeny == 0) close;
+			mes "Pegue seu dinheiro de volta";
+			set Zeny,Zeny+#MZeny;
+			set #MZeny, 0;
+			close;
+
+			case 6:
+				mes "Diga o Nome de 1 char da conta";
+				input @char$;
+				query_sql "SELECT `account_id` FROM `char` WHERE `name` = `"+@char$+"` DESC LIMIT `1`",@chr$;
+
+				if(!getarraysize(@chr$)) {
+
+					mes "esse char não existe ";
+					close;
+
+				}
+				
+				mes "Digite a Senha de descongelamento";
+				input @unfree2$;
+				query_sql "SELECT `value` FROM `global_reg_value` WHERE `account_id` = `"+@char$+"` AND `str` = `#Freeze_Stats`",@friendpass$;
+
+				if(@unfree2$!=@friendpass$) {
+
+					mes "Senha Incorreta ou a Conta não está Congelada";
+					close;
+				}
+
+				query_sql "UPDATE `global_reg_value` SET `value` = `0` WHERE `str` = `#Freeze_Stats` AND `account_id` = `"+@chr$+"`";
+				mes "conta descongelada com sucesso !";
+				close;
+		}
+			
+
+
+function	script	F_Continue	{
+			set @mon, gettime(6);
+			set @day, gettime(5);
+			set @year, gettime(7);
+			set @mon30, @mon * 30;
+			set @acc, @mon30 + @day;
+			set #NextMonth, @acc;
+			set @monc, @mon + $@MonToBan;
+			if(@monc>12) set #NextYear, @year + 1;
+			set #NextYear, @year;
+			query_sql "UPDATE `global_reg_value` SET `check_var` = `"+#NextMmonth+"` WHERE `account_id` = `"+getcharid(3)+"`";
+			query_sql "UPDATE `global_reg_value` SET `year` = `"+#NextYear+"` WHERE `account_id` = `"+getcharid(3)+"`";
+
+L_Again:
+			mes "Deseja definir uma senha de acesso temporário ?";
+			mes "Desse jeito outras pessoas podem logar em sua conta enquanto estiver";
+			mes "bloqueiada";
+			if(select("^0000FFSim^000000","^FF0000Não^000000")==2) goto L_1;
+			mes "Ok, essa senha ^FF0000Não^000000 é a senha de descongelamento, ela apenas permite";
+			mes "que outras pessoas possam usar sua conta enquanto ela estiver congelada,";
+			mes "se souberem a senha.";
+			next;
+			mes "[Controlador de Contas]";
+			mes "Insira sua senha de ^CDCD00Acesso Temporário^000000";
+			input @Password;
+			set #Temp, @Password;
+L_1:
+			next;
+			mes "[Controlador de Contas]";
+			mes "Agora você deseja bloqueiar Totalmente sua conta ?";
+			mes "se sim, Somente você, de seu computador poderá logar";
+			mes "em sua conta, mas, por motivos de segurança, você deve";
+			mes "escolher pelo menos uma pessoa, que poderá logar em sua";
+			mes "conta, sem precisar usar senha temporária";
+L_TG:
+			next;
+			mes "[Controlador de Contas]";
+			mes "Ok, diga o nome da pessoa(s) que poderá(ão) logar em sua conta";
+			mes "O Máximo de pessoas é 3";
+L_Input:
+			input @Friend$;
+			query_sql "SELECT `account_id` FROM `login` WHERE `name` = `"+@Friend$+"`",@name;
+			if(getstrlen(@name) < 2) {
+			mes "essa pessoa não existe, deseja tentar novamente ou ignorar essa parte ?";
+			if(!#Friend || #Friend == 0) goto L_TG;
+			if(select("Tentar Novamente","Ignorar")==1) goto L_TG;
+			goto L_IG;
+			}
+			if(!#Friend || #Friend == 0) {
+			query_sql "UPDATE `login` SET `friend_sec1` = `"+@name+"` WHERE `account_id` = `"+getcharid(3)+"`";
+			set #Friend, 1;
+			goto M_Cont;
+			} else if(#Friend==1) {
+			query_sql "UPDATE `login` SET `friend_sec2` = `"+@name+"` WHERE `account_id` = `"+getcharid(3)+"`";
+			set #Friend, 2;
+			goto M_Cont;
+			} else if(#Friend==2) {
+			query_sql "UPDATE `login` SET `friend_sec3` = `"+@name+"` WHERE `account_id` = `"+getcharid(3)+"`";
+			set #Friend, 3;
+			goto M_Cont;
+			}			
+M_Cont:
+			if(#Friend==3) goto L_IG;
+			mes "Você Adicionou um amigo, é o mínimo, deseja adicionar outro ou ignorar essa parte ?";
+			if(select("Adicionar outro","Ignorar")==1) goto L_Input;
+L_IG:
+			next;
+			set #MyIp, query_sql "SELECT `last_ip` FROM `login` WHERE `account_id` = `"+getcharid(3)+"`";
+			mes "[Controlador de Contas]";
+			mes "Deseja guardar seu Zeny?";
+			if(select("Sim","Não")==2) goto L_See;
+			mes "Insira quanto";
+			input @zeny;
+			if(Zeny<@Zeny) {
+			mes "você não tem esse dinheiro, deseja tentar de novo?";
+			if(select("Sim","Não")==2) close;
+			goto L_Again;
+			}
+			set Zeny,Zeny-@Zeny;
+			set #MZeny, 0;
+			set #MZeny,#MZeny+@Zeny;
+L_See:
+			mes "Conta congelada !";
+			mes "Lembrando: sua senha de descongelamento é :";
+			mes "^FF0000"+#UnFree+"^000000";
+			if(!#Temp||#Temp==0) close;
+			mes "e sua senha temporária é :";
+			mes "^FF0000"+#Temp+"^000000";
+			close;
+}
+
+
+	OnClock0000:
+		set @User, getusers;
+		set @Percent, $@MaxUser / 100;
+		set @PercentPlayers, @Percent * @user;
+		if(@PercentPlayers >= $@MaxUser) end;
+		set @year, gettime(7);
+		set @mon, gettime(6);
+		set @day, gettime(5);
+		set @check, @mon * 30;
+		set @Today, @check + @day;
+		query_sql "DELETE FROM `login` WHERE `month_ban` >= `"+@Today+"` AND `year` <= `"+@year+"`";
+		query_sql "UPDATE `global_reg_value` SET `value`= `value` - 1  WHERE `str` = '#Freeze_Stats' AND `check_var` >=`"+@Today+"` and `year` <= `"+@year+"`";
+		end;
+
+		
+
+	OnPCLoginEvent:
+		if(!#Freeze_Stats || #Freeze_Stats<=0) end;
+		query_sql "SELECT `last_ip` FROM `login` WHERE `account_id` = `"+getcharid(3)+"`",@MyIp;
+		if(@MyIp==#MyIp) {
+		mes "[Controlador de Contas]";
+		mes "Olá sua conta ainda está congelada, "+strcharinfo(0)+" ";
+		if(!#Intruder||#Intruder==0) close;
+		callfunc "Intruder";
+		end;
+		}
+		query_sql "SELECT `friend_sec1` FROM `login` WHERE `account_id` = `"+getcharid(3)+"`", @sec1;
+		query_sql "SELECT `friend_sec2` FROM `login` WHERE `account_id` = `"+getcharid(3)+"`", @sec2;
+		query_sql "SELECT `friend_sec3` FROM `login` WHERE `account_id` = `"+getcharid(3)+"`", @sec3;
+		if(@sec1 == getcharid(3) || @sec2 == getcharid(3) || @sec 3 == getcharid(3)) end;
+		if(!#Temp || #Temp == 0) {
+		mes "[Controlador de Contas]";
+		mes "Está conta está bloqueiada, você não pode logar nela";
+		atcommand "@die";
+		atcommand "@kick " + strcharinfo(0);
+		close;
+		}
+		mes "[Controlador de Contas]";
+		mes "Está conta está congelada, Insira a Senha Temporária,";
+		mes "Para ter acesso à esta conta";
+		mes "Se você errar será kicado";
+		input @Pass;
+		if(@Pass!=#Temp) {
+		set @charid, getcharid(3);
+		if(!#pilaID) set #pilaID, 0;
+		set #pilaID,#pilaID+1;
+		query_sql "SELECT `last_ip` FROM `login` WHERE `account_id` = `"+getcharid(3)+"`",@MyIp;
+		query_sql "INSERT INTO `login` (`intruder`,`int_id`) VALUES (`"+@MyIp+"`,`"+#pilaID+"`) WHERE `last_ip` = `"+@MyIp+"`";
+		query_sql "SELECT `Int_Trys` FROM `login` WHERE `char_id` = `"+@charid+"`",@trys;
+		if(@trys==0) query_sql "UPDATE `login` SET `Int_Trys` = `1` WHERE `last_ip` = `"+@MyIp+"`";
+		set @trys, @trys+1;
+		query_sql "UPDATE `login` SET `Int_Trys` = `"+@trys+"` WHERE `last_ip` = `"+@MyIp+"`";
+		set #Intruder, 1;
+		atcommand "@die";
+		atcommand "@kick " + strcharinfo(0);
+		close;
+		}
+		mes "Senha Correta !";
+		mes "Autorização Concedida";
+		close;
+		
+		
+
+	OnPCLogoutEvent:
+		@mon, gettime(6);
+		if(@mon + $@MonToBan > 12 && !#Freeze_Stats) callfunc "UpDate",0;
+		if(@mon + $@MonToBan > 12 && #Freeze_Stats <= 0) callfunc "UpDate",0;
+		if(@mon + $@MonToBan > 12 && #Freeze_Stats >= 1) callfunc "UpDate",1;
+		if(!#Freeze_Stats||#Freeze_Stats<=0) {
+		set @lastm, gettime(6);
+		set @lasry, gettime(7);
+		query_sql "UPDATE `global_reg_value` SET `check_var` = `"+@lastm+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		query_sql "UPDATE `global_reg_value` SET `year` = `"+@lasty+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		query_sql "UPDATE `login` SET `month_ban` = `"+@lastm+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		query_sql "UPDATE `login` SET `year` = `"+@lasty+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		end;
+		} else if(#Freeze_Stats==1) {
+		set @lastm, gettime(6)+1;
+		set @lasry, gettime(7);
+		query_sql "UPDATE `global_reg_value` SET `check_var` = `"+@lastm+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		query_sql "UPDATE `global_reg_value` SET `year` = `"+@lasty+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		query_sql "UPDATE `login` SET `month_ban` = `"+@lastm+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		query_sql "UPDATE `login` SET `year` = `"+@lasty+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		end;
+		} else if(#Freeze_Stats==2) {
+		set @lastm, gettime(6)+2;
+		set @lasry, gettime(7);
+		query_sql "UPDATE `global_reg_value` SET `check_var` = `"+@lastm+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		query_sql "UPDATE `global_reg_value` SET `year` = `"+@lasty+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		query_sql "UPDATE `login` SET `month_ban` = `"+@lastm+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		query_sql "UPDATE `login` SET `year` = `"+@lasty+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		end;
+		} else {
+		set @lastm, gettime(6)+3;
+		set @lasry, gettime(7);
+		query_sql "UPDATE `global_reg_value` SET `check_var` = `"+@lastm+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		query_sql "UPDATE `global_reg_value` SET `year` = `"+@lasty+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		query_sql "UPDATE `login` SET `month_ban` = `"+@lastm+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		query_sql "UPDATE `login` SET `year` = `"+@lasty+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		query_sql "UPDATE `login` SET `month_ban` = `"+@lastm+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		end;
+		}
+		end;
+
+function	script	UpDate	{
+	switch(arg(0)) {
+	
+		case 0:
+		set @lastmc,$@MonToBan+gettime(6);
+		set @lastm, @lastmc - 12;
+		set @lasry, gettime(7)+1;
+		query_sql "UPDATE `global_reg_value` SET `check_var` = `"+@lastm+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		query_sql "UPDATE `global_reg_value` SET `year` = `"+@lasty+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		query_sql "UPDATE `login` SET `month_ban` = `"+@lastm+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		query_sql "UPDATE `login` SET `year` = `"+@lasty+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		end;
+
+		case 1:
+		set @lastmc,$@MonToBan+gettime(6);
+		set @lastmc2, @lastmc - 12;
+		set @lastm, @lastmc2 + #Freeze_Stats;
+		set @lasry, gettime(7)+1;
+		query_sql "UPDATE `global_reg_value` SET `check_var` = `"+@lastm+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		query_sql "UPDATE `global_reg_value` SET `year` = `"+@lasty+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		query_sql "UPDATE `login` SET `month_ban` = `"+@lastm+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		query_sql "UPDATE `login` SET `year` = `"+@lasty+"` WHERE `account_id` = `"+getcharid(3)+"`";
+		end;
+		}
+	end;
+	}
+
+function	script	Show_Intruder	{
+		next;
+		set @charid, getcharid(3);
+		query_sql "SELECT `Intruder` FROM `login` ORDER BY `Int_id` ",@IntID;
+		query_sql "SELECT `account_id` FROM `login` WHERE `last_ip` = `"+@IntID[0]+"`",@pilantraID;
+		query_sql "SELECT `name` FROM `char` WHERE `account_id` = `"+@pilantraID+"` DESC LIMIt 1",@pilantra;
+		mes "[Controlador de Contas]";
+		mes "Enquanto sua conta esteve congelada, alguns intrusos tentaram";
+		mes "entrar em sua conta e foram kicados, para não usá-las";
+		mes "Exatamente "+getarraysize(@IntID)+" Pessoas tentaram logar em sua conta";
+		next;
+		mes "[Controlador de Contas]";
+		mes "A Pessoa que mais tentou entrar em sua conta foi:";
+		mes "^FF0000"+@pilantra+"^000000";
+		query_sql "SELECT `Int_Trys` FROM `login` WHERE `last_ip` = `"+@intID[0]+"`",@Blocks;
+		mes "Ele(a) tentou por "@+Blocks+" vezes logar em sua conta e foi bloqueiado(a)";
+		mes "Ao Total, "+#pilaID+" Tentativas de Login em sua conta foram Bloqueadas";
+		mes "é recomendável que você tire uma foto dessa mensagem, apertando o botão \"PrintScreen\" de seu teclado";
+		next;
+		mes "[Controlador de Contas]";
+		mes "Deseja ver essa mensagem novamente ?";
+		if(select("Sim","Não")==2) close;
+		set #Intruder, 0;
+		close;
+		}
+
+OnInit:
+
+//		*************************
+//		*** - CONFIGURAÇÃO -  ***
+//		*************************
+
+		set $@MaxUser, 70;
+		set $@MonToBan, 3;
+		set $x_Zeny, 500000;
+		if($CreatTable==1) end;
+		set $CreatTable, 1;
+		query_sql "ALTERTABLE `login` ADD `month_ban` smallint(11) NOT NULL default '0'";
+		query_sql "ALTERTABLE `login` ADD `friend_sec1` smallint(11) NOT NULL default '0'";
+		query_sql "ALTERTABLE `login` ADD `friend_sec2` smallint(11) NOT NULL default '0'";
+		query_sql "ALTERTABLE `login` ADD `friend_sec3` smallint(11) NOT NULL default '0'";
+		query_sql "ALTERTABLE `login` ADD `Int_Trys` tinyint(1) NOT NULL default '0'";
+		query_sql "ALTERTABLE `global_reg_value` ADD `check_var` smallint(11) NOT NULL default '0'";
+		query_sql "ALTERTABLE `global_reg_value` ADD `year` smallint(11) NOT NULL default '0'";
+		end;
+
+}

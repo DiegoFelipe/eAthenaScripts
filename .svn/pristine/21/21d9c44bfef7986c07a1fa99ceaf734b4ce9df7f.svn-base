@@ -1,0 +1,48 @@
+-	script	ShinraTensei	{
+getmapxy(.@im$,.@ix,.@iy,0);
+set .@iAid,getcharid(3);
+set .@str,readparam(bStr);
+set .@int,readparam(bInt);
+	atcommand "@effect 457";
+	atcommand "@effect 376";
+	atcommand "@effect 400";
+	atcommand "@killer";
+	atcommand "@battleignore";
+	for(set .@l,1;.@l<=$PlayerNum; set .@l,.@l+1){
+		getmapxy(.@bm$,.@bx,.@by,0,getd("$RecordData"+.@l+"$"));
+		if( getcharid(3,getd("$RecordData"+.@l+"$")) != .@iAid && .@bx && .@bm$ == .@im$ && pow(.@bx-.@ix,2) <= pow($@ShinraTensei2_Atk_Rang,2) && pow(.@by-.@iy,2) <= pow($@ShinraTensei2_Atk_Rang,2) ){
+			attachrid(getcharid(3,getd("$RecordData"+.@l+"$")));			
+			heal -($@ShinraTensei2_Atk_Base+(.@str*.@int)+rand(0,(.@dlx+.@dly)*100)),0;
+			atcommand "@effect 303"; atcommand "@effect 2";
+			announce strcharinfo(0)+" : Shinra Tensei!!!",bc_self;
+			attachrid(.@iAid);
+			bonus bCastrate,-100;
+			unitskilluseid .@iAid,148,1,getcharid(3,getd("$RecordData"+.@l+"$"));
+			unitskilluseid .@iAid,148,1,getcharid(3,getd("$RecordData"+.@l+"$"));
+			unitskilluseid .@iAid,148,1,getcharid(3,getd("$RecordData"+.@l+"$"));
+		}
+	}
+	bonus bCastrate,100;
+	atcommand "@killer";
+	atcommand "@battleignore";
+	message strcharinfo(0),"Shinra Tensei!!";
+	end;
+}
+-	script	RecordAID	-1,{
+OnInit:
+	if(!getusers(1))while($PlayerNum > 0)setd "$RecordData"+(set($PlayerNum,$PlayerNum-1)+1)+"$","";
+	set $PlayerNum,0;
+	set $@ShinraTensei2_Atk_Base,10000;
+	set $@ShinraTensei2_Atk_Rang,10;	
+	end;
+OnPCLoginEvent:
+	setd "$RecordData"+set(@AIDNum,set($PlayerNum,$PlayerNum+1))+"$",strcharinfo(0);
+	end;
+OnPCLogoutEvent:
+	if($PlayerNum < 1)end;
+	setd "$RecordData"+set(.@AIDNum,@AIDNum)+"$",getd("$RecordData"+(set($PlayerNum,$PlayerNum-1)+1)+"$");
+	attachrid getcharid(3,getd("$RecordData"+@AIDNum+"$"));
+	setd "$RecordData"+@AIDNum+"$","";
+	set @AIDNum,.@AIDNum;
+	end;
+}

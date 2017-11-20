@@ -1,0 +1,613 @@
+/*	    ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___   
+	   /\  \     /\  \     /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\__\     /\  \  
+	   \:\  \   /::\  \   /::\  \   /:| _|_   /::\  \   /::\  \   /::\  \   /::\  \   /:| _|_   /:/ _/_   /::\  \ 
+	   /::\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/\:\__\ /:/\:\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/_/\__\ /\:\:\__\
+	  /:/\/__/ \:\:\/  / \:\ \/__/ \/|::/  / \:\/:/  / \:\ \/__/ \;:::/  / \:\/:/  / \/|::/  / \:\/:/  / \:\:\/__/
+	  \/__/     \:\/  /   \:\__\     |:/  /   \::/  /   \:\__\    |:\/__/   \::/  /    |:/  /   \::/  /   \::/  / 
+        	     \/__/     \/__/     \/__/     \/__/     \/__/     \|__|     \/__/     \/__/     \/__/     \/__/ 
+			          
+	*----------------------------------------- Hercules Script --------------------------------------------*
+	* Red x Blue Event										       *
+	*----------------------------------------------- By: --------------------------------------------------*
+	* TecnoCronus                                                                                          *
+	*----------------------------------------- Current Version: -------------------------------------------*
+	* 1.0												       *
+	*----------------------------------------- Compatible With: -------------------------------------------*
+	* eAthena		             								       *
+	*------------------------------------------- Description: ---------------------------------------------*
+	* A Event that start every day, at a random hour, the npc send global announce inviting players to     *
+	* join in the event, the player can't choose ur team, the npc choose the team that need more players   *
+	* All players are warped to the event map and have your colors changed to blue or red, according the   *
+	* team.												       *
+	*----------------------------------------- Additional Comments: ---------------------------------------*
+	* There's safe points where the player cann't be killed						       *
+	* Only use this event if you don't use Sealed Shrine or Another event/script that use 2@cata	       *
+	* If you still want to use w/ Sealed Shrine, change the maps					       *
+	*----------------------------------------------- changelog --------------------------------------------*
+	* http://trac.xp-dev.com/TC_Scripts/log/scripts/EN/PvP/RxB_eV.txt		       		       *
+	*------------------------------------------------------------------------------------------------------*/
+
+prontera,172,212,6	script	RedxBlue Master	939,{
+
+
+	mes "[^FF0000Red^000000x^0000FFBlue^000000 Master]";
+	mes "Hello ^996633"+strcharinfo(0)+"^000000";
+	mes "What you want here ?";
+
+	switch(select($@RxB_Stat > 0 ? "^FF0000":"^00FF00"+"->^000000 Enter on the Event","^0000FF->^000000 Information",$@RxB_Stat > 0 ? "^FF0000":"^00FF00"+"->^000000 Receive Reward","-> Nothing")) {
+	case 1:
+		if($@RxB_Stat > 0) {
+			soundeffect "CsIn.wav",0;
+			mes "^FF0000Red^000000 Team: ("+.@RxB_Rcount+") Members";
+			mes "^0000FFBlue^000000 Team: ("+.@RxB_Bcount+") Members";
+			mes "";
+			mes "You was selected to the "+.@RxB_Bcount > .@RxB_Rcount ? "^FF0000Red^000000" : "^0000FFBlue^000000"+"Team";
+			set @RxB_Team,(@RxB_Bcount > .@RxB_Rcount ? 1 : 2);
+			callfunc ("warp2rxb");
+		}
+
+		mes "The Event is not ready now.";
+		break;
+
+	case 2:
+
+		soundeffect "CsIn.wav",0;
+		mes "The Event start every day";
+		mes "It's a team based event";
+		mes "The duration of the event is 5 minutes";
+		next;
+		mes "[^FF0000Red^000000x^0000FFBlue^000000 Master]";
+		mes "The team who kills more will receive a reward";
+		mes "But you cant' choose one team, I'll choose one";
+		mes "When the event ends the Team that wins";
+		mes "Can come with me and take the reward";
+		break;
+
+	case 3:
+
+		if(##RxB_GotRew <= 0) {
+
+			callfunc ("RxB_CheckRew");
+			getitem $@RxBReward[0],$@RxBReward[1];
+			mes "Take this "+getitemname($@RxBReward[0])+" as reward !";
+			set ##RxB_GotRew, 1;
+			break;
+		}
+
+			mes "You already received or reward or you don't have one to receive";
+			break;
+
+	case 4:
+
+		soundeffect "CsIn.wav",0;
+		mes "So, have a good day.";
+		break;
+
+	}
+
+	close;
+	
+
+
+	OnMinute00:
+
+		if((gettime(5) != .DayEvent) && .RxB_TodayH == gettime(5)) callfunc ("RxB_StartEvent");
+		end;
+
+	OnClock0000:
+	OnInit:
+		set .@RxB_Bcount, 0;
+		set .@RxB_Rcount, 0;
+		set .RxB_TodayH, rand(23);
+		end;
+
+	Start:
+		initnpctimer;
+		announce "The Event will start now!",bc_map|0x00FF00;
+		end;
+
+	OnTimer300000:
+		announce "The Event is Over now, Congratulation "+($RxB_Bpoints > $RxB_Rpoints ? "Blue" : "Red")+" Team !",bc_all|0x00FF00;
+		sleep 5000;
+		announce "Talk to the Event Master to receive your reward "+($RxB_Bpoints > $RxB_Rpoints ? "Blue" : "Red")+" Team !",bc_all|0x00FF00;
+		end;
+}
+	
+2@cata,47,101,4	script	EPvPEffect#1	802,0,0,{
+	end;
+
+	OnTouch:
+	if(EvBugFix > 0)
+	callfunc("EvInvensible");
+	end;
+}
+2@cata,47,100,4	script	EPvPEffect#2	802,0,0,{
+	
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+}
+2@cata,47,99,4	script	EPvPEffect#3	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,47,98,4	script	EPvPEffect#4	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,46,98,4	script	EPvPEffect#5	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,45,98,4	script	EPvPEffect#6	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,44,98,4	script	EPvPEffect#7	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,112,101,4	script	EPvPEffect#8	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,112,100,4	script	EPvPEffect#9	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,112,99,4	script	EPvPEffect#10	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,112,98,4	script	EPvPEffect#11	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,113,98,4	script	EPvPEffect#12	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,114,98,4	script	EPvPEffect#13	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,115,98,4	script	EPvPEffect#14	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,112,33,4	script	EPvPEffect#15	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,113,33,4	script	EPvPEffect#16	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,114,33,4	script	EPvPEffect#17	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,115,33,4	script	EPvPEffect#18	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,112,32,4	script	EPvPEffect#19	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,112,32,4	script	EPvPEffect#20	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,112,31,4	script	EPvPEffect#21	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,112,30,4	script	EPvPEffect#22	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,47,33,4	script	EPvPEffect#23	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,46,33,4	script	EPvPEffect#24	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,45,33,4	script	EPvPEffect#25	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,44,33,4	script	EPvPEffect#26	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,47,32,4	script	EPvPEffect#27	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,47,31,4	script	EPvPEffect#28	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,47,30,4	script	EPvPEffect#29	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,43,33,4	script	EPvPEffect#30	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,47,29,4	script	EPvPEffect#31	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,112,29,4	script	EPvPEffect#32	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,116,33,4	script	EPvPEffect#33	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,116,98,4	script	EPvPEffect#34	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,112,102,4	script	EPvPEffect#35	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,47,102,4	script	EPvPEffect#36	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+2@cata,43,98,4	script	EPvPEffect#37	802,0,0,{
+		
+	end;
+
+	OnTouch:
+	callfunc("EvInvensible");
+	end;
+
+}
+-	script	EvilPvPLabel	-1,{
+
+	end;
+
+	OnPCDieEvent:
+		getmapxy(@m$,@x,@y,0);
+		if(@m$!="2@cata") end;
+		if(rand(99) <= 30) soundeffect "devil_laught.wav",0;
+		end;
+
+	OnPCLoadMapEvent:
+		getmapxy(@m$,@x,@y,0);
+		if(@m$!="2@cata") end;
+		callfunc("EvilPvPLoad");
+		end;
+
+	OnPCKillEvent:
+
+		getmapxy(@m$,@x,@y,0);
+		if(@m$ == "2@cata" && $@RxB_Stat > 0) {
+
+			if(@RxB_Team == 2)
+
+				set $RxB_Bpoints,$RxB_Bpoints +1;
+			else
+				set $RxB_Rpoints,$RxB_Rpoints +1;
+		}
+		end;
+
+	OnInit:
+
+		// Item id (Reward)
+		setarray $@RxBReward[0],504;
+
+		// amount of reward
+		setarray $@RxBReward[1], 1;
+
+		end;
+
+}
+
+// ************************************************************************
+// ***               MAPFLAGS                                           ***
+// ************************************************************************
+
+2@cata	mapflag	loadevent
+2@cata	mapflag	nowarp
+2@cata	mapflag	nowarpto
+2@cata	mapflag	notrade
+2@cata	mapflag	nosave
+
+
+// ************************************************************************
+// ***               LOADING FUNCTION                                   ***
+// ************************************************************************
+
+
+function	script	EvilPvPLoad	{
+
+	message strcharinfo(0),"Wait 5 Seconds...";
+	cutin "c_5",2;
+	soundeffect "warning.wav",0;
+	soundeffect "s_005.wav",0;
+	sleep2 900;
+	cutin "",255;
+	cutin "c_4",2;
+	soundeffect "s_004.wav",0;
+	sleep2 900;
+	cutin "",255;
+	cutin "c_3",2;
+	soundeffect "s_003.wav",0;
+	sleep2 900;
+	cutin "",255;
+	cutin "c_2",2;
+	soundeffect "s_002.wav",0;
+	sleep2 900;
+	cutin "",255;
+	cutin "c_1",2;
+	soundeffect "s_001.wav",0;
+	sleep2 400;
+	cutin "",255;
+	cutin "c_go",4;
+	sleep2 400;
+	cutin "",255;
+	announce "The "+@RxB_Team == 1 ? "Red" : "Blue"+" Team is counting with you !",bc_self,0x00FF00;
+	return;
+}
+
+
+function	script	EvInvensible	{
+		dispbottom "oi";
+		if(EvEffect > 0) {
+			sc_end SC_INVINCIBLE;
+			set EvEffect, 0;
+			dispbottom "Without protection";
+		} else {
+			sc_start SC_INVINCIBLE,3600000,0;
+			set EvEffect, 1;
+			dispbottom "protected";
+		}
+	end;
+}
+function	script	warp2rxb	{
+
+	setlook 6,(@RxB_Team == 2 ? 5 : 8);
+
+	if(@RxB_Team == 2) {
+
+		set .@RxB_Bcount,.@RxB_Bcount + 1;
+		set $@RxB_cid[$@Bindex],getcharid(0);
+		set $@Bindex,$@Bindex+1;
+	}
+	if(@RxB_Team == 1) {
+
+			set .@RxB_Rcount,.@RxB_Rcount + 1;
+			set $@RxB_cid2[$@Rindex],getcharid(0);
+			set $@Rindex,$@Rindex+1;
+	}
+	set $@RxB_Tcount,$@RxB_Tcount + 1;
+	if(##RxB_GotRew > 0) set ##RxB_GotRew, 0;
+	close;
+	
+
+}
+
+function	script	RxB_StartEvent	{
+
+	announce "The Red x Blue event registration is avaliable now ! Talk to the RedxBlue Master at prontera to join the event",bc_all|0x00FF00;
+	set .DayEvent, gettime(5);
+
+	initnpctimer;
+	end;
+
+	OnTimer60000:
+		if($@RxB_Tcount < 10 && $@RxB_Stat > 0)
+
+			announce "We Need more players to start the Red x Blue event ! talk to the master of the event at prontera to join the even ",bc_all|0x00FF00;
+
+		else if($@RxB_Tcount >= 10 && $@RxB_Stat > 0) {
+
+				set $@RxB_Stat, 1;
+				announce "The Red x Blue team is ready ! talk to the Red x Blue Master at Prontera to Join!",bc_all|0x00FF00;
+				donpcevent "RedxBlue Master::Start";
+				stopnpctimer;
+				cleararray $@RxB_cid[0],0,getarraysize($@RxB_cid);
+				cleararray $@RxB_cid2[0],0,getarraysize($@RxB_cid2);
+				set $@Bindex,0;
+				set $@Rindex,0;
+		}
+		setnpctimer 0;
+		end;
+		
+
+}
+function	script	RxB_CheckRew	{
+
+	set @loops, (getarraysize($@RxB_cid2) > getarraysize($@RxB_cid) ? getarraysize($@RxB_cid2) : getarraysize($@RxB_cid));
+	for (set @l, 0; @l <= @loop; set @l, @l + 1)
+		if(getcharid(0) == $@RxB_cid2[@l] || getcharid(0) == $@RxB_cid[@l]) {
+			set @RxB_go, 1;
+			break;
+		}
+	if(@RxB_go > 0) return;
+	mes "I am sorry but you don't participe on the last event";
+	close;
+
+}

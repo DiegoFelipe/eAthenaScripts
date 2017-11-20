@@ -1,0 +1,31 @@
+prontera,174,215,6	script	LevConverter	718,{
+
+	mes "[Converter]";
+	mes "Hi, I'm working around here now";
+	mes "I can convert "+getitemname(20001)+" into cash points.";
+	mes "Are you intersted in trade ?";
+	if(select("Yes:No") == 1) {
+		mes "For each "+getitemname(20001)+" you get "+.@Prize+" cash points";
+		mes "Type the amount:";
+		input @amount;
+		if(countitem(20001) >= @amount) {
+			mes "Continue ?";
+			if(select("Yes:No") == 1) {
+				set @todel, .@prize * @amount;
+				set #CASHPOINTS, #CASHPOINTS + @todel;
+				delitem 20001,@todel;
+				mes "Done.";
+			} else {
+				mes "Ok, com eback when you want.";
+			}
+		} else {
+			mes "You haven't the amount that you typed.";
+		}
+	} else {
+		mes "Come back when you get interested.";
+	}
+	close;
+
+	OnInit:
+		set .@Prize, 3; // set here the amount
+}

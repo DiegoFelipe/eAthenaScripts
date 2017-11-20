@@ -1,0 +1,66 @@
+-	script	broadcastall	-1,{
+
+	cutin "kafra_7",2;
+	mes "[Kafra]";
+
+	if(Zeny < .@Zeny) {
+
+		mes "I'm sorry but you haven't enought zeny";
+	}
+
+		
+	if(bcdelay >= gettimetick(2)) {
+
+		mes "Wait until the end of delay";
+		mes "To send messages again";
+		close2;
+
+	} else {
+
+		mes "Please, input the mesage that you want to announce";
+		input @mes$;
+		next;
+
+		mes "[Kafra]";
+		mes "It will cost "+.@Zeny+" Zenys";
+		mes "Continue ?";
+
+		if(select("Yes:No")==1) {
+
+			set Zeny, Zeny - .@Zeny;
+			mes "Choose now the announce collor:";
+
+			switch(select("Red","Green","Blue")) {
+
+			case 1: announce @mes$,0xFF0000|bc_all; break;
+			case 2: announce @mes$,0x00FF00|bc_all; break;
+			case 3: announce @mes$,0x0000FF|bc_all; break;
+
+			}
+
+			set bcdelay, gettimetick(2) + (.@delay*60);
+	
+			mes "Thanks for using our services !!!";
+			mes "Have a good "+(isday() == 1 ? "day" : "night")+" "+strcharinfo(0);
+
+			cutin "",255;
+			close;
+
+		}
+
+		mes "No problem, come back when you wish";
+		mes "Have a good "+(isday() == 1 ? "day" : "night")+" "+strcharinfo(0);
+
+	}
+
+	cutin "",255;
+	end;
+
+	OnInit:
+
+//	Amount of zeny need
+	set .@Zeny, 1000000;
+
+//	Delay time, in minutes
+	set .@Delay, 3;
+}

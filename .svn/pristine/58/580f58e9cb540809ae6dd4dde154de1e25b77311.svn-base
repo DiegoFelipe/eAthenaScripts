@@ -1,0 +1,524 @@
+//===== eAthena Script =======================================
+//= Treasure Hunter Script
+//===== Converted By =========================================
+//= Fredzilla
+//= Original
+//////////////////////////////////////////////////////////////
+//                  Treasure Hunter Quests                  //
+//                       By: Ezekial                        //
+//             for the use on nRO run by Newbe5             //
+//                    revised By Warlock                    //
+//////////////////////////////////////////////////////////////
+//===== Version ==============================================
+//= 1.2
+//===== Compatible With ======================================
+//= eAthena 1.0
+//===== Description ==========================================
+//= Start for Treasure hunter quests
+//===== Comments =============================================
+//= Event_THQS - Used to check if you have already registered
+//= #Treasure_Token - used to keep track of tokens
+//= v1.0 - Straight conversion of Aegis NPC file
+//= v1.1 - balanced some prices, fixed 1 missing label
+//= 	removed Executioner&Mysteltain swords [Lupus]
+//= v1.2 - Adapted to Portuguese Language [TecnoCronus]
+//============================================================
+
+prt_in,159,172,0	warp	thqwrp	3,3,yuno_in01,123,155
+
+prt_in,164,174,1	script	Loja dos Caçadores de Tesouro	65,{
+	mes "[Ash]";
+	mes "Ahh, "+strcharinfo(0)+"! Bem-vido ao shop oficial do clã dos Caçadores de Tesouro.";
+	mes "Você tem agora ^FF0000"+#Treasure_Token+"^000000 Pontos de Tesouro!!!";
+	next;
+	menu "Como isso funciona?",-,"O que você tem guardado?",N_Shop,"... Sair",N_NVM;
+	mes "[Ash]";
+	mes "Bem, como você pode ver, aqui você pode trocar seus Pontos de Tesouro por Dinheiro, Cartas ou Armas raras.";
+	mes " ";
+	mes "Cada coisa tem seu próprio preço e o único jeito de vo^ce conseguir Pontos de Tesouro é completando as missões feita por você, o sistema normalmente trabalha assim.";
+	mes " ";
+	mes "Quanto mais difícil é a missão mais Pontos de Tesouros você ganhará. Todas missões em Vermelho valem 4-8 Pontos de Tesouro e o resto vale 1-5.";
+	mes " ";
+	mes "Espero que isto tenha resolvido seus problemas e suas perguntas";
+	close;
+N_NVM:
+	close;
+	end;
+N_Shop:
+//This is when it gets hard :)
+	mes "[Ash]";
+	mes "Ok aqui está uma grande lista de Coisas Boas.";
+	mes " ";
+	mes "(Nota: T representa Pontos de Tesouro.)";
+	next;
+	menu "Trocar por dinheiro",-,"Trocar por armas",N_BuyWeps,"Trocar por Cartas",N_BuyCards,"Sair",N_NVM;
+	mes "[Ash]";
+	mes "Isso é o que nós temos a oferecer.";
+	next;
+	menu "1000z - 1T",-,"10000z - 10T",N_10T,"100000z - 100T",N_100T,"Nevermind",N_NVM;
+	if (#Treasure_Token > 0) goto N_GetZeny1k;
+	mes "O Quê? Você não tem Pontos de Tesouro!";
+	close;
+N_GetZeny1k:
+	set #Treasure_Token,#Treasure_Token-1;
+	set zeny,zeny+1000;
+	close;
+N_10T:
+	if (#Treasure_Token > 9) goto N_GetZeny10k;
+	mes "Hmm, você não tem nenhum Ponto de Tesouro!";
+	close;
+N_GetZeny10k:
+	set #Treasure_Token,#Treasure_Token-10;
+	set zeny,zeny+10000;
+	close;
+N_100T:
+	if (#Treasure_Token > 99) goto N_GetZeny100k;
+	mes "Hmm, você não tem nenhum Ponto de Tesouro!";
+	close;
+N_GetZeny100k:
+	set #Treasure_Token,#Treasure_Token-100;
+	set zeny,zeny+100000;
+	close;
+
+N_BuyWeps:
+	mes "[Ash]";
+	mes "Isso é o que nós temos a oferecer.";
+	next;
+	menu "Machados",-,"Espadas de uma Mão",N_1HandSword,"Espadas de duas Mãos",N_2HandSword,"Livros",N_Book,"Arcos",N_Bow,"Katar's",N_Katar,"Protetores de Punho",N_Knuckle,"Maças",N_Mace,"Whips",N_Whip,"Wands",Bastões,"Nevermind",N_NVM;
+
+	mes "[Ash]";
+	mes "Isso é o que nós temos a oferecer.";
+	next;
+	menu "Sabbath - 160T",-,"Carniceiro - 160T",N_Slau,"Tacape - 180T",N_Toma,"Machado Grande - 200T",N_GreatA,"Guilhotina - 200T",N_Guill,"Sair",N_NVM;
+
+	if (#Treasure_Token < 160) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-160;
+	getitem 1365,1;
+	logmes "Pontos de Tesouro: comprou uma Sabbath";
+	close;
+N_Slau:
+	if (#Treasure_Token < 160) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-160;
+	getitem 1367,1;
+	logmes "Pontos de Tesouro: comprou uma Tacape";
+	close;
+N_Toma:
+	if (#Treasure_Token < 180) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-180;
+	getitem 1368,1;
+	logmes "Pontos de Tesouro: comprou uma Tomahawk";
+	close;
+N_GreatA:
+	if (#Treasure_Token < 200) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-200;
+	getitem 1364,1;
+	logmes "Pontos de Tesouro: comprou um Machado Grande";
+	close;
+N_Guill:
+	if (#Treasure_Token < 200) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-200;
+	getitem 1369,1;
+	logmes "Pontos de Tesouro: comprou uma Guilhotina";
+	close;
+N_NeedToken:
+	mes "[Ash]";
+	mes "Você não tem Pontos de Tesouros suficientes!";
+	close;
+
+
+N_1HandSword:
+	mes "[Ash]";
+	mes "Isso é o que nós temos a oferecer.";
+	next;
+	menu "Lamina Afiada - 130T",-,"Espada Solar - 150T",N_SolarS,"Espada de César - 170T",N_CaesarS,"Nagan - 180T",N_Nagan,"Espada Imaterial - 200T",N_ImmatS,"Excalibur - 200T",N_Excal,"Byeollungum - 240T",N_Byeoll,"Talefing - 320T",N_Talef,"Sair",N_NVM;
+
+	if (#Treasure_Token < 130) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-130;
+	getitem 1132,1;
+	logmes "Pontos de Tesouro: comprou uma Lâmina Afiada";
+	close;
+N_SolarS:
+	if (#Treasure_Token < 150) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-150;
+	logmes "Pontos de Tesouro: comprou uma Espada Solar";
+	getitem 1136,1;
+	close;
+N_CaesarS:
+	if (#Treasure_Token < 170) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-170;
+	logmes "Pontos de Tesouro: comprou uma Espada de César";
+	getitem 1134,1;
+	close;
+N_Nagan:
+	if (#Treasure_Token < 180) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-180;
+	logmes "Pontos de Tesouro: comprou uma Nagan";
+	getitem 1130,1;
+	close;
+N_ImmatS:
+	if (#Treasure_Token < 200) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-200;
+	logmes "Pontos de Tesouro: comprou uma Espada Imaterial";
+	getitem 1141,1;
+	close;
+N_Excal:
+	if (#Treasure_Token < 200) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-200;
+	logmes "Pontos de Tesouro: comprou uma Excalibur";
+	getitem 1137,1;
+	close;
+N_Byeoll:
+	if (#Treasure_Token < 240) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-240;
+	logmes "Pontos de Tesouro: comprou uma Byeollungum";
+	getitem 1140,1;
+	close;
+N_Talef:
+	if (#Treasure_Token < 320) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-320;
+	logmes "Pontos de Tesouro: comprou uma Talefing";
+	getitem 1139,1;
+	close;
+
+
+N_2HandSword:
+	mes "[Ash]";
+	mes "Isso é o que nós temos a oferecer.";
+	next;
+	menu "Matadora de Dragões - 140T",-,"Schweizersabel - 200T",N_Schwe,"Katzbalger - 300T",N_Katzb,"Muramasa - 300T",N_Murama,"Masamune - 400T",N_Masamu,"Balmung - 2000T",N_Balmu,"Sair",N_NVM;
+
+	if (#Treasure_Token < 140) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-140;
+	logmes "Pontos de Tesouro: comprou uma Matadora de Dragões";
+	getitem 1166,1;
+	close;
+N_Schwe:
+	if (#Treasure_Token < 200) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-200;
+	logmes "Pontos de Tesouro: comprou uma Schweizersabel";
+	getitem 1167,1;
+	close;
+N_Katzb:
+	if (#Treasure_Token < 300) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-300;
+	logmes "Pontos de Tesouro: comprou uma Katzbalger";
+	getitem 1170,1;
+	close;
+N_Murama:
+	if (#Treasure_Token < 300) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-300;
+	logmes "Pontos de Tesouro: comprou uma Muramasa";
+	getitem 1164,1;
+	close;
+N_Masamu:
+	if (#Treasure_Token < 400) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-400;
+	logmes "Pontos de Tesouro: comprou uma Masamune";
+	getitem 1165,1;
+	close;
+N_Balmu:
+	if (#Treasure_Token < 2000) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-2000;
+	logmes "Pontos de Tesouro: comprou uma Balmung";
+	getitem 1161,1;
+	close;
+
+
+N_Book:
+	mes "[Ash]";
+	mes "Isso é o que temos a oferecer.";
+	next;
+	menu "Livro do Sol Ardente - 80T",-,"Livro das Ondas - 80T",N_RoughSea,"Livro do golpe de vento - 80T",N_DryWinds,"Livro da Mãe Terra - 80T",N_RipeEarth,"Livro do Apocalipse - 80T",N_Revela,"Bíblia - 90T",N_Bible,"Tabela - 120T",N_Tablet,"Sair",N_NVM;
+
+	if (#Treasure_Token < 80) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-80;
+	logmes "Pontos de Tesouro: comprou um Livro do Sol Ardente";
+	getitem 1555,1;
+	close;
+N_RoughSea:
+	if (#Treasure_Token < 80) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-80;
+	logmes "Pontos de Tesouro: comprou um Livro das Ondas";
+	getitem 1553,1;
+	close;
+N_DryWinds:
+	if (#Treasure_Token < 80) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-80;
+	logmes "Pontos de Tesouro: comprou um Livro do golpe de vento";
+	getitem 1556,1;
+	close;
+N_RipeEarth:
+	if (#Treasure_Token < 80) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-80;
+	logmes "Pontos de Tesouro: comprou um Livro da Mãe Terra";
+	getitem 1554,1;
+	close;
+N_Revela:
+	if (#Treasure_Token < 80) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-80;
+	logmes "Pontos de Tesouro: comprou um Livro do Apocalipse";
+	getitem 1557,1;
+	close;
+N_Bible:
+	if (#Treasure_Token < 90) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-90;
+	logmes "Pontos de Tesouro: comprou uma Bíblia";
+	getitem 1551,1;
+	close;
+N_Tablet:
+	if (#Treasure_Token < 120) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-120;
+	logmes "Pontos de Tesouro: comprou uma Tabela";
+	getitem 1552,1;
+	close;
+
+N_Bow:
+	mes "[Ash]";
+	mes "Isso é o que nós temos a oferecer.";
+	next;
+	menu "Arco de Rudra - 150T",-,"Arco de Besta Veloz - 150T",N_Rogue,"Nada",N_NVM;
+
+	if (#Treasure_Token < 150) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-150;
+	logmes "Pontos de Tesouro: comprou um Arco de Rudra";
+	getitem 1720,1;
+	close;
+N_Rogue:
+	if (#Treasure_Token < 150) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-150;
+	logmes "Pontos de Tesouro: comprou um Arco de Besta Veloz";
+	getitem 1719,1;
+	close;
+
+N_Katar:
+	mes "[Ash]";
+	mes "TIsso é o que nós temos a oferecer.";
+	next;
+	menu "Katar da Chama Impetuosa - 70T",-,"Katar Gélida - 70T",N_ColdIce,"Katar do Vento Perfurante - 70T",N_PiercWind,"Katar da Espinheira Empoeirada - 70T",N_DustyT,"Fêmur Afinado de Carniça - 125T",N_Legbone,"Infiltrador - 150T",N_Infiltra,"Sair",N_NVM;
+
+	if (#Treasure_Token < 70) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-70;
+	logmes "Pontos de Tesouro: comprou uma Katar da Chama Impetuosa";
+	getitem 1258,1;
+	close;
+N_ColdIce:
+	if (#Treasure_Token < 70) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-70;
+	logmes "Pontos de Tesouro: comprou uma Katar Gélida";
+	getitem 1256,1;
+	close;
+N_PiercWind:
+	if (#Treasure_Token < 70) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-70;
+	logmes "Pontos de Tesouro: comprou uma Katar do Vento Perfurante";
+	getitem 1259,1;
+	close;
+N_DustyT:
+	if (#Treasure_Token < 70) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-70;
+	logmes "Pontos de Tesouro: comprou uma Katar da Espinheira Empoeirada";
+	getitem 1257,1;
+	close;
+N_Legbone:
+	if (#Treasure_Token < 125) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-125;
+	logmes "Pontos de Tesouro: comprou um Fêmur Afinado de Carniça";
+	getitem 1260,1;
+	close;
+N_Infiltra:
+	if (#Treasure_Token < 150) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-150;
+	logmes "Pontos de Tesouro: comprou umaInfiltrador";
+	getitem 1261,1;
+	close;
+
+N_Knuckle:
+	mes "[Ash]";
+	mes "Isso é o que nós temos a oferecer.";
+	next;
+	menu "Punhos do Kaiser - 75T",-,"Fúria Insana - 75T",N_Berserk,"Sair",N_NVM;
+
+	if (#Treasure_Token < 75) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-75;
+	logmes "Pontos de Tesouro: comprou uma Punhos do Kaiser";
+	getitem 1813,1;
+	close;
+N_Berserk:
+	if (#Treasure_Token < 75) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-75;
+	logmes "Pontos de Tesouro: comprou uma Fúria Insana";
+	getitem 1814,1;
+	close;
+
+N_Mace:
+	mes "[Ash]";
+	mes "Isso é o que nós temos a oferecer.";
+	next;
+	menu "Clavas com Espetos - 65T",-,"Maça de Talho - 90T",N_Slash,"Grande Cruz - 100T",N_GrandC,"Quatrilho - 110T",N_Quadr,"Mjolnir - 1000T",N_MJ,"Sair",N_NVM;
+
+	if (#Treasure_Token < 65) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-65;
+	logmes "Pontos de Tesouro: comprou uma Clavas com Espetos";
+	getitem 1523,1;
+	close;
+N_Slash:
+	if (#Treasure_Token < 90) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-90;
+	logmes "Pontos de Tesouro: comprou uma Maça de Talho";
+	getitem 1526,1;
+	close;
+N_GrandC:
+	if (#Treasure_Token < 100) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-100;
+	logmes "Pontos de Tesouro: comprou uma Grande Cruz";
+	getitem 1528,1;
+	close;
+N_Quadr:
+	if (#Treasure_Token < 110) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-110;
+	logmes "Pontos de Tesouro: comprou uma Quatrilho";
+	getitem 1527,1;
+	close;
+N_MJ:
+	if (#Treasure_Token < 1000) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-1000;
+	logmes "Pontos de Tesouro: comprou uma Mjolnir";
+	getitem 1530,1;
+	close;
+
+N_Whip:
+	mes "[Ash]";
+	mes "Isso é o que nós temos a oferecer.";
+	next;
+	menu "Rosa Fustigante - 50T",-,"Chicote de Aço - 65T",N_Chemeti,"Sair",N_NVM;
+
+	if (#Treasure_Token < 50) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-50;
+	logmes "Pontos de Tesouro: comprou uma Rosa Fustigante";
+	getitem 1963,1;
+	close;
+N_Chemeti:
+	if (#Treasure_Token < 65) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-65;
+	logmes "Pontos de Tesouro: comprou uma Chicote de Aço";
+	getitem 1964,1;
+	close;
+
+N_Wand:
+	mes "[Ash]";
+	mes "Isso é o que nós temos a oferecer.";
+	next;
+	menu "Cajado do Poder - 90T",-,"Cajado da Feiticeira - 150T",N_Wizardry,"Vara de Osso - 110T",N_BoneW,"Cajado da Alma - 120T",N_SOSoul,"Sair",N_NVM;
+
+	if (#Treasure_Token < 90) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-90;
+	logmes "Pontos de Tesouro: comprou um Cajado do Poder";
+	getitem 1613,1;//Items: Mighty_Staff,
+	close;
+N_Wizardry:
+	if (#Treasure_Token < 150) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-150;
+	logmes "Pontos de Tesouro: comprou um Cajado da Feiticeira";
+	getitem 1473,1;//Items: Wizardy_Staff,
+	close;
+N_BoneW:
+	if (#Treasure_Token < 110) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-110;
+	logmes "Pontos de Tesouro: comprou uma Vara de Osso";
+	getitem 1615,1;//Items: Bone_Wand,
+	close;
+N_SOSoul:
+	if (#Treasure_Token < 120) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-120;
+	logmes "Pontos de Tesouro: comprou um Cajado da Alma";
+	getitem 1472,1;//Items: Staff_of_Soul,
+	close;
+
+N_BuyCards:
+	mes "[Ash]";
+	mes "Isso é o que nós temos a oferecer. Todas Cartas custam 300T";
+	next;
+	menu "Poring (Carta) - 2T",-,"Pasana (Carta) - 420T",N_CPasana,"Dokebi (Carta) - 420T",N_CDok,"Swordfish (Carta) - 420T",N_CSFish,
+		"Sandman (Carta) - 420T",N_CSMan,"Drainliar (Carta) - 360T",N_CDrain,"Kaho (Carta) - 360T",N_CKaho,"Mandragora (Carta) - 360T",N_CMand,
+		"Vadon (Carta) - 360T",N_CVadon,"Mummy (Carta) - 540T",N_CMummy,"Zenorc (Carta) - 240T",N_CZeno,"Condor (Carta) - 240T",N_CCond,
+		"Zombie (Carta) - 210T",N_CZomb,"Sair",N_NVM;
+
+	if (#Treasure_Token < 2) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-2;
+	logmes "Pontos de Tesouro: comprou uma Poring (Carta)";
+	getitem 4001,1;//Items: Poring_Card,
+	close;
+
+N_CPasana:
+	if (#Treasure_Token < 420) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-420;
+	logmes "Pontos de Tesouro: comprou uma Pasana (Carta)";
+	getitem 4099,1;//Items: Pasana_Card,
+	close;
+N_CDok:
+	if (#Treasure_Token < 420) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-420;
+	logmes "Pontos de Tesouro: comprou uma Dokebi (Carta)";
+	getitem 4098,1;//Items: Dokebi_Card,
+	close;
+N_CSFish:
+	if (#Treasure_Token < 420) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-420;
+	logmes "Pontos de Tesouro: comprou uma Swordfish (Carta)";
+	getitem 4089,1;//Items: Sword_Fish_Card,
+	close;
+N_CSMan:
+	if (#Treasure_Token < 420) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-420;
+	logmes "Pontos de Tesouro: comprou uma Sandman (Carta)";
+	getitem 4101,1;//Items: Sand_Man_Card,
+	close;
+N_CDrain:
+	if (#Treasure_Token < 360) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-360;
+	logmes "Pontos de Tesouro: comprou uma Drainliar (Carta)";
+	getitem 4069,1;//Items: Drainliar_Card,
+	close;
+N_CKaho:
+	if (#Treasure_Token < 360) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-360;
+	logmes "Pontos de Tesouro: comprou uma Kaho (Carta)";
+	getitem 4065,1;//Items: Kaho_Card,
+	close;
+N_CMand:
+	if (#Treasure_Token < 360) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-360;
+	logmes "Pontos de Tesouro: comprou uma Mandragora (Carta)";
+	getitem 4030,1;//Items: Mandragora_Card,
+	close;
+N_CVadon:
+	if (#Treasure_Token < 360) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-360;
+	logmes "Pontos de Tesouro: comprou uma Vadon (Carta)";
+	getitem 4049,1;//Items: Vadon_Card,
+	close;
+N_CMummy:
+	if (#Treasure_Token < 540) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-540;
+	logmes "Pontos de Tesouro: comprou uma Mummy (Carta)";
+	getitem 4106,1;//Items: Mummy_Card,
+	close;
+N_CZeno:
+	if (#Treasure_Token < 240) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-240;
+	logmes "Pontos de Tesouro: comprou uma Zenorc (Carta)";
+	getitem 4096,1;//Items: Zenorc_Card,
+	close;
+N_CCond:
+	if (#Treasure_Token < 240) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-240;
+	logmes "Pontos de Tesouro: comprou uma Condor (Carta)";
+	getitem 4015,1;//Items: Condor_Card,
+	close;
+N_CZomb:
+	if (#Treasure_Token < 210) goto N_NeedToken;
+	set #Treasure_Token,#Treasure_Token-210;
+	logmes "Pontos de Tesouro: comprou uma Zombie (Carta)";
+	getitem 4038,1;//Items: Zombie_Card,
+	close;
+}

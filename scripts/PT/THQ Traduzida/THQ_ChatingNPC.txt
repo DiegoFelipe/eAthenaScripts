@@ -1,0 +1,57 @@
+//===== eAthena Script =======================================
+//= Treasure Hunter Script
+//===== Converted By =========================================
+//= Fredzilla
+//= Original
+//////////////////////////////////////////////////////////////
+//                  Treasure Hunter Quests                  //
+//                       By: Ezekial                        //
+//             for the use on nRO run by Newbe5             //
+//                    revised By Warlock                    //
+//////////////////////////////////////////////////////////////
+//===== Version ==============================================
+//= 1.1 -  Adapted to Portguese Language [TecnoCronus]
+//= 1.0 - Straight conversion of Aegis NPC file
+//===== Compatible With ======================================
+//= eAthena 1.0
+//===== Description ==========================================
+//= Start for Treasure hunter quests
+//===== Comments =============================================
+//= 1.1 - Retired some NPCs without function [TecnoCronus].
+//= 1.0 - Event_THQS - Used to check if you have already registered
+//= #Treasure_Token - used to keep track of tokens
+//============================================================
+
+
+//Entrance Flags
+yuno,48,101,6	script	Noticia	722,{
+	mes "^FF0000[ Casa dos Caçadores de Tesouro ]^000000";
+	mes " ";
+	mes "Bem-vindo à casa dos Caçadores de Tesouro.";
+	mes "Fique à vontade para entrar e dar uma olhada";
+	mes "e sinta-se livre para torna-se um membro se quiser.";
+	mes " ";
+	mes "Para aplicações de membros fale com Keegan";
+	mes "Acima dos degraus e debaixo do Salão.";
+	close;
+}
+//Saver Girl;
+yuno_in01,32,178,3	script	Ahlma	94,{
+	mes "[Ahlma]";
+	if (Event_THQS == 0) goto N_Member;
+	mes "Bem-vindo à casa dos Caçadores de Tesouro.";
+	mes "Como posso te ajudar?";
+	next;
+	menu "Salvar",-,"Sair",N_Quit;
+	mes "[Ahlma]";
+	mes "Ok, salvo. Obrigado, Te vejo mais tarde";
+	savepoint "yuno_in01",34,176;
+	close;
+N_Quit:
+	mes "[Ahlma]";
+	mes "Se você acha que está salvo, melhor pra você.";
+	close;
+N_Member:
+	mes "Desculpe, você não é um membro do Clã de Caçadores de Tesouro.";
+	close;
+}

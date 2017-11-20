@@ -1,0 +1,33 @@
+//===== Cronus / eAthena Script ==============================
+//= Buff System NPC
+//===== By: ==================================================
+//= TecnoCronus
+//= DeMoN (Evanio) - Tradução
+//===== Versão : =============================================
+//= 1.1
+//===== Compativél com: ======================================
+//= eAthena SVN SQL/TXT
+//= Cronus SVN SQL
+//===== Discrição: ===========================================
+//= Este é o NPC Buffer, se ativa o buff quando se fala
+//= "Buff" na Gold Room.
+//============================================================
+
+-	script	GRSys_Buff	-1,{
+
+	getmapxy(@map$,@x,@y,0);
+	if(@map$!="bat_c01") end;
+	if(GR_CanGetBuff > 0) {
+	for (set @c, 0; $@GRSys_BuffArray[@c]; set @c, @c + 1) sc_start $@GRSys_BuffArray[@c],$@GRSys_BuffTime,10;
+	}
+	end;
+
+	OnInit:
+//		Id's dos Buffs.
+//		Nota: Veja 'const.txt' na pasta db para ver todos os sc_stats, encontre "sc_".
+		setarray $@GRSys_BuffArray[0],30,29,23,37,40,41,42,43;
+
+//		Tempo de Buff (em milisegundos).
+		set $@GRSys_BuffTime, 60000;
+		end;
+}

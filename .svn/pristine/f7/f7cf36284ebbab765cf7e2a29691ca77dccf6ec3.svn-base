@@ -1,0 +1,80 @@
+Index: db/const.txt
+===================================================================
+--- db/const.txt	(revision 14207)
++++ db/const.txt	(working copy)
+@@ -224,6 +224,7 @@
+ mf_nochat	43
+ mf_noexppenalty	44
+ mf_guildlock	45
++mf_nowhisp	46
+ 
+ cell_walkable	0
+ cell_shootable	1
+Index: src/map/clif.c
+===================================================================
+--- src/map/clif.c	(revision 14207)
++++ src/map/clif.c	(working copy)
+@@ -8546,6 +8546,10 @@
+ 			return;
+ 		sd->cantalk_tick = gettick() + battle_config.min_chat_delay;
+ 	}
++	if(map[sd->bl.m].flag.nowhisp) {
++		clif_displaymessage(sd->fd,"You can't whisp other player on this map");
++		return;
++	}
+ 
+ 	// send message to others (using the send buffer for temp. storage)
+ 	WFIFOHEAD(fd, 8 + textlen);
+Index: src/map/map.h
+===================================================================
+--- src/map/map.h	(revision 14207)
++++ src/map/map.h	(working copy)
+@@ -467,6 +467,7 @@
+ 		unsigned partylock :1;
+ 		unsigned guildlock :1;
+ 		unsigned src4instance : 1; // To flag this map when it's used as a src map for instances
++		unsigned nowship :1;
+ 	} flag;
+ 	struct point save;
+ 	struct npc_data *npc[MAX_NPC_PER_MAP];
+Index: src/map/npc.c
+===================================================================
+--- src/map/npc.c	(revision 14207)
++++ src/map/npc.c	(working copy)
+@@ -2830,6 +2830,8 @@
+ 		map[m].flag.noexppenalty=state;
+ 		map[m].flag.nozenypenalty=state;
+ 	}
++	else if (!strcmpi(w3,"nowhisp"))
++		map[m].flag.nowhisp=state;
+ 	else if (!strcmpi(w3,"pvp")) {
+ 		map[m].flag.pvp = state;
+ 		if( state && (map[m].flag.gvg || map[m].flag.gvg_dungeon || map[m].flag.gvg_castle) )
+Index: src/map/script.c
+===================================================================
+--- src/map/script.c	(revision 14207)
++++ src/map/script.c	(working copy)
+@@ -9181,6 +9181,7 @@
+ 			case MF_NOCHAT:			script_pushint(st,map[m].flag.nochat); break;
+ 			case MF_PARTYLOCK:		script_pushint(st,map[m].flag.partylock); break;
+ 			case MF_GUILDLOCK:		script_pushint(st,map[m].flag.guildlock); break;
++			case MF_NOWHISP:		script_pushint(st,map[m].flag.nowhisp); break;
+ 		}
+ 	}
+ 
+@@ -9245,6 +9246,7 @@
+ 			case MF_NOCHAT:        map[m].flag.nochat=1; break;
+ 			case MF_PARTYLOCK:     map[m].flag.partylock=1; break;
+ 			case MF_GUILDLOCK:     map[m].flag.guildlock=1; break;
++			case MF_NOWHISP:     map[m].flag.nowhisp=1; break;
+ 		}
+ 	}
+ 
+@@ -9306,6 +9308,7 @@
+ 			case MF_NOCHAT:        map[m].flag.nochat=0; break;
+ 			case MF_PARTYLOCK:     map[m].flag.partylock=0; break;
+ 			case MF_GUILDLOCK:     map[m].flag.guildlock=0; break;
++			case MF_NOWHISP:       map[m].flag.nowhisp=0; break;
+ 		}
+ 	}
+ 

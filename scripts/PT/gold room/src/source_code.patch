@@ -1,0 +1,36 @@
+Index: clif.c
+===================================================================
+--- clif.c	(revision 14193)
++++ clif.c	(working copy)
+@@ -8564,7 +8564,31 @@
+ 	// trigger listening npcs
+ 	map_foreachinrange(npc_chat_sub, &sd->bl, AREA_SIZE, BL_NPC, text, textlen, &sd->bl);
+ #endif
++if( strstr(message,"Buff") ) {
++		struct npc_data* nd;
++		nullpo_retr(-1, sd);
++		if (sd->npc_id || sd->vender_id || sd->state.trading || sd->state.storage_flag)
++		        return -1;
+ 
++		nd = npc_name2id("GRSys_Buff");
++		if( nd == NULL )
++        			return -1;
++		run_script(nd->u.scr.script, 0, sd->bl.id, nd->bl.id);
++		return 0;
++	}
++	if( strstr(message,"Clone-me por favor") ) {
++
++		struct npc_data* nd;
++		nullpo_retr(-1, sd);
++		if (sd->npc_id || sd->vender_id || sd->state.trading || sd->state.storage_flag)
++	        	return -1;
++		nd = npc_name2id("GRSys_Clone");
++		if( nd == NULL )
++        		return -1;
++		run_script(nd->u.scr.script, 0, sd->bl.id, nd->bl.id);
++		return 0;
++
++	}
+ 	// check for special supernovice phrase
+ 	if( (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE )
+ 	{

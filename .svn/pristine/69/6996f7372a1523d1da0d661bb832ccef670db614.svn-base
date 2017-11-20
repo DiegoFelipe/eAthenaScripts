@@ -1,0 +1,148 @@
+//===== eAthena Script =======================================
+//= Chating Funtion
+//===== By: ==================================================
+//= TecnoCronus
+//===== Current Version: =====================================
+//= 1.1
+//===== Compatible With: =====================================
+//= eAthena SVN SQL/TXT
+//===== Description: =========================================
+//= This is the function of Shopping NPC, the shopping center
+//= can be found in ra_in01
+//============================================================
+
+function	script	GRSys_Shopping	{
+
+	mes "["+getarg(0)+"]";
+	if(!##GRMob) {
+		mes "Hello young "+strcharinfo(0)+",";
+		mes "I'm an special Seller ...";
+		mes "But the thing here, cann't be bought by zeny";
+		mes "They need be Bought only by an special Gold Point...";
+		next;
+		mes "["+getarg(0)+"]";
+		if(select("Er! special Gold Point ? What's it ?","Apologize me I need go now")==2) {
+			next;
+			mes "["+getarg(0)+"]";
+			mes "No problem, come back when you get interested.";
+			close2;
+			emotion e_no1;
+			end;
+		}
+		mes "Yes, there's an special gold that";
+		mes "that we, sellers, love, but, this gold";
+		mes "Just can be dropped in an room called \"Gold Room\".";
+		next;
+		mes "["+getarg(0)+"]";
+		if(select("Interesting, tell me more please","Gold Room ??? OMG, let me go")==2) {
+			mes "...";
+			close2;
+			emotion e_shy;
+			end;
+		}
+		mes "Its an Room where you Kill monster and get points and them";
+		mes "Trade it for Gold ...";
+		next;
+		mes "["+getarg(0)+"]";
+		mes "We Trade Item for those points that";
+		mes "The peoples get inside this room,";
+		mes "it's called ^555666GP^000000 or ^555666Gold Points^000000";
+		next;
+		mes "["+getarg(0)+"]";
+		mes "Are you interested in dropping this Gold ?";
+		mes "if so I Can warp you an People that can";
+		mes "Explain more about Gold Room.";
+		if(select("Yes, Please","No, Thanks")==2) {
+			next;
+			mes "["+getarg(0)+"]";
+			mes "If you change your idea, please, come back here.";
+			close2;
+			emotion e_no1;
+			end;
+		}
+		close2;
+		warp "prontera",174,215;
+		dispbottom "Talk to \"Gold Room Questor\" he's close to you.";
+		end;
+	}
+	mes "Hello ^00FF00"+strcharinfo(0)+"^000000, I see you was in Gold Room some time ago right ?";
+	select("Ha Ha Ha, Yes I Was there");
+	if(##GRMob == 0) {
+		mes "I See you have enought points";
+		mes "Apologize me I Cann 't see nothing for you...";
+		close2;
+		emotion e_sry;
+		end;
+	}
+	mes "Are you interested in buy something?";
+	mes "I Have many things to sell.";
+	if(select("Ok Let me see","No, Thanks anyway")==2) {
+		next;
+		mes "["+getarg(0)+"]";
+		mes "No Problem";
+		mes "See ya";
+		close2;
+		emotion e_no1;
+		end;
+	}
+	next;
+	mes "["+getarg(0)+"]";
+	mes "I Have Items to Sell, they are:";
+	mes "Item  /  Price (in GP Points) ";
+	set @xy, 3;
+	set @i, 1;
+	set @arg, getarg(1);
+	for(set @c, 2; @i <= @arg; set @c, @c + 2) {
+	mes "->"+@i+"º: ^0F02FF"+getitemname(getarg(@c))+"^000000 For ^55AAff"+getarg(@xy)+"^000000 GP.";
+	set @xy, @xy + 2;
+	set @i, @i + 1;
+	}
+	next;
+	mes "["+getarg(0)+"]";
+	mes "What Item do you need ?";
+	input @item;
+	if(getarg(@item) && @item > 0 && @item <= 10) {
+		switch(@item) {
+		case 1:	set @item, 3; break;
+		case 2:	set @item, 5; break;
+		case 3:	set @item, 7; break;
+		case 4:	set @item, 9; break;
+		case 5:	set @item, 11; break;
+		case 6:	set @item, 13; break;
+		case 7:	set @item, 15; break;
+		case 8:	set @item, 17; break;
+		case 9:	set @item, 19; break;
+		case 10: set @item, 21;	break;
+		}
+		set @iname, @item - 1;
+		mes "This ^AA11FF"+getitemname(getarg(@iname))+"^000000 cost ^00FF00"+getarg(@item)+"^000000 GP (Gold Points)";
+		if(##GRMob < getarg(@item)) {
+			next;
+			mes "["+getarg(0)+"]";
+			mes "Well I See you don't have the GP required";
+			mes "See ya.";
+			close2;
+			emotion e_sry;
+			end;
+		}
+		mes "You want this ?";
+		if(select("Yes","No")==2) {
+			next;
+			mes "["+getarg(0)+"]";
+			mes "All Right, I Hope see you when you get interested.";
+			close2;
+			emotion e_no1;
+			end;
+		}
+		set ##GRMob, ##GRMob - getarg(@item);
+		set @item, @item - 1;
+		getitem getarg(@item), 1;
+		mes "I Hope you enjoy this item";
+		close2;
+		emotion e_ok;
+		end;
+	}
+	mes "Item not found";
+	close;
+	
+}

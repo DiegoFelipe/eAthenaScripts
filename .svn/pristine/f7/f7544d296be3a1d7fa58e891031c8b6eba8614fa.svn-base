@@ -1,0 +1,31 @@
+prontera,157,148,3	script	Garota::roomevent4	815,{
+
+	mes "[ Garota ]";
+	if(gettimetick(2) > riddelay) {
+		mes "espere os 15 minutos acabarem";
+	} else {
+		mes "Posso te levar e uma sala especial de monstros, mas você terá que me dar 10000 zenys, só poderá ficar lá por 5 minutos e depois que você sair da sala terá que esperar 15 minutos para ir denovo, você quer que eu te leve ?";
+		next;
+		if(select("Sim.:Não.") == 1) {
+			set riddelay, gettimetick(2) + 900;
+			if(Zeny >= 10000) {
+				mes "[Garota]";
+				mes "Irei levar você até lá.";
+				close2;
+				warp "job_wiz",46,99;
+				addtimer 300000,strnpcinfo(3)+"::OnKick";
+				set Zeny, Zeny - 10000;
+				end;
+			} else {
+				show "Desculpe, você não tem todo o Zeny necessário.";
+			}
+		} else {
+			show "Ok volte quando quiser";
+		}
+	}
+	close;
+
+	OnKick:
+	warp "gef_fild10",299,251;
+}
+

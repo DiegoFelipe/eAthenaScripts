@@ -1,0 +1,44 @@
+prontera,154,198,5	script	magician_warper	805,{
+
+	mes "[Poor Magic Man]";
+	mes "Do you think I can have some zeny man?";
+	next;
+	if(select("Yes:No") == 2) goto L_skip;
+
+		mes "[Poor Magic Man]";
+		mes "Please man... this guy taught me some tricks";
+		mes "i can get you places faster...";
+		next;
+		select ("What did he teach you?");
+		mes "[Poor Magic Man]";
+		mes "He taught me how to warp people";
+		mes "So i could warp you to the third dungeon of thor";
+		mes "for some zeny that is....";
+		mes "how does 500 zeny sound";
+		next;
+		if(select("Fine with me:Your price is insane") == 1) {
+
+			L_skip:
+
+			mes "[Poor Magic Man]";
+			mes "Okay here we goo";
+			mes "**Crash**!";
+			mes "Opps......";
+			menu "What?";
+			mes "[Poor Magic Man]";
+			mes "Oh nothing here we better go fast";
+			next;
+
+			if(select("Then hurry up:I've changed my mind you seem Dangerous") == 1) {
+				if (Zeny < 500) {
+					mes "Looks like you need zeny more then me";
+				} else {
+					set zeny,zeny -500;
+					close2;
+					warp "thor_v03",40,103;
+
+				}
+			}
+		}
+	close;
+}

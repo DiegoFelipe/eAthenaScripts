@@ -1,0 +1,84 @@
+Index: itemdb.h
+===================================================================
+--- itemdb.h	(revision 14189)
++++ itemdb.h	(working copy)
+@@ -73,6 +73,7 @@
+ 		unsigned delay_consume : 1;	// Signifies items that are not consumed immediately upon double-click [Skotlex]
+ 		unsigned trade_restriction : 7;	//Item restrictions mask [Skotlex]
+ 		unsigned autoequip: 1;
++		unsigned refined: 1;
+ 	} flag;
+ 	short gm_lv_trade_override;	//GM-level to override trade_restriction
+ };
+Index: map.c
+===================================================================
+--- map.c	(revision 14189)
++++ map.c	(working copy)
+@@ -1395,6 +1395,7 @@
+ 	fitem->bl.x=x;
+ 	fitem->bl.y=y;
+ 	fitem->bl.id = map_get_new_object_id();
++	if(item->flag.refined > 0) fitem->item_data.refine = item->flag.refined;
+ 	if(fitem->bl.id==0){
+ 		aFree(fitem);
+ 		return 0;
+Index: script.c
+===================================================================
+--- script.c	(revision 14189)
++++ script.c	(working copy)
+@@ -5603,7 +5603,27 @@
+ 
+ 	return 0;
+ }
+-
++BUILDIN_FUNC(dropitemrefined)
++{
++    int item_id, refine;
++    struct item_data *i_data;
++    item_id = script_getnum(st,2);
++    i_data = itemdb_exists(item_id);
++    if(!i_data) {
++        showwarning("script:dropitemrefined: item %d was not found in item database",item_id);
++        script_pushint(st,0);
++        return 0;
++    }
++    refine = script_getnum(st,3);
++    if(refine > 0 && refine < 10) {
++        i_data->flag.refined = refine;
++        script_pushint(st,1);
++    } else {
++        ShowWarning("script:dropitemrefined: invalid value to refine (less than 0 or higher than 10) on item %s",i_data->jname);
++        script_pushint(st,0);
++    }
++    return 0;
++}
+ /// Deletes items from the target/attached player.
+ /// Prioritizes ordinary items.
+ ///
+@@ -6256,6 +6276,18 @@
+ 
+ 	return 0;
+ }
++BUILDIN_FUNC(getitemscript)
++{
++	int item_id;
++	struct item_data *i_data;
++	item_id = script_getnum(st,2);
++	i_data = itemdb_exists(item_id);
++	if(!i_data)
++		script_pushint(st,0);
++	else
++		script_pushstr(st,(int)&i_data->script);
++	return 0;
++}
+ 
+ /*==========================================
+  * getbrokenid [Valaris]
+@@ -14668,5 +14700,7 @@
+ 	BUILDIN_DEF(checkquest, "i*"),
+ 	BUILDIN_DEF(changequest, "ii"),
+ 	BUILDIN_DEF(showevent, "ii"),
++	BUILDIN_DEF(dropitemrefined,"ii"),
++	BUILDIN_DEF(getitemscript,"i"),
+ 	{NULL,NULL,NULL},
+ };

@@ -1,0 +1,296 @@
+Index: conf/battle/skill_rental_system.conf
+===================================================================
+--- conf/battle/skill_rental_system.conf	(revision 0)
++++ conf/battle/skill_rental_system.conf	(revision 0)
+@@ -0,0 +1,19 @@
++//	    ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___   
++//       /\  \     /\  \     /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\__\     /\  \  
++//       \:\  \   /::\  \   /::\  \   /:| _|_   /::\  \   /::\  \   /::\  \   /::\  \   /:| _|_   /:/ _/_   /::\  \ 
++//       /::\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/\:\__\ /:/\:\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/_/\__\ /\:\:\__\
++//      /:/\/__/ \:\:\/  / \:\ \/__/ \/|::/  / \:\/:/  / \:\ \/__/ \;:::/  / \:\/:/  / \/|::/  / \:\/:/  / \:\:\/__/
++//      \/__/     \:\/  /   \:\__\     |:/  /   \::/  /   \:\__\    |:\/__/   \::/  /    |:/  /   \::/  /   \::/  / 
++//         	 	 \/__/     \/__/     \/__/     \/__/     \/__/     \|__|     \/__/     \/__/     \/__/     \/__/ 
++//
++// ----------------------------
++// Skill Rental System Seetings
++// ----------------------------
++//
++// Note 1: To enable it, use 1 to disable 0 (default 0)
++
++// Delete Rental Skills when reseting skills ? (Note 1)
++delete_rskill_resetskill: 0
++
++// Delete Rental Skills when reseting status ? (Note 1)
++delete_rskill_resetstat: 0
+\ No newline at end of file
+Index: conf/battle_athena.conf
+===================================================================
+--- conf/battle_athena.conf	(revision 14280)
++++ conf/battle_athena.conf	(working copy)
+@@ -68,3 +68,7 @@
+ 
+ //Your custom config goes here.
+ import: conf/import/battle_conf.txt
++
++// Skill Rental System Seeting [TecnoCronus]
++import: conf/battle/skill_rental_system.conf
++
+Index: src/common/mmo.h
+===================================================================
+--- src/common/mmo.h	(revision 14280)
++++ src/common/mmo.h	(working copy)
+@@ -201,6 +201,7 @@
+ 
+ struct s_skill {
+ 	unsigned short id,lv,flag;
++	unsigned skill_rental_timer;
+ };
+ 
+ struct global_reg {
+Index: src/map/battle.c
+===================================================================
+--- src/map/battle.c	(revision 14280)
++++ src/map/battle.c	(working copy)
+@@ -3846,6 +3846,9 @@
+ 	{ "bg_magic_attack_damage_rate",        &battle_config.bg_magic_damage_rate,            60,     0,      INT_MAX,        },
+ 	{ "bg_misc_attack_damage_rate",         &battle_config.bg_misc_damage_rate,             60,     0,      INT_MAX,        },
+ 	{ "bg_flee_penalty",                    &battle_config.bg_flee_penalty,                 20,     0,      INT_MAX,        },
++// Skill Rental Seeting
++	{ "delete_rskill_resetskill",           &battle_config.delete_rskill_resetskill,        0,      0,      1,              },
++	{ "delete_rskill_resetstat",            &battle_config.delete_rskill_resetstat,         0,      0,      1,              },
+ };
+ 
+ 
+Index: src/map/battle.h
+===================================================================
+--- src/map/battle.h	(revision 14280)
++++ src/map/battle.h	(working copy)
+@@ -478,6 +478,10 @@
+ 	int bg_magic_damage_rate;
+ 	int bg_misc_damage_rate;
+ 	int bg_flee_penalty;
++
++	// [Skill Rental Seetings - TecnoCronus]
++	int delete_rskill_resetskill;
++	int delete_rskill_resetstat;
+ } battle_config;
+ 
+ void do_init_battle(void);
+Index: src/map/pc.c
+===================================================================
+--- src/map/pc.c	(revision 14280)
++++ src/map/pc.c	(working copy)
+@@ -1094,6 +1094,7 @@
+ 
+ #ifndef TXT_ONLY
+ 	pc_inventory_rentals(sd);
++	skill_rentals(sd);
+ #endif
+ 	return 1;
+ }
+@@ -5191,8 +5192,18 @@
+  *------------------------------------------*/
+ int pc_resetstate(struct map_session_data* sd)
+ {
++	int i,l;
+ 	nullpo_retr(0, sd);
+-	
++
++	i = 0;
++	for( l = 0; l < MAX_SKILL; l++ )
++	{
++		if( sd->status.skill[l].skill_rental_timer == 0 ) continue;
++		i++;
++	}
++
++	if(battle_config.delete_rskill_resetstat && i > 0) return 0; // [TecnoCronus]
++
+ 	if (battle_config.use_statpoint_table)
+ 	{	// New statpoint table used here - Dexity
+ 		if (sd->status.base_level > MAX_LEVEL)
+@@ -5277,7 +5288,7 @@
+ 	for( i = 1; i < MAX_SKILL; i++ )
+ 	{
+ 		lv = sd->status.skill[i].lv;
+-		if (lv < 1) continue;
++		if (lv < 1 || (sd->status.skill[i].skill_rental_timer && battle_config.delete_rskill_resetskill)) continue;
+ 
+ 		inf2 = skill_get_inf2(i);
+ 
+@@ -8062,6 +8073,7 @@
+ 	add_timer_func_list(pc_spiritball_timer, "pc_spiritball_timer");
+ 	add_timer_func_list(pc_follow_timer, "pc_follow_timer");
+ 	add_timer_func_list(pc_endautobonus, "pc_endautobonus");
++	add_timer_func_list(skill_rental_end, "skill_rental_end");
+ 
+ 	add_timer(gettick() + autosave_interval, pc_autosave, 0, 0);
+ 
+Index: src/map/pc.h
+===================================================================
+--- src/map/pc.h	(revision 14280)
++++ src/map/pc.h	(working copy)
+@@ -392,6 +392,9 @@
+ 	const char* debug_file;
+ 	int debug_line;
+ 	const char* debug_func;
++
++	// Skill Rental System
++	int skill_rental_time;
+ };
+ 
+ 
+Index: src/map/script.c
+===================================================================
+--- src/map/script.c	(revision 14280)
++++ src/map/script.c	(working copy)
+@@ -5057,7 +5057,32 @@
+ 
+ 	return 0;
+ }
++/*==========================================
++ * rentskill <skill id>,<level>,<seconds>;    [TecnoCronus]
++ * rentskill "<skill name>",<level>,<seconds>;
++ *------------------------------------------*/
++BUILDIN_FUNC(rentskill)
++{
++	struct map_session_data *sd;
++	int seconds, id, level, flag;
+ 
++
++	id = ( script_isstring(st,2) ? skill_name2id(script_getstr(st,2)) : script_getnum(st,2) );
++
++	if( (sd = script_rid2sd(st)) == NULL || (id <= 0 || id > MAX_SKILL) )
++		return 0;
++
++	flag = 0;
++	level = script_getnum(st,3);
++	pc_skill(sd, id, level, flag);
++	seconds = script_getnum(st,4);
++	sd->status.skill[id].skill_rental_timer = (unsigned int)(time(NULL) + seconds);
++
++	pc_skill_rental_add(sd, seconds);
++	
++	return 0;
++}
++
+ /*==========================================
+  *
+  *------------------------------------------*/
+@@ -14669,5 +14694,6 @@
+ 	BUILDIN_DEF(checkquest, "i*"),
+ 	BUILDIN_DEF(changequest, "ii"),
+ 	BUILDIN_DEF(showevent, "ii"),
++	BUILDIN_DEF(rentskill,"vii"),
+ 	{NULL,NULL,NULL},
+ };
+Index: src/map/skill.c
+===================================================================
+--- src/map/skill.c	(revision 14280)
++++ src/map/skill.c	(working copy)
+@@ -6722,7 +6722,73 @@
+ 	return 0;
+ #undef skill_failed
+ }
++/*==========================================
++ * Skill Rental System [TecnoCronus]
++ *------------------------------------------*/
++void pc_skill_rental_add(struct map_session_data *sd, int seconds)
++{
++	const struct TimerData * td;
++	int tick = seconds * 1000;
+ 
++	if ( sd == NULL ) return;
++
++	if( sd->skill_rental_time != INVALID_TIMER )
++	{
++		td = get_timer(sd->skill_rental_time);
++		if( DIFF_TICK(td->tick, gettick()) > tick ) {
++
++			if( sd->rental_timer != INVALID_TIMER ) {
++				delete_timer(sd->skill_rental_time, skill_rental_end);
++				sd->skill_rental_time = -1;
++			}	
++			sd->skill_rental_time = add_timer(gettick() + tick, skill_rental_end, sd->bl.id, 0);
++		}
++	}
++	else
++		sd->skill_rental_time = add_timer(gettick() + min(tick,3600000), skill_rental_end, sd->bl.id, 0);
++}
++
++int skill_rental_end(int tid, unsigned int tick, int id, intptr data)
++{
++	struct map_session_data *sd = map_id2sd(id);
++	if( sd == NULL )
++		return 0;
++	if( tid != sd->skill_rental_time )
++	{
++		ShowError("skill_rental_end: invalid timer id.\n");
++		return 0;
++	}
++
++	skill_rentals(sd);
++	return 1;
++}
++void skill_rentals(struct map_session_data *sd)
++{
++
++	unsigned int expire_tick, next_tick = UINT_MAX;
++	int i;
++
++	for( i = 0; i < MAX_SKILL; i++ )
++	{
++
++		if( sd->status.skill[i].skill_rental_timer == 0 )
++			continue;
++
++		if( sd->status.skill[i].skill_rental_timer <= time(NULL) )
++		{
++			sd->status.skill[i].id = 0;
++			sd->status.skill[i].lv = 0;
++			sd->status.skill[i].flag = 0;
++			clif_deleteskill(sd,i);
++		}
++		else
++		{
++			expire_tick = (unsigned int)(sd->status.skill[i].skill_rental_timer - time(NULL)) * 1000;
++			next_tick = min(expire_tick, next_tick);
++		}
++	}
++		sd->skill_rental_time = INVALID_TIMER;
++}
+ /// transforms 'target' skill unit into dissonance (if conditions are met)
+ static int skill_dance_overlap_sub(struct block_list* bl, va_list ap)
+ {
+Index: src/map/skill.h
+===================================================================
+--- src/map/skill.h	(revision 14280)
++++ src/map/skill.h	(working copy)
+@@ -250,6 +250,11 @@
+ const char*	skill_get_name( int id ); 	// [Skotlex]
+ const char*	skill_get_desc( int id ); 	// [Skotlex]
+ 
++// Skill Rental System - Function Declarations [TecnoCronus]
++int skill_rental_end(int tid, unsigned int tick, int id, intptr data);
++void skill_rentals(struct map_session_data *sd);
++void pc_skill_rental_add(struct map_session_data *sd, int seconds);
++
+ int skill_name2id(const char* name);
+ 
+ int skill_isammotype(struct map_session_data *sd, int skill);
+Index: src/map/unit.c
+===================================================================
+--- src/map/unit.c	(revision 14280)
++++ src/map/unit.c	(working copy)
+@@ -1983,6 +1983,12 @@
+ 			pc_delautobonus(sd,sd->autobonus,ARRAYLENGTH(sd->autobonus),false);
+ 			pc_delautobonus(sd,sd->autobonus2,ARRAYLENGTH(sd->autobonus),false);
+ 			pc_delautobonus(sd,sd->autobonus3,ARRAYLENGTH(sd->autobonus),false);
++
++			// Skill Rental System
++			if( sd->rental_timer != INVALID_TIMER ) {
++				delete_timer(sd->skill_rental_time, skill_rental_end);
++				sd->skill_rental_time = -1;
++			}
+ 			
+ 			if( sd->followtimer != -1 )
+ 				pc_stop_following(sd);

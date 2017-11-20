@@ -1,0 +1,45 @@
+//===== eAthena Script =======================================
+//= Chating NPC
+//===== By: ==================================================
+//= TecnoCronus
+//===== Current Version: =====================================
+//= 1.1
+//===== Compatible With: =====================================
+//= eAthena SVN SQL/TXT
+//===== Description: =========================================
+//= Those NPCs talk about gold room, abot how to join, about
+//= the quests and other things.
+//= to add other chating npc, follow the model bellow:
+//=
+//= callfunc("GRSys_Chatting","NPCNAME",*points);
+//= * points to give by an random chance.
+//============================================================
+
+ra_in01,297,140,4	script	Mandara	821,{
+
+	callfunc("GRSys_Chatting","^123456Mandara^000000",3);
+	end;
+
+}
+
+
+prontera,158,193,4	script	TecnoCronus	939,{
+
+	callfunc("GRSys_Chatting","^123456TecnoCronus^000000",5);
+	end;
+
+}
+
+morocc,141,103,4	script	Young Inotheph	984,{
+
+	callfunc("GRSys_Chatting","^123123Young Inotheph^000000",2);
+	end;
+
+}
+
+geffen,124,74,4	script	Golden Minner	848,{
+
+	callfunc("GRSys_Chatting","^AB9ABCGolden Minner^000000",3);
+	end;
+
+}

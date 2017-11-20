@@ -1,0 +1,89 @@
+Index: db/const.txt
+===================================================================
+--- db/const.txt	(revision 14243)
++++ db/const.txt	(working copy)
+@@ -224,6 +224,7 @@
+ mf_nochat	43
+ mf_noexppenalty	44
+ mf_guildlock	45
++mf_nohit	46
+ 
+ cell_walkable	0
+ cell_shootable	1
+Index: src/map/battle.c
+===================================================================
+--- src/map/battle.c	(revision 14243)
++++ src/map/battle.c	(working copy)
+@@ -3177,6 +3177,19 @@
+ 	if( (s_bl = battle_get_master(src)) == NULL )
+ 		s_bl = src;
+ 
++	if(map[m].flag.nohit) {// TecnoCronus
++
++		struct map_session_data *sd;
++		const char *message;
++
++		sd = BL_CAST(BL_PC, t_bl);
++		message = "You can't target anything on this map";
++		
++		clif_disp_onlyself(sd,message,(int)strlen(message));
++		return 0;
++
++	}
++
+ 	switch( target->type )
+ 	{ // Checks on actual target
+ 		case BL_PC:
+Index: src/map/map.h
+===================================================================
+--- src/map/map.h	(revision 14243)
++++ src/map/map.h	(working copy)
+@@ -467,6 +467,7 @@
+ 		unsigned partylock :1;
+ 		unsigned guildlock :1;
+ 		unsigned src4instance : 1; // To flag this map when it's used as a src map for instances
++		unsigned nohit :1;//TecnoCronus
+ 	} flag;
+ 	struct point save;
+ 	struct npc_data *npc[MAX_NPC_PER_MAP];
+Index: src/map/npc.c
+===================================================================
+--- src/map/npc.c	(revision 14243)
++++ src/map/npc.c	(working copy)
+@@ -3017,6 +3017,8 @@
+ 		map[m].flag.partylock=state;
+ 	else if (!strcmpi(w3,"guildlock"))
+ 		map[m].flag.guildlock=state;
++	else if (!strcmpi(w3,"nohit"))
++		map[m].flag.nohit=state;
+ 	else
+ 		ShowError("npc_parse_mapflag: unrecognized mapflag '%s' (file '%s', line '%d').\n", w3, filepath, strline(buffer,start-buffer));
+ 
+Index: src/map/script.c
+===================================================================
+--- src/map/script.c	(revision 14243)
++++ src/map/script.c	(working copy)
+@@ -9181,6 +9181,7 @@
+ 			case MF_NOCHAT:			script_pushint(st,map[m].flag.nochat); break;
+ 			case MF_PARTYLOCK:		script_pushint(st,map[m].flag.partylock); break;
+ 			case MF_GUILDLOCK:		script_pushint(st,map[m].flag.guildlock); break;
++			case MF_NOHIT:			script_pushint(st,map[m].flag.nohit); break;
+ 		}
+ 	}
+ 
+@@ -9245,6 +9246,7 @@
+ 			case MF_NOCHAT:        map[m].flag.nochat=1; break;
+ 			case MF_PARTYLOCK:     map[m].flag.partylock=1; break;
+ 			case MF_GUILDLOCK:     map[m].flag.guildlock=1; break;
++			case MF_NOHIT:         map[m].flag.nohit=1; break;
+ 		}
+ 	}
+ 
+@@ -9306,6 +9308,7 @@
+ 			case MF_NOCHAT:        map[m].flag.nochat=0; break;
+ 			case MF_PARTYLOCK:     map[m].flag.partylock=0; break;
+ 			case MF_GUILDLOCK:     map[m].flag.guildlock=0; break;
++			case MF_NOHIT:     map[m].flag.nohit=0; break;
+ 		}
+ 	}
+ 

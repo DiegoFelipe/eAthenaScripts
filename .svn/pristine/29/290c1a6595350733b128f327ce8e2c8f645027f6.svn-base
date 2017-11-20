@@ -1,0 +1,74 @@
+//===== eAthena Script =======================================
+//= Helper NPC
+//===== By: ==================================================
+//= TecnoCronus
+//===== Current Version: =====================================
+//= 1.2
+//===== Compatible With: =====================================
+//= eAthena SVN SQL/TXT
+//===== Description: =========================================
+//= This NPC give some informations about the gold room.
+//============================================================
+
+bat_c01,143,58,3	script	GR Helper	763,{
+	if(!##GRDefault) set ##GRDefault, $@GR_MobDefault;
+	if(!GR_CanClone) set GR_CanClone, 0;
+	if(!GR_Cloned) set GR_Cloned, 0;
+	sc_start SC_INVINCIBLE,3600000,0;
+	set @HowMuch, mobcount("bat_c01","all");
+	set @HowMuch, @HowMuch - $GRSYS_Clones;
+	if(@HowMuch<=0) {
+		monster "bat_c01",0,0,$@GR_MobName$,$@GR_MobId,$@GRAmount,"GRManager::OnMyMobKilled";
+		monster "bat_c01",0,0,$@GR_GuardianName$,1900,$@GRAmount2,"GRManager::OnMyMobKilled";
+		set @HowMuch, $@GRAmount;
+	}
+	emotion 1;
+	mes "[^77B700Helper^000000]";
+	mes "Hello "+strcharinfo(0)+".";
+	mes "So, How can I help you ?";
+	next;
+	switch(select("How much Monster are still alive?","Information","How Can I Change my Points for Gold","Talk to the Manager of Gold Room","^05FF00Nothing^000000","^FF0000Leave from this room^000000")) {
+	case 1:
+		mes "[^77B700Helper^000000]";
+		mes "Let me see ...";
+		mes "...^AA00AA"+@HowMuch+"^000000 Monsters are Still here";
+		mes "Go and Kill them.";
+		sc_end SC_INVINCIBLE;
+		close;
+	case 2:
+		mes "[^77B700Helper^000000]";
+		mes "It Work that away: you can kill at maximum 100 Monsters/Hour, each Monster that you kill, you will receive 1 point that you will can change for Gold.";
+		next;
+		mes "[^77B700Helper^000000]";
+		mes "Or you can buy items in Gold Room Shopping Center";
+		sc_end SC_INVINCIBLE;
+		close;
+	case 3:
+		mes "[^77B700Helper^000000]";
+		mes "Talk to The Manager of Gold Room";
+		mes "he can change your points for Gold";
+		mes "He's in ^55AAFFProntera^000000";		
+		sc_end SC_INVINCIBLE;
+		close;
+		
+	case 4:
+		sc_end SC_INVINCIBLE;
+		warp "prontera",147,165;
+		end;
+	case 5:
+		
+		mes "[^77B700Helper^000000]";
+		mes "Ok, Leave from Here";
+		sc_end SC_INVINCIBLE;
+		close;
+
+	case 6:
+		mes "[^77B700Helper^000000]";
+		mes "See ya~";
+		close2;
+		emotion e_sry;
+		warp "prontera",0,0;
+		end;
+		
+	}
+}

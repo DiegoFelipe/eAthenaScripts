@@ -1,0 +1,106 @@
+//===== Cronus / eAthena Script ==============================
+//= Função de Chat
+//===== By: ==================================================
+//= TecnoCronus
+//= DeMoN (Evanio) - Tradução
+//===== Versão : =============================================
+//= 1.1
+//===== Compativél com: ======================================
+//= eAthena SVN SQL/TXT
+//= Cronus SVN SQL/TXT
+//===== Discrição: ===========================================
+//= Está é a função de Chat-NPC, ela controla todos os NPCs
+//= também podendo dar uma randomificada na Gold Room 
+//= por um acaso.
+//============================================================
+
+function	script	GRSys_Chatting	{
+
+	mes "["+getarg(0)+"]";
+	if (isday()==1) 
+		mes "Dia agradavél não? "+strcharinfo(0);
+	else
+		mes "Noite agradavél não? "+strcharinfo(0);
+	mes "Você já ouviu falar algo sobre";
+	mes "uma sala chamada \"Gold Room\"?";
+	mes "Eu estive lá há alguns dias atrás.";
+	if(select("Gold Room de novo ?","Continue, por favor")==1) {
+		mes "Vejo que você está ocupado.";
+		mes "Até outro dia.";
+		close2;
+		emotion e_heh;
+		end;
+	}
+	if(rand(99)<=$@GRSys_GetGP) {
+		next;
+		mes "["+getarg(0)+"]";
+		mes "Você se parece muito com um velho amigo";
+		mes "que há muito tempo eu não o encontro.";
+		mes "Eu vou lhe dar um presente";
+		set ##GRMob, ##GRMob + getarg(1);
+		mes "Leve "+getarg(1)+" GPs para você";
+		close2;
+		emotion e_no1;
+		end;
+	}
+	next;
+	mes "["+getarg(0)+"]";
+	if(GR_CanClone) {
+	mes "Alguem comentou que, se você falar";
+	mes "^FF0000Clone-me Por favor^000000 dentro da";
+	mes "Gold Room, você vai ser clonado, é claro, se você fizer uma missão.";
+	next;
+	mes "["+getarg(0)+"]";
+	}
+	mes "Eu encontrei um probleminha na sala...";
+	mes "Há alguns Guardiões protegendo-a.";
+	mes "Esta sala... Possa ser dificil se manter vivo nela.";
+	next;
+	mes "["+getarg(0)+"]";
+	mes "Mas, um velho amigo meu, me falou sobre";
+	mes "uns povoados que se ajudam por lá,";
+	mes "para conseguir permanecerem vivos.";
+	if(select("Verdade? O que eles fazem?","Estou ocupado, preciso ir.")==2) {
+		next;
+		mes "["+getarg(0)+"]";
+		mes "Eu entendo, vejo você depois.";
+		close2;
+		emotion e_no1;
+		end;
+	}
+	if(GR_CanGetBuff > 0) {
+	next;
+	mes "["+getarg(0)+"]";
+	mes "Eu ouvi uma história que se você falar";
+	mes "^FF0000Buff^000000 dentro da Gold";
+	mes "Room você será Buffado ...";
+	}
+	next;
+	mes "["+getarg(0)+"]";
+	mes "Segundo ele, eles podem aumentar";
+	mes "alguns status, como: Sor, Des ou For";
+	mes "Mais para isso você precisa fazer";
+	mes "uma missão bem dificil.";
+	next;
+	mes "["+getarg(0)+"]";
+	mes "Meu amigo falou que";
+	mes "pode encontrar um desses povoados.";
+	mes "Eu posso teleportar você se quiser.";
+	if(select("Sério ? Por favor teleporte-me","Não, Obrigado")==2) {
+		next;
+		mes "["+getarg(0)+"]";
+		mes "Entendido, parece que você não está";
+		mes "interessado, então, adeusinho.";
+		close2;
+		emotion e_omg;
+		end;
+	}
+	mes "Teleportando ...";
+	close2;
+	switch(rand(3)) {
+	case 0: warp "prontera",174,215; end;
+	case 1: warp "payon",173,225; end;
+	case 2: warp "alberta",197,151; end;
+	}
+		
+}

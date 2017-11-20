@@ -1,0 +1,50 @@
+Index: atcommand.c
+===================================================================
+--- atcommand.c	(revision 14189)
++++ atcommand.c	(working copy)
+@@ -51,6 +51,7 @@
+ 
+ // local declarations
+ #define ACMD_FUNC(x) int atcommand_ ## x (const int fd, struct map_session_data* sd, const char* command, const char* message)
++#define CASH_ZENY 10000
+ 
+ typedef struct AtCommandInfo
+ {
+@@ -2796,7 +2797,28 @@
+ 	pc_memo(sd, position);
+ 	return 0;
+ }
++int atcommand_cashforzeny ( struct map_session_data * sd, const char* command, const char* message)
++{
++	int price;
++	nullpo_retr(-1, sd);
+ 
++	memset(atcmd_output, '\0', sizeof(atcmd_output));
++	if (!message || !*message) {
++		clif_displaymessage(fd,"You should say the amount of cash points that you will change for zeny");
++		return -1;
++	}
++	if (sscanf(message, "%d", &price) < 1) {
++		clif_displaymessage(sd->fd,"You haven't cash points sufficient");
++		return -1;
++	}
++	int cash = pc_readaccountreg(sd,"#CASHPOINTS");
++	if(!cash || cash < price) return -1;
++	int amount = CASH_ZENY*price;
++	sd->status.zeny += amount;
++	cash = cash-price;
++	pc_setaccountreg(sd,"#CASHPOINTS",price);
++	return 0;
++}
+ /*==========================================
+  *
+  *------------------------------------------*/
+@@ -8820,6 +8842,7 @@
+ 	{ "delitem",           60,60,     atcommand_delitem },
+ 	{ "charcommands",       1,1,      atcommand_commands },
+ 	{ "font",               1,1,      atcommand_font },
++ 	{ "cashforzent",               1,1,      atcommand_cashforzeny },
+
+ };
+ 
+ 

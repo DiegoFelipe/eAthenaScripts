@@ -1,0 +1,30 @@
+prontera,174,215,4	script	Broadcaster	718,{
+
+	mes "[Broadcaster]";
+	if(gettimetick(2) > #bcdelay) {
+		mes "espere os 30 minutos para mandar mensagem novamente";
+	} else {
+		mes "Olá "+strcharinfo(0);
+		mes "Deseja mandar uma mensagem global ?";
+		if(select("Sim:Não")==1) {
+			mes "Isso vai custart "+.@ReqZeny+" Zenys.";
+			mes "deseja continuar ?";
+			if(select("Sim:Não")==1) {
+				if(Zeny >= .@ReqZeny) {
+					mes "Digite a mensagem por favor:";
+					input @mes$:
+					announce "Mensagem de "+strcharinfo(0)+": "+@mes$,0;
+					set Zeny, Zeny - .@ReqZeny;
+					set #bcdelay, gettimetick(2) + 900;
+				} else {
+					mes "me desculpe, mais você não tem dinheiro suficiente";
+				}
+			} else {
+				mes "OK, volte quando desejar mandar uma mensage";
+			}
+		} else {
+			mes "Tudo bem, quando você quiser, volte.";
+		}
+	}
+	close;
+}

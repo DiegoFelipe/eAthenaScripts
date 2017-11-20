@@ -1,0 +1,279 @@
+/* 	  ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___   
+         /\  \     /\  \     /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\__\     /\  \  
+         \:\  \   /::\  \   /::\  \   /:| _|_   /::\  \   /::\  \   /::\  \   /::\  \   /:| _|_   /:/ _/_   /::\  \ 
+         /::\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/\:\__\ /:/\:\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/_/\__\ /\:\:\__\
+        /:/\/__/ \:\:\/  / \:\ \/__/ \/|::/  / \:\/:/  / \:\ \/__/ \;:::/  / \:\/:/  / \/|::/  / \:\/:/  / \:\:\/__/
+        \/__/     \:\/  /   \:\__\     |:/  /   \::/  /   \:\__\    |:\/__/   \::/  /    |:/  /   \::/  /   \::/  / 
+        	   \/__/     \/__/     \/__/     \/__/     \/__/     \|__|     \/__/     \/__/     \/__/     \/__/ 
+
+
+
+					  (C) Copyright TecnoCronus 30/06/2015
+			    	 	
+	*-------------------------------------------Hercules Script---------------------------------------------*
+	*- Voucher Trade for DarkRO		       								*
+	*------------------------------------------------ By: --------------------------------------------------*
+	*- TecnoCronus	                                                                                       	*
+	*------------------------------------------ Current Version: -------------------------------------------*
+	*- 1.1.0											       	*
+	*------------------------------------------ Description: -----------------------------------------------*
+	*													*
+	* - This NPC trade vouchers droped at Endless Tower							*
+	*---------------------------------------- Additional Comments: -----------------------------------------*
+	* 											       		*
+	*-------------------------------------------- Changelog ------------------------------------------------*
+	*- 												       	*
+	*-------------------------------------------------------------------------------------------------------*/
+
+-	script	Voucher Trader	718,{
+
+	mes "[Voucher Trader]";
+	mes "You can trade vouchers to others here.";
+	mes "You can't trade between sets, i.e you can only trade a garment voucher for an armor or footgear voucher.";
+	mes "You can't tarde one  Balance garment voucher for fortress voucher for example.";
+	mes "Select the deal that you want to make";
+	if (select("warmonger Vouchers","Balance Vouchers","Fortress Vouchers")==1) {
+
+		/* ************************************
+		 * FROM Warmonger vouchers TO others *
+ 		 * ************************************/
+
+		callfunc("VTCountVouchers",1,0);
+		if (@VTHasTheVoucher == 0) {
+			mes "You don't have any Warmonger Vouchers";
+			close;
+		}
+
+		mes "now select the voucher that you want to ^00ff00TAKE^000000:";
+		select("Warmonger Armor Voucher","Warmonger Garment Voucher","Warmonger Footgear Voucher");
+		@VTMyMenuGet = @menu;
+
+		mes "Which Warmonger voucher you want to ^ff0000GIVE^000000 for the deal ?";
+		select("Warmonger Armor Voucher","Warmonger Garment Voucher","Warmonger Shoes Voucher");
+		@VTMyMenuDel = @menu;
+		callfunc("VTCountVouchers",0,1);
+
+		if(!@VTItem) {
+
+			mes "You don't have the voucher that you selected";
+			close;
+
+		}
+
+		mes "Confirm the deal ?";
+
+		if (select("Yes, let's deal","No, Cancel")==2) close;
+
+		if (@VTItem&1 && @VTMyMenuDel==1) delitem .VTWarmongerVouchersItemID[0], 1;
+		if (@VTItem&2 && @VTMyMenuDel==2) delitem .VTWarmongerVouchersItemID[1], 1;
+		if (@VTItem&4 && @VTMyMenuDel==3) delitem .VTWarmongerVouchersItemID[2], 1;
+
+		if (@VTMyMenuGet == 1) getitem .VTWarmongerVouchersItemID[0], 1;
+		if (@VTMyMenuGet == 2) getitem .VTWarmongerVouchersItemID[1], 1;
+		if (@VTMyMenuGet == 3) getitem .VTWarmongerVouchersItemID[2], 1;
+
+
+		mes "Done.";
+		close;
+
+	} else if(@menu==2) {
+
+		/* *********************************
+		 * FROM Balance vouchers TO others *
+ 		 * *********************************/
+
+
+		callfunc("VTCountVouchers",2,0);
+		if (@VTHasTheVoucher == 0) {
+			mes "You don't have any Balancer Vouchers";
+			close;
+		}
+
+		mes "now select the voucher that you want to ^00ff00TAKE^000000:";
+		select("Balance Armor Voucher","Balance Garment Voucher","Balance Footgear Voucher");
+		@VTMyMenuGet = @menu;
+
+		mes "Which Balance voucher you want to ^ff0000GIVE^000000 for the deal ?";
+		select("Balance Armor Voucher","Balance Garment Voucher","Balance Shoes Voucher");
+		@VTMyMenuDel = @menu;
+		callfunc("VTCountVouchers",0,2);
+
+		if(!@VTItem) {
+
+			mes "You don't have the voucher that you selected";
+			close;
+
+		}
+
+		mes "Confirm the deal ?";
+
+		if (select("Yes, let's deal","No, Cancel")==2) close;
+
+		if (@VTItem&1 && @VTMyMenuDel==1) delitem .VTBalanceVouchersItemID[0], 1;
+		if (@VTItem&2 && @VTMyMenuDel==2) delitem .VTBalanceVouchersItemID[1], 1;
+		if (@VTItem&4 && @VTMyMenuDel==3) delitem .VTBalanceVouchersItemID[2], 1;
+
+		if (@VTMyMenuGet == 1) getitem .VTBalanceVouchersItemID[0], 1;
+		if (@VTMyMenuGet == 2) getitem .VTBalanceVouchersItemID[1], 1;
+		if (@VTMyMenuGet == 3) getitem .VTBalanceVouchersItemID[2], 1;
+
+		mes "Done.";
+		close;
+
+	}
+
+
+	/* **********************************
+	 * FROM Fortress vouchers TO others *
+ 	 * **********************************/
+
+
+	callfunc("VTCountVouchers",3,0);
+	if (@VTHasTheVoucher == 0) {
+		mes "You don't have any Fortress Vouchers";
+		close;
+	}
+
+	mes "now select the voucher that you want to ^00ff00TAKE^000000:";
+	select("Fortress Armor Voucher","Fortress Garment Voucher","Fortress Footgear Voucher");
+	@VTMyMenuGet = @menu;
+
+	mes "Which Fortress voucher you want to ^ff0000GIVE^000000 for the deal ?";
+	select("Fortress Armor Voucher","Fortress Garment Voucher","Fortress Shoes Voucher");
+	@VTMyMenuDel = @menu;
+	callfunc("VTCountVouchers",0,3);
+
+	if(!@VTItem) {
+
+		mes "You don't have the voucher that you selected";
+		close;
+
+	}
+
+	mes "Confirm the deal ?";
+
+	if (select("Yes, let's deal","No, Cancel")==2) close;
+
+	if (@VTItem&1 && @VTMyMenuDel==1) delitem .VTFortressVouchersItemID[0], 1;
+	if (@VTItem&2 && @VTMyMenuDel==2) delitem .VTFortressVouchersItemID[1], 1;
+	if (@VTItem&4 && @VTMyMenuDel==3) delitem .VTFortressVouchersItemID[2], 1;
+
+	if (@VTMyMenuGet == 1) getitem .VTFortressVouchersItemID[0], 1;
+	if (@VTMyMenuGet == 2) getitem .VTFortressVouchersItemID[1], 1;
+	if (@VTMyMenuGet == 3) getitem .VTFortressVouchersItemID[2], 1;
+
+	mes "Done.";
+	close;
+
+
+
+	
+
+OnInit:
+
+	/* ********************
+	 * CONFIGURATION HERE *
+         * ********************/
+
+
+	// IMPORTANT: Put the items in this order: ARMOR GARMENT SHOES
+
+	// put all Warmonger's vouchers id here (item id)
+	setarray .VTWarmongerVouchersItemID[0], 505, 504, 504;
+
+	// put all Balance's vouchers id here (item id)
+	setarray .VTBalanceVouchersItemID[0], 505, 504, 504;
+
+	// put all Fortress' vouchers id here (item id)
+	setarray .VTFortressVouchersItemID[0], 505, 504, 504;
+
+
+
+
+}
+function	script	VTCountVouchers	{
+
+	if (getarg(1) == 1) {
+
+		for (@i=0; .VTWarmongerVouchersItemID[@i]; @i += 1) {
+
+			if(countitem(.VTWarmongerVouchersItemID[@i]) && @i== 0) @VTItem += 1; // Player has one armor voucher
+			if(countitem(.VTWarmongerVouchersItemID[@i]) && @i== 1) @VTItem += 2; // Player has one garment voucher
+			if(countitem(.VTWarmongerVouchersItemID[@i]) && @i== 2) @VTItem += 4; // Player has one shoes voucher
+
+
+		}
+
+
+		return;
+
+	}
+
+
+	if (getarg(1) == 2) {
+
+		for (@i=0; .VTBalanceVouchersItemID[@i]; @i += 1) {
+
+			if(countitem(.VTBalanceVouchersItemID[@i]) && @i== 0) @VTItem += 1; // Player has one armor voucher
+			if(countitem(.VTBalanceVouchersItemID[@i]) && @i== 1) @VTItem += 2; // Player has one garment voucher
+			if(countitem(.VTBalanceVouchersItemID[@i]) && @i== 2) @VTItem += 4; // Player has one shoes voucher
+
+
+		}
+
+
+		return;
+
+	}
+
+
+	if (getarg(1) == 3) {
+
+		for (@i=0; .VTFortressVouchersItemID[@i]; @i += 1) {
+
+			if(countitem(.VTFortressVouchersItemID[@i]) && @i== 0) @VTItem += 1; // Player has one armor voucher
+			if(countitem(.VTFortressVouchersItemID[@i]) && @i== 1) @VTItem += 2; // Player has one garment voucher
+			if(countitem(.VTFortressVouchersItemID[@i]) && @i== 2) @VTItem += 4; // Player has one shoes voucher
+
+
+		}
+
+
+		return;
+
+	}
+
+
+
+
+	if (getarg(0)== 1) {
+
+		for (@i=0; .VTWarmongerVouchersItemID[@i]; @i += 1)
+
+			if(countitem (.VTWarmongerVouchersItemID[@i]) > 0) @VTHasTheVoucher += 1;
+
+	}
+
+	
+	if (getarg(0)== 2) {
+
+		for (@i=0; .VTBalanceVouchersItemID[@i]; @i += 1)
+
+			if(countitem (.VTBalanceVouchersItemID[@i]) > 0) @VTHasTheVoucher += 1;
+
+	}
+
+
+	if (getarg(0)== 3) {
+
+		for (@i=0; .VTFortressVouchersItemID[@i]; @i += 1)
+
+			if(countitem (.VTTFortressVouchersItemID[@i]) > 0) @VTHasTheVoucher += 1;
+
+	}
+
+	
+	return;
+
+
+}

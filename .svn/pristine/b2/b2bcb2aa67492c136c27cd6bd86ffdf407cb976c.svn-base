@@ -1,0 +1,116 @@
+//===== eAthena Script =======================================
+//= Gold Room Configuration Script
+//===== By: ==================================================
+//= TecnoCronus
+//===== Current Version: =====================================
+//= 1.0
+//===== Compatible With: =====================================
+//= eAthena SVN SQL/TXT
+//===== Description: =========================================
+//= on this script you will set the configuration.
+//============================================================
+
+-	script	GRSys_Config	-1,{
+end;
+	OnInit:
+//	Amount of Monsters that will be spawed each time.
+	set $@GRAmount, 25;
+
+// 	Percent Chance to Show player's points after kills the mob.
+//	Note: Only use While Numbers.
+	set $@GRPChance, 5;
+
+// 	"X" Points for 1 Gold.
+	set $@GRP, 3;
+
+// 	Mob Name.
+	set $@GR_MobName$, "Golden Mob";
+
+//	Monster ID.
+//	Note: See mob_db.txt for more Ids.
+	set $@GR_MobId, 1257;
+
+// 	Percent Chance to show "you have "+x+" points"
+//	Note: Only use Whole numbers.
+	set $@GR_Show, 30;
+
+//	Stats Change Duration.
+//	Note: in seconds.
+	set $@GRSTTime, 10;
+
+//	Maximum Clone that an player can have.
+	set $@GR_CLLimit, 5;
+
+//	Minimum lvl to enter in Gold Room.
+	set $@GRSys_Lvl, 50;
+
+//	Percent Chance to get extra bonus. (str, dex, luck)
+//	Note: Only use Whole numbers
+	set $@GRSys_Buff, 10;
+
+//	Zeny to warp to Gold Room's Shopping Center.
+	set $@GRSys_Warp, 5000;
+
+//	Chance to give some GP to player.
+//	Note: Use on Chatting NPCs.
+	set $@GRSys_GetGP, 5;
+
+//	Chance to "Drop" Gold Room Card.
+//	Note: Only use Whole numbers
+	set $@GRSys_CardDrop, 10;
+
+//	Maximum Increase of Limit of mobs that an player can kill per hour.
+	set $@GR_MobLim, 10;
+
+//	Mobs That an Player can kill per hour.
+	set $@GR_MobDefault, 100;
+
+//	Each Upgrade will coast x GPs * equip lvl * times to refine
+	set $@GRSys_RefPrice, 5;
+
+//	Price (in zeny) to enter on the Gold Room
+	set $@GRSys_EnterZeny, 50000;
+
+//	******************
+//	*** Guardians. ***
+// 	******************
+//
+//	Amount of Guardians that will be spawned.
+	set $@GRAmount2, 25;
+
+//	Guardian Name.
+	set $@GR_GuardianName$, "GR Guardian";
+
+//	************************************************************
+//	***	QUEST ITEMS ARRAYS				****
+//	************************************************************
+//
+//	Set here the arrays with the id of items that will be used.
+//
+//	$@GRM1:		Array with the ids of First Quest.
+//	$@GRM2:		Array with the ids of First Quest.
+//	$@GRM3:		Array with the ids of First Quest.
+//	$@GRMStr:	Array with the ids of Str Quest.
+//	$@GRMDex:	Array with the ids of Dex Quest.
+//	$@GRMLuk:	Array with the ids of Luk Quest.
+//
+//	and their respecives amounts, those arrays ends with A
+
+	setarray $@GRM1[0],504;
+	setarray $@GRM1A[0],1;
+	setarray $@GRM2[0],608;
+	setarray $@GRM2A[0],1;
+	setarray $@GRM3[0],607;
+	setarray $@GRM3A[0], 1;
+	setarray $@GRM4Str[0],607;
+	setarray $@GRM4StrA[0], 1;
+	setarray $@GRM4Dex[0],607;
+	setarray $@GRM4DexA[0], 1;
+	setarray $@GRM4Luk[0],607;
+	setarray $@GRM4LukA[0], 1;
+
+
+	monster "bat_c01",0,0,$@GR_MobName$,$@GR_MobId,$@GRAmount,"GRManager::OnMyMobKilled";
+	monster "bat_c01",0,0,$@GR_GuardianName$,1900,$@GRAmount2,"GRManager::OnMyMobKilled";
+	end;
+}

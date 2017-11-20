@@ -1,0 +1,85 @@
+Index: atcommand.c
+===================================================================
+--- atcommand.c	(revision 14212)
++++ atcommand.c	(working copy)
+@@ -8516,7 +8516,48 @@
+ 	return 0;
+ }
+ 
++/*==========================================
++ * @setiteminf - Make a consumable item infinite
++ * when a player use this item item will be not taken
++ *------------------------------------------*/
++int atcommand_setiteminf(const int fd, struct map_session_data *sd, const char *command, const char *message)
++{
++	int number = 0;
++	char item_name[100];
++	struct item_data *item_data;
++	nullpo_retr(-1, sd);
+ 
++	memset(item_name, '\0', sizeof(item_name));
++
++	if (!message || !*message || (
++		sscanf(message, "\"%99[^\"]\" %d", item_name, &number) < 1 &&
++		sscanf(message, "%99s %d", item_name, &number) < 1
++	)) {
++		clif_displaymessage(fd, "Por favor, use um número ou id (usa-se: @item <nome do item ou id>");
++		return -1;
++	}
++
++	if ((item_data = itemdb_searchname(item_name)) == NULL &&
++	    (item_data = itemdb_exists(atoi(item_name))) == NULL)
++	{
++		clif_displaymessage(fd, msg_txt(19)); // Invalid item ID or name.
++		return -1;
++	}
++
++	if(item_data->flag.infusable > 0) {
++
++		clif_displaymessage(fd,"Este item não é um item usável infinito agora");
++		item_data->flag.infusable = 0;
++
++	} else {
++
++		clif_displaymessage(fd,"Este item é um item usável infinito agora");
++		item_data->flag.infusable = 1;
++
++	}
++
++	return 0;
++}
+ /*==========================================
+  * atcommand_info[] structure definition
+  *------------------------------------------*/
+@@ -8820,6 +8861,7 @@
+ 	{ "delitem",           60,60,     atcommand_delitem },
+ 	{ "charcommands",       1,1,      atcommand_commands },
+ 	{ "font",               1,1,      atcommand_font },
++	{ "setiteminf",         99,99,      atcommand_setiteminf },
+ };
+ 
+ 
+Index: itemdb.h
+===================================================================
+--- itemdb.h	(revision 14212)
++++ itemdb.h	(working copy)
+@@ -73,6 +73,7 @@
+ 		unsigned delay_consume : 1;	// Signifies items that are not consumed immediately upon double-click [Skotlex]
+ 		unsigned trade_restriction : 7;	//Item restrictions mask [Skotlex]
+ 		unsigned autoequip: 1;
++		unsigned infusable: 1;
+ 	} flag;
+ 	short gm_lv_trade_override;	//GM-level to override trade_restriction
+ };
+Index: pc.c
+===================================================================
+--- pc.c	(revision 14212)
++++ pc.c	(working copy)
+@@ -3617,6 +3617,7 @@
+ 			pc_delitem(sd,n,1,1); // Rental Usable Items are not deleted until expiration
+ 		}
+ 		else
++			if(!sd->inventory_data[n]->flag.infusable)
+ 			clif_useitemack(sd,n,0,0);
+ 	}
+ 	if(sd->status.inventory[n].card[0]==CARD0_CREATE &&

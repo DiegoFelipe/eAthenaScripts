@@ -1,0 +1,42 @@
+//===== eAthena Script =======================================
+//= Shopping NPCS
+//===== By: ==================================================
+//= TecnoCronus
+//===== Current Version: =====================================
+//= 1.0++
+//===== Compatible With: =====================================
+//= eAthena SVN SQL/TXT
+//===== Description: =========================================
+//= Here goes all seller on the gr shopping center.
+//============================================================
+
+ra_in01,274,148,3	script	Gold Room Shop#1	96,{
+
+	callfunc("GRSys_Shopping","^FF00F0Children Seller^000000",10,601,1,602,2,603,3,604,4,605,5,606,6,607,7,608,8,609,9,610,10);
+	end;
+}
+
+ra_in01,271,148,3	script	Gold Room Shop#2	856,{
+
+	callfunc("GRSys_Shopping","^ABC123Bournne Girl 1^000000",10,601,1,602,2,603,3,604,4,605,5,606,6,607,7,608,8,609,9,610,10);
+	end;
+}
+
+
+ra_in01,277,148,3	script	Gold Room Shop#3	745,{
+
+	callfunc("GRSys_Shopping","^ABC123Bournne Girl 2^000000",10,601,1,602,2,603,3,604,4,605,5,606,6,607,7,608,8,609,9,610,10);
+	end;
+}
+
+ra_in01,280,148,3	script	Gold Room Shop#4	877,{
+
+	callfunc("GRSys_Shopping","^123ABCGold Girl ^000000",10,601,1,602,2,603,3,604,4,605,5,606,6,607,7,608,8,609,9,610,10);
+	end;
+}
+
+ra_in01,282,148,3	script	Gold Room Shop#5	882,{
+
+	callfunc("GRSys_Shopping","^ABC123Bournne Girl 2^000000",10,601,1,602,2,603,3,604,4,605,5,606,6,607,7,608,8,609,9,610,10);
+	end;
+}

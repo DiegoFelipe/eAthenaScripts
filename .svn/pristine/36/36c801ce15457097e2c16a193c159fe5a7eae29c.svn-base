@@ -1,0 +1,28 @@
+prontera,174,215,4	script	QuestNPC	SOHEON,{
+
+	mes "[Quest NPC]";
+	mes "give me these items to receive one reward:"
+	mes "item 1";
+	mes "item 2";
+	mes "item 3";
+
+	if (countitem(item1ID) > ITEM1_AMOUNT && countitem(item2id) > ITEM2_AMOUNT && countitem(item3id) > ITEM3_AMOUNT) {
+
+		mes "wow! you got everything";
+		mes "take this reward";
+
+		// It will take the required items
+		delitem ITEM1ID, ITEM1_AMOUNT;
+		delitem ITEM2ID, ITEM2_AMOUNT;
+		delitem ITEM3ID, ITEM3_AMOUNT;
+
+		// It will delivery the required items
+		getitem RITEM1, RITEM1AMOUNT;
+
+	} else
+
+		mes "you don't got everything.";
+
+	close;
+
+}

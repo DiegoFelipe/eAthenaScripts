@@ -1,0 +1,36 @@
+Index: src/map/atcommand.c
+===================================================================
+--- src/map/atcommand.c	(revision 14215)
++++ src/map/atcommand.c	(working copy)
+@@ -7699,7 +7699,23 @@
+ // WIP
+ 	return 0;
+ }
++/*===================================
++ * Manda uma mensagem para os gms quando
++ * eles logarem
++ *--------------------------------
++int atcommand_requestgm(const int fd, struct map_session_data* sd, const char* command, const char* message)
++{
++    struct npc_data* nd;
++    nullpo_retr(-1, sd);
+ 
++    nd = npc_name2id("requestnpc");
++    if( nd == NULL )
++        return -1;
++
++    run_script(nd->u.scr.script, 0, sd->bl.id, nd->bl.id);
++    
++    return 0;
++}
+ /*===================================
+  * Remove some messages
+  *-----------------------------------*/
+@@ -8820,6 +8836,7 @@
+ 	{ "delitem",           60,60,     atcommand_delitem },
+ 	{ "charcommands",       1,1,      atcommand_commands },
+ 	{ "font",               1,1,      atcommand_font },
++	{ "requestgm",          1,1,      atcommand_requestgm },
+ };
+ 
+ 

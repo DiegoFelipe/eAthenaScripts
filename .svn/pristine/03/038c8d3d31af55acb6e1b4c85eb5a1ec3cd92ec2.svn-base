@@ -1,0 +1,92 @@
+The purpose of this document is to give a few techniques to improve your code speed, even it's code for source code (in C language) or scripting NPCs.
+I've made a long search and also used my personal experience to do this document, report me any errors or mistakes to make this doc better.
+I want to make simple explanations rather than give full technical details, because the 'target audience' of this doc are developers with no large experience.
+
+ (!) This doc will not teach use how make NPC scripts or modifications at Hercule's source code.
+
+1. - Always indent your code
+
+	what's it ?
+	
+	an indent style is a convention governing the indentation of blocks of code to convey the program's structure.
+	
+	I prefer use K&R Indent style that makes: each has its opening brace at the next line on the same indentation level as its header,
+	the statements within the braces are indented, and the closing brace at the end is on the same indentation level as the header
+	of the function at a line of its own. The blocks inside a function, however, have their opening braces at the same line as their respective control statements;
+	closing braces remain in a line of their own, unless followed by an else or while keyword.
+	
+	Here's a C example of K&R style:
+	
+	int main(int argc, char *argv[])
+{
+    ...
+    while (x == y) {
+        something();
+        somethingelse();
+ 
+        if (some_error) {
+            do_correct();
+        } else {
+            continue_as_usual();
+        }
+    }
+ 
+    finalthing();
+    ...
+}
+
+	It makes your code easy to read and makes it's maintenance faster.
+	
+
+2.- LAZY EVALUATION EXPLOITATION
+
+	When you are holding if statements that compare thing with OR (||) operator, be sure that the first(s) elements is the most likely give a
+	false answer or easiest/quickest to calculate).
+	
+	// *** Example 1:
+	
+	if ((countstr("my answer", "answer", 0)) != 1 || CanDoTheQuestVariable == 0 ) {
+	
+		@WrongAnswer += 1;
+		@RightAnswer -= 1;
+			
+	} else @RightAnswer += 1;
+	
+	// *** Example 2:
+	
+	if ( CanDoTheQuestVariable == 1 || (countstr("my answer", "answer", 0)) != 1 ) {
+	
+		@WrongAnswer += 1;
+		@RightAnswer -= 1;
+	
+	} else @RightAnswer += 1;
+	
+	Both examples will have the same result, but Example 2 is faster, because for this if statement (if there's only one OR operator in one if statement) 
+	it's faster check if the variable is equal to one, and in this case just one TRUE value is enough to do the code inside the brace.
+	
+	This seems to have no effect, but imagine doing this code 1000 time inside one loop ...
+	
+
+3.- Faster for() loops
+
+	We usually use for lop this way:
+	
+	for (@i =0; @i <10; @i += 1;) {...}
+	
+	In the case above @i loops through the values 0,1,2,3,4,5,6,7,8,9.
+	But if we don't need to take care about the order of the loop counter, we can do this instead:
+	
+	for (@i=10; @i -= 1;) {...}
+	
+	In both cases @i should loop through the same values but it's quicker to process @i -= 1 as the test condition which says:
+	
+	"Is @i non-zero? If so, decrement it and continue"
+	
+	in the first condition it is:
+	
+	"Subtract @i from 10. Is the result non-zero? If so, increment @i and continue."
+
+	
+	
+	
+

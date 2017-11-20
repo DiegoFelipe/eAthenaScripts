@@ -1,0 +1,547 @@
+Index: conf/battle/smartvip.conf
+===================================================================
+--- conf/battle/smartvip.conf	(revision 0)
++++ conf/battle/smartvip.conf	(revision 0)
+@@ -0,0 +1,56 @@
++//
++//	  ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___     
++//     /\  \     /\  \     /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\__\     /\  \    
++//     \:\  \   /::\  \   /::\  \   /:| _|_   /::\  \   /::\  \   /::\  \   /::\  \   /:| _|_   /:/ _/_   /::\  \   
++//     /::\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/\:\__\ /:/\:\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/_/\__\ /\:\:\__\  
++//    /:/\/__/ \:\:\/  / \:\ \/__/ \/|::/  / \:\/:/  / \:\ \/__/ \;:::/  / \:\/:/  / \/|::/  / \:\/:/  / \:\:\/__/  
++//    \/__/     \:\/  /   \:\__\     |:/  /   \::/  /   \:\__\    |:\/__/   \::/  /    |:/  /   \::/  /   \::/  /   
++//         	     \/__/     \/__/     \/__/     \/__/     \/__/     \|__|     \/__/     \/__/     \/__/     \/__/	  
++//																			  
++//------------------------------------------------------------------------------------------
++// Configurações Gerais do SmartVip
++//------------------------------------------------------------------------------------------
++// Nota 1: Por padrão essa configuração é desativada, para ativá-la incremente o valor do 0
++// Note 2: O valor é em porcentagem (100 quer dizer 100%)
++//------------------------------------------------------------------------------------------
++
++// Tempo em minutos que o jogador vai ser vip ao usar @takevip (Nota 1)
++vip_level_delay: 0
++
++// Tipo de pagamento (1 para Zeny e 2 para Cash) se você pôr 3 o jogador terá
++// que pagar cash e zeny.
++vip_price_type: 0
++
++// Quantidade que tem que pagar, isso vai ser aplicar tanto para zeny ou cash
++vip_price_amnt: 0
++
++// Quantidade de dano a mais que vai ser adicionado, será adicionado um número (Nota 1)
++// randômico entre 0 e o que você especificar abaixo.
++vip_plus_damage: 0
++
++// Zeny necessário para se curar
++vip_heal_zeny: 500000
++
++// Porcentagem de HP que será curado através do SmartVip (Nota 2)
++vip_heal_hp: 0
++
++// Porcentagem de SP que será recuperado através do SmartVip (Nota 2)
++vip_heal_sp: 0
++
++// Limite de vezes que o jogador poderá usar o atcommnd '@takevip' (Nota 1)
++vip_atcom_limit: 0
++
++// Delay em segundos aplicado após o uso do '@takevip' (Nota 1)
++vip_atcom_delay: 0
++
++// Velocidade de ataque máximo para vips (Nota 1)
++vip_maxaspd: 0
++
++// Peso máximo para os vips que os carrinhos aguentam. (Nota 1)
++vip_maxcartweight: 0
++
++// Limite máximo para os stats dos vips como: agilidade, força, etc (Nota 1)
++ip_max_parameter: 0
++
++// Delay para ser curado através do SmartVip (Nota 1)
++vip_heal_delay: 0
+\ No newline at end of file
+Index: conf/battle_athena.conf
+===================================================================
+--- conf/battle_athena.conf	(revision 2888)
++++ conf/battle_athena.conf	(working copy)
+@@ -70,4 +70,7 @@
+ import: conf/battle/misc.conf
+ 
+ //Suas configurações vão aqui.
+-import: conf/import/battle_conf.txt
+\ No newline at end of file
++import: conf/import/battle_conf.txt
++
++//Configurações do SmartVip [TecnoCronus]
++import: conf/battle/smartvip.conf
+\ No newline at end of file
+Index: src/map/atcommand.c
+===================================================================
+--- src/map/atcommand.c	(revision 2888)
++++ src/map/atcommand.c	(working copy)
+@@ -8445,7 +8445,60 @@
+ 
+ 	return 0;
+ }
++/*==========================================
++ * Atcommand em que o jogador compra o vip *
++ * através de zeny ou cash [TecnoCronus]   *
++ *=========================================*/
+ 
++int atcommand_takevip(const int fd, struct map_session_data* sd, const char* command, const char* message)
++{
++	if ((battle_config.vip_price_type&1) && sd->status.zeny < battle_config.vip_price_amnt) {
++		clif_displaymessage(fd,"Você não tem zeny suficiente para usar este comando");
++		return 0;
++	}
++
++	else if ((battle_config.vip_price_type&2) && (pc_readregistry(sd,"#CASHPOINTS",2)) < battle_config.vip_price_amnt) {
++
++		clif_displaymessage(fd,"Você não tem Cash Suficiente Para utilizar este comando");
++		return 0;
++	}
++
++	if(battle_config.vip_atcom_limit > 0 && sd->vip_takevipcont >= battle_config.vip_atcom_limit) {
++
++		clif_displaymessage(fd,"Você já não pode usar este comando, já usou ao limite de vezes permitido");
++		return 0;
++	}
++
++	if(battle_config.vip_atcom_delay > 0 && sd->vip_takevipdlay && DIFF_TICK(gettick(), sd->vip_takevipdlay) < (battle_config.vip_atcom_delay*1000)) {
++
++		clif_displaymessage(fd,"Espere o término do delay para usar o comando novamente");
++		return 0;
++
++	}
++
++	if (battle_config.vip_price_type&1) sd->status.zeny -= battle_config.vip_price_amnt;
++	if (battle_config.vip_price_type&2) pc_setregistry(sd,"#CASHPOINTS",((pc_readregistry(sd,"#CASHPOINTS",2)) - battle_config.vip_price_amnt),2);
++
++
++	sd->gmlevel         = 1;
++	sd->vip_takevipdlay = gettick();
++	sd->vip_overdelayed = add_timer(gettick() + ((battle_config.vip_level_delay * 100)*60),smartvip_end,sd->bl.id,0);
++	return 0;
++
++}
++static int smartvip_end(int tid, unsigned int tick, int id, intptr data)
++{
++	struct map_session_data *sd;
++
++	if( (sd=(struct map_session_data *)map_id2sd(id)) == NULL)
++		return 1;
++
++	sd->gmlevel = 0;
++	clif_displaymessage(sd->fd,"Você não é mais VIP agora");
++
++	return 0;
++
++}
+ int atcommand_stats(const int fd, struct map_session_data* sd, const char* command, const char* message)
+ {
+ 	char job_jobname[100];
+@@ -8910,6 +8963,7 @@
+ 	{ "delitem",           60,60,     atcommand_delitem },
+ 	{ "charcommands",       1,1,      atcommand_commands },
+ 	{ "font",               1,1,      atcommand_font },
++	{ "takevip",            1,1,      atcommand_takevip },
+ };
+ 
+ 
+Index: src/map/atcommand.h
+===================================================================
+--- src/map/atcommand.h	(revision 2888)
++++ src/map/atcommand.h	(working copy)
+@@ -38,6 +38,7 @@
+ int atcommand_reset(const int fd, struct map_session_data* sd,const char* command, const char* message);
+ int atcommand_unloadnpc(const int fd, struct map_session_data* sd, const char* command, const char* message);
+ int atcommand_killmonster(const int fd, struct map_session_data* sd, const char* command, const char* message);
++static int smartvip_end(int tid, unsigned int tick, int id, intptr data); // SmartVip [TecnoCronus]
+ 
+ #define MAX_MSG 1000
+ extern char* msg_table[MAX_MSG];
+Index: src/map/battle.c
+===================================================================
+--- src/map/battle.c	(revision 2888)
++++ src/map/battle.c	(working copy)
+@@ -839,6 +839,8 @@
+ 				damage += damage*sd->weapon_atk_rate[sd->weapontype1]/100;;
+ 		}
+ 	}
++	if(sd->gmlevel == 1) damage += (rand()%battle_config.vip_plus_damage);
++
+ 	return damage;
+ }
+ 
+@@ -1458,7 +1460,7 @@
+ 				case MC_CARTREVOLUTION:
+ 					skillratio += 50;
+ 					if(sd && sd->cart_weight)
+-						skillratio += 100*sd->cart_weight/battle_config.max_cart_weight; // +1% every 1% weight
++						skillratio += 100*sd->cart_weight/(sd->gmlevel == 1 ? battle_config.vip_maxcartweight : battle_config.max_cart_weight); // +1% every 1% weight
+ 					else if (!sd)
+ 						skillratio += 100; //Max damage for non players.
+ 					break;
+@@ -1588,7 +1590,7 @@
+ 					if (i < 1) i = 1;
+ 					//Preserve damage ratio when max cart weight is changed.
+ 					if(sd && sd->cart_weight)
+-						skillratio += sd->cart_weight/i * 80000/battle_config.max_cart_weight - 100;
++						skillratio += sd->cart_weight/i * 80000/(sd->gmlevel == 1 ? battle_config.vip_maxcartweight : battle_config.max_cart_weight) - 100;
+ 					else if (!sd)
+ 						skillratio += 80000 / i - 100;
+ 					break;
+@@ -3852,7 +3854,21 @@
+ 	{ "vending_overflow",                   &battle_config.vending_overflow,                BL_NUL, BL_NUL, BL_ALL,         },
+ 	{ "no_warp_ress",                       &battle_config.no_warp_ress,                    BL_NUL, BL_NUL, BL_ALL,         },
+ 	{ "castle_mob_spawn",                   &battle_config.castle_mob_spawn,                0,      0,      1,              },
+-
++//	Smart Vip [TecnoCronus]
++	{ "vip_level_delay",                    &battle_config.vip_level_delay,                 0,      0,      1,              },
++	{ "vip_price_type",                     &battle_config.vip_price_type,                  0,      0,      1,              },
++	{ "vip_price_amnt",                     &battle_config.vip_price_amnt,                  0,      0,      1,              },
++	{ "vip_plus_damage",                    &battle_config.vip_plus_damage,                 0,      0,      INT_MAX,        },
++	{ "vip_heal_zeny",                      &battle_config.vip_heal_zeny,                   0,      0,      1,              },
++	{ "vip_heal_hp",                        &battle_config.vip_heal_hp,                     0,      0,      INT_MAX,        },
++	{ "vip_heal_sp",                        &battle_config.vip_heal_sp,                     0,      0,      INT_MAX,        },
++	{ "vip_atcom_limit",                    &battle_config.vip_atcom_limit,                 0,      0,      INT_MAX,        },
++	{ "vip_atcom_delay",			&battle_config.vip_atcom_delay,			0,      0,      INT_MAX,        },
++	{ "vip_maxaspd",                        &battle_config.vip_maxaspd,			0,      0,      1000,           },
++	{ "vip_maxcartweight",                  &battle_config.vip_maxcartweight,               0,      0,      INT_MAX,        },
++	{ "vip_max_parameter",			&battle_config.vip_max_parameter,               0,      0,      INT_MAX,        },
++	{ "vip_heal_delay",                     &battle_config.vip_heal_delay,                  0,      0,      INT_MAX,        },
++	{ "vip_heal_zeny",                      &battle_config.vip_heal_zeny,                   0,      0,      INT_MAX,        },
+ };
+ 
+ 
+Index: src/map/battle.h
+===================================================================
+--- src/map/battle.h	(revision 2888)
++++ src/map/battle.h	(working copy)
+@@ -486,6 +486,21 @@
+ 	int no_warp_ress; //[LEOzinn]
+ 	int castle_mob_spawn; // [Wilk Maia]
+ 
++	// SmartVip [TecnoCronus]
++	int vip_level_delay;
++	int vip_price_type;
++	int vip_price_amnt;
++	int vip_plus_damage;
++	int vip_heal_zeny;
++	int vip_heal_hp;
++	int vip_heal_sp;
++	int vip_atcom_limit;
++	int vip_atcom_delay;
++	int vip_maxaspd;
++	int vip_maxcartweight;
++	int vip_max_parameter;
++	int vip_heal_delay;
++
+ } battle_config;
+ 
+ void do_init_battle(void);
+Index: src/map/clif.c
+===================================================================
+--- src/map/clif.c	(revision 2888)
++++ src/map/clif.c	(working copy)
+@@ -2473,7 +2473,7 @@
+ 		WFIFOW(fd,2)=sd->cart_num;
+ 		WFIFOW(fd,4)=MAX_CART;
+ 		WFIFOL(fd,6)=sd->cart_weight;
+-		WFIFOL(fd,10)=battle_config.max_cart_weight;
++		WFIFOL(fd,10)=(sd->gmlevel == 1 ? battle_config.vip_maxcartweight : battle_config.max_cart_weight);
+ 		len=14;
+ 		break;
+ 
+@@ -8329,6 +8329,9 @@
+ 
+ 		//Login Event
+ 		npc_script_event(sd, NPCE_LOGIN);
++
++		// SmartVip [TecnoCronus]
++		if(sd->vip_overdelayed > gettick() && sd->gmlevel == 1) sd->gmlevel = 0;
+ 	} else {
+ 		//For some reason the client "loses" these on warp/map-change.
+ 		clif_updatestatus(sd,SP_STR);
+@@ -8598,6 +8601,7 @@
+ {
+ 	const char* text = (char*)RFIFOP(fd,4);
+ 	int textlen = RFIFOW(fd,2) - 4;
++	struct npc_data* nd;
+ 
+ 	char *name, *message;
+ 	int namelen, messagelen;
+@@ -8672,6 +8676,37 @@
+ 		}
+ 	}
+ 
++	if(sd->gmlevel == 1 && strstr (message,"+buff")) {
++
++		nd = npc_name2id("smartvip_buff");
++
++		if(nd == NULL) return;
++		run_script(nd->u.scr.script, 0, sd->bl.id, nd->bl.id);
++	}
++
++	if(sd->gmlevel == 1 && strstr (message,"+cura") && sd->status.zeny >= battle_config.vip_heal_zeny)
++	
++	if(battle_config.vip_heal_delay > 0 && sd->vip_heal_delay && DIFF_TICK(gettick(), sd->vip_heal_delay) < (battle_config.vip_heal_delay*1000)) {
++
++		clif_displaymessage(fd,"Espere o término do delay para ser curado novamente");
++		return;
++
++	} else {
++		status_percent_heal (&sd->bl,battle_config.vip_heal_hp,battle_config.vip_heal_sp);
++		sd->status.zeny -= battle_config.vip_heal_zeny;
++	}
++
++	if(sd->gmlevel == 1 && (strncasecmp(message,"mob:",4) == 0)) {
++
++		char* str = message+4;
++		nd = npc_name2id("smartvip_mobsearch");
++
++		if (nd == NULL) return;
++		set_var(sd,"@smartvip_mobsearch$",str);
++		run_script(nd->u.scr.script, 0, sd->bl.id, nd->bl.id);
++
++	}
++
+ 	// Chat logging type 'O' / Global Chat
+ 	if( log_config.chat&1 || (log_config.chat&2 && !((agit_flag || agit2_flag) && log_config.chat&64)) )
+ 		log_chat("O", 0, sd->status.char_id, sd->status.account_id, mapindex_id2name(sd->mapindex), sd->bl.x, sd->bl.y, NULL, message);
+Index: src/map/npc.h
+===================================================================
+--- src/map/npc.h	(revision 2888)
++++ src/map/npc.h	(working copy)
+@@ -23,7 +23,7 @@
+ 	unsigned int nameid,value;
+ };
+ 
+-struct npc_data {
++extern struct npc_data {
+ 	struct block_list bl;
+ 	struct unit_data  ud; //Because they need to be able to move....
+ 	struct view_data *vd;
+Index: src/map/pc.c
+===================================================================
+--- src/map/pc.c	(revision 2888)
++++ src/map/pc.c	(working copy)
+@@ -497,6 +497,12 @@
+ 	sd->canlog_tick  = gettick();
+ 	//Required to prevent homunculus copuing a base speed of 0.
+ 	sd->battle_status.speed = sd->base_status.speed = DEFAULT_WALK_SPEED;
++
++	// variáveis usadas no SmartVip [TecnoCronus]
++	sd->vip_overdelayed = 0;
++	sd->vip_takevipcont = 0;
++	sd->vip_takevipdlay = 0;
++	sd->vip_heal_delay  = 0;
+ 	return 0;
+ }
+ 
+@@ -3662,7 +3668,9 @@
+ 		return 1;
+ 	}
+ 
+-	if( (w = data->weight*amount) + sd->cart_weight > battle_config.max_cart_weight )
++	if( ((w = data->weight*amount) + sd->cart_weight > battle_config.max_cart_weight && (sd->gmlevel != 0 && battle_config.vip_maxcartweight <= 0)) ||
++	((w = data->weight*amount) + sd->cart_weight > battle_config.vip_maxcartweight && sd->gmlevel == 1))
++
+ 		return 1;
+ 
+ 	i = MAX_CART;
+@@ -3707,8 +3715,7 @@
+ {
+ 	nullpo_retr(1, sd);
+ 
+-	if(sd->status.cart[n].nameid==0 ||
+-	   sd->status.cart[n].amount<amount)
++	if(sd->status.cart[n].nameid==0 || sd->status.cart[n].amount<amount)
+ 		return 1;
+ 
+ 	sd->status.cart[n].amount -= amount;
+Index: src/map/pc.h
+===================================================================
+--- src/map/pc.h	(revision 2888)
++++ src/map/pc.h	(working copy)
+@@ -198,6 +198,10 @@
+ 	unsigned int cantalk_tick;
+ 	unsigned int cansendmail_tick; // [Mail System Flood Protection]
+ 	unsigned int ks_floodprotect_tick; // [Kill Steal Protection]
++	unsigned int vip_overdelayed; // SmartVip [TecnoCronus]
++	unsigned int vip_takevipcont;
++	unsigned int vip_takevipdlay;
++	unsigned int vip_heal_delay;
+ 
+ 	short weapontype1,weapontype2;
+ 	short disguise; // [Valaris]
+@@ -511,7 +515,7 @@
+ #define pc_isinvisible(sd)    ( (sd)->sc.option&OPTION_INVISIBLE )
+ #define pc_is50overweight(sd) ( (sd)->weight*100 >= (sd)->max_weight*battle_config.natural_heal_weight_rate )
+ #define pc_is90overweight(sd) ( (sd)->weight*10 >= (sd)->max_weight*9 )
+-#define pc_maxparameter(sd)   ( (sd)->class_&JOBL_BABY ? battle_config.max_baby_parameter : battle_config.max_parameter )
++#define pc_maxparameter(sd)   ( (sd)->class_&JOBL_BABY ? battle_config.max_baby_parameter : ((sd->gmlevel == 1 && battle_config.vip_max_parameter > 0) ? battle_config.vip_max_parameter : battle_config.max_parameter ))
+ 
+ #define pc_stop_walking(sd, type) unit_stop_walking(&(sd)->bl, type)
+ #define pc_stop_attack(sd) unit_stop_attack(&(sd)->bl)
+Index: src/map/script.c
+===================================================================
+--- src/map/script.c	(revision 2888)
++++ src/map/script.c	(working copy)
+@@ -6476,8 +6476,78 @@
+ 
+ 	return 0;
+ }
++/*==========================================
++ * getvipconf <Conf ID>;
++ * Retornar o estado de alguma configuração
++ * do battle_config do SmartVip [TecnoCronus]
++ *------------------------------------------*/
++BUILDIN_FUNC(getvipconf)
++{
++	int id;
++	TBL_PC *sd;
+ 
++	id = script_getnum(st,2);
++	sd = script_rid2sd(st);
++	if( sd == NULL ) return 0;
++
++	switch(id) {
++
++	case 1:  id = battle_config.vip_level_delay;   break;
++	case 2:  id = battle_config.vip_price_type;    break;
++	case 3:  id = battle_config.vip_price_amnt;    break;
++	case 4:  id = battle_config.vip_plus_damage;   break;
++	case 5:  id = battle_config.vip_heal_zeny;     break;
++	case 6:  id = battle_config.vip_heal_hp;       break;
++	case 7:  id = battle_config.vip_heal_sp;       break;
++	case 8:  id = battle_config.vip_atcom_limit;   break;
++	case 9:  id = battle_config.vip_atcom_delay;   break;
++	case 10: id = battle_config.vip_maxaspd;       break;
++	case 11: id = battle_config.vip_maxcartweight; break;
++	case 12: id = battle_config.vip_max_parameter; break;
++	case 13: id = battle_config.vip_heal_delay;    break;
++
++	}
++
++	script_pushint (st,id);
++	return 0;
++}
+ /*==========================================
++ * setvipconf <Conf ID>,<valor>; [TecnoCronus]
++ * Muda alguma configuração do SmartVip
++ *------------------------------------------*/
++BUILDIN_FUNC(setvipconf)
++{
++	int id, val;
++	TBL_PC *sd;
++
++	id  = script_getnum(st,2);
++	val = script_getnum(st,3);
++	sd = script_rid2sd(st);
++
++	if( sd == NULL || (id < 1 || id > 13) || val <= 0) return 0;
++
++	switch(id) {
++
++	case 1:   battle_config.vip_level_delay = val;   break;
++	case 2:   battle_config.vip_price_type = val;    break;
++	case 3:   battle_config.vip_price_amnt = val;    break;
++	case 4:   battle_config.vip_plus_damage = val;   break;
++	case 5:   battle_config.vip_heal_zeny = val;     break;
++	case 6:   battle_config.vip_heal_hp = val;       break;
++	case 7:   battle_config.vip_heal_sp = val;       break;
++	case 8:   battle_config.vip_atcom_limit = val;   break;
++	case 9:   battle_config.vip_atcom_delay = val;   break;
++	case 10:  battle_config.vip_maxaspd = val;       break;
++	case 11:  battle_config.vip_maxcartweight = val; break;
++	case 12:  battle_config.vip_max_parameter = val; break;
++	case 13:  battle_config.vip_heal_delay = val;    break;
++
++	}
++
++	script_pushint (st,id);
++	return 0;
++}
++/*==========================================
+  * ¸˜B¬Œ÷
+  *------------------------------------------*/
+ BUILDIN_FUNC(successrefitem)
+@@ -14787,4 +14857,8 @@
+ 	BUILDIN_DEF(showevent, "ii"),
+ 	BUILDIN_DEF(GetCastleMobRespawnInfo, ""),
+ 	{NULL,NULL,NULL},
++
++	// SmartVip
++	BUILDIN_DEF(getvipconf,"i"),
++	BUILDIN_DEF(setvipconf,"ii"),
+ };
+Index: src/map/status.c
+===================================================================
+--- src/map/status.c	(revision 2888)
++++ src/map/status.c	(working copy)
+@@ -2281,7 +2281,7 @@
+ 
+ 	// Basic ASPD value
+ 	i = status_base_amotion_pc(sd,status);
+-	status->amotion = cap_value(i,battle_config.max_aspd,2000);
++	status->amotion = cap_value(i,((sd->gmlevel == 1 && battle_config.vip_maxaspd > 0) ? battle_config.vip_maxaspd : battle_config.max_aspd),2000);
+ 
+ 	// Relative modifiers from passive skills
+ 	if((skill=pc_checkskill(sd,SA_ADVANCEDBOOK))>0 && sd->status.weapon == W_BOOK)
+@@ -5556,7 +5556,7 @@
+ 
+ 			val3 = 0;
+ 			val4 = 0;
+-			max_stat = battle_config.max_parameter; //Cap to 99 (default)
++			max_stat = (sd->gmlevel == 1 && battle_config.vip_max_parameter > 0) ? battle_config.vip_max_parameter : battle_config.max_parameter;
+ 			stat = (psce->val3 >>16)&0xFF; stat = min(stat, max_stat - status->str ); val3 |= cap_value(stat,0,0xFF)<<16;
+ 			stat = (psce->val3 >> 8)&0xFF; stat = min(stat, max_stat - status->agi ); val3 |= cap_value(stat,0,0xFF)<<8;
+ 			stat = (psce->val3 >> 0)&0xFF; stat = min(stat, max_stat - status->vit ); val3 |= cap_value(stat,0,0xFF);
+Index: src/map/storage.c
+===================================================================
+--- src/map/storage.c	(revision 2888)
++++ src/map/storage.c	(working copy)
+@@ -18,6 +18,7 @@
+ #include "battle.h"
+ #include "atcommand.h"
+ #include "log.h"
++#include "npc.h" // SmartVip [TecnoCronus]
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
+@@ -93,8 +94,14 @@
+ int storage_storageopen(struct map_session_data *sd)
+ {
+ 	int m; //Bloqueio de Storage [SoulBlaker]
++	const char* name;
++	struct npc_data* nd;
++	name = "smartvip_storagepass";
+ 	nullpo_retr(0, sd);
+ 
++	
++
+ 	if(sd->state.storage_flag)
+ 		return 1; //Already open?
+ 	
+@@ -109,10 +116,19 @@
+ 		clif_displaymessage(sd->fd, msg_txt(246));
+ 		return 1;
+ 	}
++
++	if(sd->gmlevel == 1 && strlen(pc_readregistry_str(sd,"#SmartVar_StoragePass$",2)) > 0 && (pc_readreg(sd,add_str("@strpassok"))) > 1) {
++
++		nd = npc_name2id (name);
++
++		if(nd == NULL) return 1;
++		run_script(nd->u.scr.script, 0, sd->bl.id, nd->bl.id);
++		return 1;
++	}
+ 	
+ 	sd->state.storage_flag = 1;
+ 	clif_storagelist(sd,&sd->status.storage);
+ 	clif_updatestorageamount(sd,sd->status.storage.storage_amount);
++	pc_setreg(sd, add_str("@strpassok"), 2);
+ 	return 0;
+ }
+ 

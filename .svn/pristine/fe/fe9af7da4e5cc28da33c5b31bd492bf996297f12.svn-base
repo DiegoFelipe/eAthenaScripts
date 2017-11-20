@@ -1,0 +1,152 @@
+Index: db/map_db_damage_reduction.txt
+===================================================================
+--- db/map_db_damage_reduction.txt	(revision 0)
++++ db/map_db_damage_reduction.txt	(revision 0)
+@@ -0,0 +1,23 @@
++/--------------------------------------------------------------------------------------------------------------------\\
++// 	  ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___    \\
++//       /\  \     /\  \     /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\__\     /\  \   \\
++//       \:\  \   /::\  \   /::\  \   /:| _|_   /::\  \   /::\  \   /::\  \   /::\  \   /:| _|_   /:/ _/_   /::\  \  \\
++//       /::\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/\:\__\ /:/\:\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/_/\__\ /\:\:\__\ \\
++//      /:/\/__/ \:\:\/  / \:\ \/__/ \/|::/  / \:\/:/  / \:\ \/__/ \;:::/  / \:\/:/  / \/|::/  / \:\/:/  / \:\:\/__/ \\
++//      \/__/     \:\/  /   \:\__\     |:/  /   \::/  /   \:\__\    |:\/__/   \::/  /    |:/  /   \::/  /   \::/  /  \\
++//      	   \/__/     \/__/     \/__/     \/__/     \/__/     \|__|     \/__/     \/__/     \/__/     \/__/   \\
++//														     \\
++//-------------------------------------------------------------------------------------------------------------------\\
++// -> Sistema de Redução de Dano em Mapas [SRDM]								     \\
++//-------------------------------------------------------------------------------------------------------------------\\
++// Funcionamento												     \\
++//														     \\
++// <Mapa>,<porcentagem>												     \\
++//														     \\
++// Mapa = o mapa que vai ter o dano reduzido									     \\
++// porcentagem = porcentagem de dano que deve ser reduzida no mapa						     \\
++//														     \\
++// Exemplo: Reduzir 50% de dano em prontera:									     \\
++//														     \\
++// prontera,50													     \\
++//-------------------------------------------------------------------------------------------------------------------\\
+\ No newline at end of file
+Index: src/map/battle.c
+===================================================================
+--- src/map/battle.c	(revision 14261)
++++ src/map/battle.c	(working copy)
+@@ -2188,6 +2188,7 @@
+ 		status_zap(src, hp, 0);
+ 	}
+ 
++	if(sd && map[sd->bl.m].damage_percent > 0) wd.damage -= (map[sd->bl.m].damage_percent * 100) * wd.damage;
+ 	return wd;
+ }
+ 
+@@ -2529,7 +2530,10 @@
+ 		ad.damage=battle_calc_gvg_damage(src,target,ad.damage,ad.div_,skill_num,skill_lv,ad.flag);
+ 	else if( map[target->m].flag.battleground )
+ 		ad.damage=battle_calc_bg_damage(src,target,ad.damage,ad.div_,skill_num,skill_lv,ad.flag);
++	if(sd && map[sd->bl.m].damage_percent > 0) ad.damage -= (map[sd->bl.m].damage_percent * 100) * ad.damage;
++
+ 	return ad;
++
+ }
+ 
+ /*==========================================
+@@ -2766,6 +2770,8 @@
+ 		pc_payzeny(sd, md.damage);
+ 	}
+ 
++	if(sd && map[sd->bl.m].damage_percent > 0) md.damage -= (map[sd->bl.m].damage_percent) * md.damage;
++
+ 	return md;
+ }
+ /*==========================================
+Index: src/map/itemdb.c
+===================================================================
+--- src/map/itemdb.c	(revision 14261)
++++ src/map/itemdb.c	(working copy)
+@@ -906,7 +906,45 @@
+ 
+ 	return 0;
+ }
++/*=============================================
++ * Reads map_db_damage_reduction [TecnoCronus]
++ *=============================================*/
++static int itemdb_read_map_damage_reduction(void)
++{
+ 
++
++	FILE *fp;
++	char line[1024];
++	int percent, m, j;
++	char *str[32],*p;
++
++
++
++	sprintf(line,"db/map_db_damage_reduction",db_path);
++	fp = fopen(line,"r");
++
++	while (fgets(line, sizeof(line), fp)) {
++
++		if (line[0]=='/' && line[1]=='/')
++			continue;
++		memset(str,0,sizeof(str));
++		for(j=0,p=line;j<2 && p;j++){
++			str[j]=p;
++			p=strchr(p,',');
++			if(p) *p++=0;
++		}
++		if(str[0]==NULL)
++			continue;
++		m = map_mapname2mapid(str[0]);
++		percent = atoi(str[1]);
++		if (m > 0 && percent > 0) 
++			map[m].damage_percent = percent;
++	}
++
++	fclose(fp);
++	return 0;
++}
++
+ #ifndef TXT_ONLY
+ /*======================================
+  * item_db table reading
+@@ -971,6 +1009,7 @@
+ 	itemdb_read_itemavail();
+ 	itemdb_read_noequip();
+ 	itemdb_read_itemtrade();
++	itemdb_read_map_damage_reduction();
+ }
+ 
+ /*==========================================
+Index: src/map/itemdb.h
+===================================================================
+--- src/map/itemdb.h	(revision 14261)
++++ src/map/itemdb.h	(working copy)
+@@ -82,6 +82,8 @@
+ 	int qty; //Counts amount of items in the group.
+ };
+ 
++static int itemdb_read_map_damage_reduction(void); // [TecnoCronus]
++
+ struct item_data* itemdb_searchname(const char *name);
+ int itemdb_searchname_array(struct item_data** data, int size, const char *str);
+ struct item_data* itemdb_load(int nameid);
+Index: src/map/map.h
+===================================================================
+--- src/map/map.h	(revision 14261)
++++ src/map/map.h	(working copy)
+@@ -468,6 +468,7 @@
+ 		unsigned guildlock :1;
+ 		unsigned src4instance : 1; // To flag this map when it's used as a src map for instances
+ 	} flag;
++	int damage_percent; // [TecnoCronus]
+ 	struct point save;
+ 	struct npc_data *npc[MAX_NPC_PER_MAP];
+ 	struct {
+@@ -485,6 +486,7 @@
+ 	// Instance Variables
+ 	int instance_id;
+ 	int instance_src_map;
++
+ };
+ 
+ /// Stores information about a remote map (for multi-mapserver setups).

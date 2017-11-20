@@ -1,0 +1,15 @@
+prontera,150,150,4	script	Caixas de Presente	88,{
+
+	mes "[Caixa de Presente]";
+	if(countitem(644) > 0) {
+		mes "Olá você deseja abrir todas caixas de presente que estão em seu inventário ?";
+		if(select("Sim","Não")==1) {
+			while(countitem(644) > 0) {
+				getitem groupranditem(IG_GiftBox),1;
+				delitem 644;
+			}
+		}
+	} else 
+		mes "Você não tem Caixas de presente, não posso ajudá-lo, até mais!";
+	close;
+}			

@@ -1,0 +1,118 @@
+//===== Cronus / eAthena Script ==============================
+//= Configurações da Gold Room
+//===== By: ==================================================
+//= TecnoCronus
+//= DeMoN (Evanio) - Tradução
+//===== Versão : =============================================
+//= 1.0
+//===== Compativél com: ======================================
+//= eAthena SVN SQL/TXT
+//= Cronus SVN SQL/TXT
+//===== Discrição: ===========================================
+//= Este NPC serve para a configuração da Gold Room.
+//============================================================
+
+-	script	GRSys_Config	-1,{
+end;
+	OnInit:
+//	Quantidade de monstros que serão invocados a cada certo tempo.
+	set $@GRAmount, 25;
+
+// 	Porcentagem de chance de mostrar ao jogador os pontos após matar o monstro.
+//	Nota: Use apenas números.
+	set $@GRPChance, 5;
+
+// 	"X" Pontos por 1 Ouro.
+	set $@GRP, 3;
+
+// 	Nome do Monstro.
+	set $@GR_MobName$, "Monstro do Ouro";
+
+//	ID do Monstro.
+//	Note: Olhe o mob_db.txt para mais ID's.
+	set $@GR_MobId, 1257;
+
+// 	Porcentagem de chance para monstrar "você conseguil "+x+" pontos"
+//	Nota: Use apenas números.
+	set $@GR_Show, 30;
+
+//	Duração de Troca de Status.
+//	Nota: em segundos.
+	set $@GRSTTime, 10;
+
+//	Maximo de Clones que um jogador pode ter.
+	set $@GR_CLLimit, 5;
+
+//	Level minimo para entrar na Gold Room.
+	set $@GRSys_Lvl, 50;
+
+//	Porcentagem de chance para ganhar bonus extras. (str, dex, luck)
+//	Nota: Use apenas números.
+	set $@GRSys_Buff, 10;
+
+//	Zeny cobrado para a entrada do "Gold Room Shopping Center".
+	set $@GRSys_Warp, 5000;
+
+//	Chance de dar algum GP para o jogador.
+//	Nota: Usados nos NPCs de Chat.
+	set $@GRSys_GetGP, 5;
+
+//	Chance para "Dropar" a carta da Gold Room.
+//	Nota: Use apenas numeros.
+	set $@GRSys_CardDrop, 10;
+
+//	Aumento do limite máximo de monstros que um jogador pode matar por hora.
+	set $@GR_MobLim, 10;
+
+//	Monstros que um jogador pode matar por hora.
+	set $@GR_MobDefault, 100;
+
+//	Cada atualização será cobrado x GPs * lvl de equipamento * vezes para o refinamento
+	set $@GRSys_RefPrice, 5;
+
+//	Preço (em zeny) para entrar na Gold Room
+	set $@GRSys_EnterZeny, 50000;
+
+//	******************
+//	*** Guardiões. ***
+// 	******************
+//
+//	Quantidade de Guardiões que serão invocados.
+	set $@GRAmount2, 25;
+
+//	Nome do Guardião.
+	set $@GR_GuardianName$, "[GR] Guardião";
+
+//	************************************************************
+//	***	ARRAY DOS ITENS PARA AS MISSÕES			****
+//	************************************************************
+//
+//	Defina aqui as matrizes com a identificação dos itens que serão utilizados.
+//
+//	$@GRM1:		Array com os IDs de Primeira Quest.
+//	$@GRM2:		Array com os IDs de Primeira Quest.
+//	$@GRM3:		Array com os IDs de Primeira Quest.
+//	$@GRMStr:	Array com os IDs da Quest de Str.
+//	$@GRMDex:	Array com os IDs da Quest de Dex.
+//	$@GRMLuk:	Array com os IDs da Quest de Luk.
+//
+//	e a quantidade de seus repectivos, arrays termina com um
+
+	setarray $@GRM1[0],504;
+	setarray $@GRM1A[0],1;
+	setarray $@GRM2[0],608;
+	setarray $@GRM2A[0],1;
+	setarray $@GRM3[0],607;
+	setarray $@GRM3A[0], 1;
+	setarray $@GRM4Str[0],607;
+	setarray $@GRM4StrA[0], 1;
+	setarray $@GRM4Dex[0],607;
+	setarray $@GRM4DexA[0], 1;
+	setarray $@GRM4Luk[0],607;
+	setarray $@GRM4LukA[0], 1;
+
+
+	monster "bat_c01",0,0,$@GR_MobName$,$@GR_MobId,$@GRAmount,"GRManager::OnMyMobKilled";
+	monster "bat_c01",0,0,$@GR_GuardianName$,1900,$@GRAmount2,"GRManager::OnMyMobKilled";
+	end;
+}

@@ -1,0 +1,99 @@
+//===== eAthena Script =======================================
+//= Chating Funtion
+//===== By: ==================================================
+//= TecnoCronus
+//===== Current Version: =====================================
+//= 1.1
+//===== Compatible With: =====================================
+//= eAthena SVN SQL/TXT
+//===== Description: =========================================
+//= This is the function of chating NPCS it controlls all them
+//= the npc also can give Gp by an random chance.
+//============================================================
+
+function	script	GRSys_Chatting	{
+
+	mes "["+getarg(0)+"]";
+	mes "Do you hear something about";
+	mes "An Room called \"Gold Room\"?";
+	mes "I Was there some days ago.";
+	if(select("Gold Room Again ?","Continue, please")==1) {
+		mes "I See you're busy";
+		mes "See you another day.";
+		close2;
+		emotion e_heh;
+		end;
+	}
+	if(rand(99)<=$@GRSys_GetGP) {
+		next;
+		mes "["+getarg(0)+"]";
+		mes "You looks like an old friend";
+		mes "That i meet in the past";
+		mes "I'll give an Gift for you";
+		set ##GRMob, ##GRMob + getarg(1);
+		mes "Take "+getarg(1)+" GPs for you";
+		close2;
+		emotion e_no1;
+		end;
+	}
+	next;
+	mes "["+getarg(0)+"]";
+	if(GR_CanClone) {
+	mes "Someone told that if you say";
+	mes "^FF0000Clone me Please^000000 inside the";
+	mes "Gold Room, you'll be cloned, of course if you do an quest.";
+	next;
+	mes "["+getarg(0)+"]";
+	}
+	mes "I got in problem on this room";
+	mes "There's some Guardians protecting";
+	mes "This room, it's hard to stay alive on this Room.";
+	next;
+	mes "["+getarg(0)+"]";
+	mes "But, an old friend told me about";
+	mes "Some peoples who helps the others";
+	mes "Who wants to stay Alive there.";
+	if(select("Really ? What they do for it?","I'm busy, I need go")==2) {
+		next;
+		mes "["+getarg(0)+"]";
+		mes "All right, see you again";
+		close2;
+		emotion e_no1;
+		end;
+	}
+	if(GR_CanGetBuff > 0) {
+	next;
+	mes "["+getarg(0)+"]";
+	mes " I Hear an Story that if you say";
+	mes "^FF0000Buff^000000 Inside the Gold";
+	mes "Room you will be Buffed ...";
+	}
+	next;
+	mes "["+getarg(0)+"]";
+	mes "According him, they can increase";
+	mes "some stats, like: Luk, Dex or Str";
+	mes "But you need to do an hard Quest";
+	mes "For it.";
+	next;
+	mes "["+getarg(0)+"]";
+	mes "Those my old friend told me where";
+	mes "I Can Find one of those questor";
+	mes "I Can warp you, if you want.";
+	if(select("Really ? please warp me","No, Thanks")==2) {
+		next;
+		mes "["+getarg(0)+"]";
+		mes "All right, I see you aren't";
+		mes "Interested, so, bye bye.";
+		close2;
+		emotion e_omg;
+		end;
+	}
+	mes "Warping ...";
+	close2;
+	switch(rand(3)) {
+	case 0: warp "prontera",174,215; end;
+	case 1: warp "payon",173,225; end;
+	case 2: warp "alberta",197,151; end;
+	}
+		
+}

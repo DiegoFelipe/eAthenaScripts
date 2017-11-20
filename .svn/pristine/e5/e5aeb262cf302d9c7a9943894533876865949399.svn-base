@@ -1,0 +1,73 @@
+prontera,174,215,4	script	YuuKira	98,{
+
+	mes "[ ^CC000CYuuKira^000000 ]";
+	mes "Hoje o dia está ótimo para";
+	mes "fazer alguns investimentos";
+	mes "O Que você acha ?";
+
+	select("Claro, é um bom dia para fazer cheques.","Talvez mas estou sem grana.");
+
+	if(@menu == 1) {
+
+		next;
+		mes "[ ^CC000CYuuKira^000000 ]";
+		mes "Vejo que você tem interesse em cheques";
+		mes "Qual tipo de cheque você quer criar ?";
+
+		select("Cheque de 1b","Cheque de 100kk","Sair");
+
+		mes "[ ^CC000CYuuKira^000000 ]";
+		if(@menu == 1) {
+
+			mes "Quantos cheques de 1b você quer criar ?";
+			input @Qnt_;
+
+			if((1000000*@Qnt_) > Zeny) {
+
+				mes "Você não tem zeny suficiente";
+				mes "Operação cancelada.";
+				close;
+
+			}
+
+			set Zeny, Zeny -(1000000*@Qnt_);
+			getitem .ID_Cheque[0], @Qnt_;
+			mes "Operação concluída, volte";
+			mes "sempre que desejar.";
+
+		} else if (@menu == 2) {
+
+			mes "Quantos cheques de 100kk você quer criar ?";
+			input @Qnt_2;
+
+			if((100000*@Qnt_2) > Zeny) {
+
+				mes "Você não tem zeny suficiente";
+				mes "Operação cancelada.";
+				close;
+
+			}
+
+			set Zeny, Zeny -(100000*@Qnt_2);
+			getitem .ID_Cheque[1], @Qnt_2;
+			mes "Operação concluída, volte";
+			mes "sempre que desejar.";
+
+		} else if (@menu == 3) {
+
+			mes "Sinta-se a vontade para";
+			mes "voltar novamente.";
+		}
+	close;
+
+	}
+
+	mes "Isso não é problema!";
+	mes "Volte assim que tiver dinheiro.";
+	close;
+
+	OnInit:
+
+		setarray .ID_Cheque[0], 524, // ID do cheque de 1b
+					555; // ID do cheque de 100kk
+}

@@ -1,0 +1,82 @@
+/*	    ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___   
+	   /\  \     /\  \     /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\__\     /\  \  
+	   \:\  \   /::\  \   /::\  \   /:| _|_   /::\  \   /::\  \   /::\  \   /::\  \   /:| _|_   /:/ _/_   /::\  \ 
+	   /::\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/\:\__\ /:/\:\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/_/\__\ /\:\:\__\
+	  /:/\/__/ \:\:\/  / \:\ \/__/ \/|::/  / \:\/:/  / \:\ \/__/ \;:::/  / \:\/:/  / \/|::/  / \:\/:/  / \:\:\/__/
+	  \/__/     \:\/  /   \:\__\     |:/  /   \::/  /   \:\__\    |:\/__/   \::/  /    |:/  /   \::/  /   \::/  / 
+        	     \/__/     \/__/     \/__/     \/__/     \/__/     \|__|     \/__/     \/__/     \/__/     \/__/ 
+			          
+	*----------------------------------------- eAthena Script ---------------------------------------------*
+	* Anunciador de Nível Máximo									       *
+	*----------------------------------------------- By: --------------------------------------------------*
+	* TecnoCronus                                                                                          *
+	*----------------------------------------- Current Version: -------------------------------------------*
+	* 1.0												       *
+	*----------------------------------------- Compatible With: -------------------------------------------*
+	* eAthena		             								       *
+	*------------------------------------------- Description: ---------------------------------------------*
+	* Um NPC que anuncia as 10 primeiras pessoas à chegar ao nível máximo				       *
+	*----------------------------------------- Additional Comments: ---------------------------------------*
+	* Você precisar pr os ids dos item dentro do array .Global_Array_Item array, o  item será escolhido     *
+	* randômicamente.							       			       *
+	*------------------------------------------------------------------------------------------------------*/
+
+-	script	MaxLvLAn	-1,{
+
+	end;
+
+	OnPCBaseLvUpEvent:
+
+		if(.numMaxLevel == 10)
+			disablenpc "MaxLvLAn";
+		else
+			if(BaseLevel==.MaxLvl) {
+				// Check if the player for some reason, reached to Maximum level again
+				if(Rew > 0) end;
+
+				// Array index, start at 1
+				set .numMaxLevel, .numMaxLevel + 1;
+
+				// Keep the player name on array
+				setarray $Rank$[.numMaxLevel], strcharinfo(0);
+
+				announce strcharinfo(0)+", Você foi o "+.places$[.numMaxLevel]+"à chegar ao nível "+.MaxLvl+", você vari receber uma recompensa",0;
+
+				//give prize
+				set @Rnd_Item, rand(0,(getarraysize(".Global_Array_Item")-1));
+				additem .Global_Array_Item[@Rnd_Item],1;
+				set Rew, 1;
+
+				if(.numMaxLevel == 10) // SHould be 10 now because the array index start in 1
+					disablenpc "MaxLvLAn";
+			}
+		end;
+
+	OnInit:
+		// Set here the maximum level of your server
+		set .MaxLvl, 99;
+
+		// Array with the item id rewards
+		setarray .Global_Array_Item[0],504,505;
+
+		//array lookup for place names
+		setarray .places$[0], "primeiro", "Segundo", "Terceiro", "Quarto", "Quinto", "Sexto", "Sétimo", "Oitavo", "Nono", "Décimo";
+}
+prontera,146,165,6 script MaxLvLRank 718,{
+
+	show "[Constantin]";
+	show "Olá,eu sou o Constantin, sou a pessoa que";
+	show "tem acesso à todos os registros de Rune Midgard";
+	show "Você está interessado em algo ?";
+	if(select("Quero ver o TOP 10 de quem chegou no nível máximo: Não, Nada.")==1) {
+		show "Esse rank é composto pelas 10 primeiras pessoas ";
+		show "que atingiram o nível máximo.";
+		next;
+		show "[Constantin]";
+		for(set @i, 1; $Rank$[@i]; set @i, @i + 1) mes @i+"º"+$Rank$[@i]+".";
+	} else {
+		show "Ok, sem problemas.";
+	}
+
+	close;
+}

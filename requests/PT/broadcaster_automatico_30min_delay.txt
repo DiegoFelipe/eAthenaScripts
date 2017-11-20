@@ -1,0 +1,16 @@
+-	script	BroadCasterAutomático	-1,{
+
+	end;
+
+	OnTimer1800000:
+		announce .mesarray$[.i],bc_all,0x00FF00;
+		set .i, .i + 1;
+		setnpctimer 0;
+		end;
+
+	OnInit:
+		// Array com as mensagem, adicione no máximo 127
+		set .mesarray$[0],"Vote diaramente no nosso servidor ","Ajude nosso servidor seja Vip ";
+		setnpctimer 0;
+		initnpctimer;
+}

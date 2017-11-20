@@ -1,0 +1,200 @@
+//===== Cronus / eAthena Script ==============================
+//= Gerente da Gold Room
+//===== By: ==================================================
+//= TecnoCronus
+//= DeMoN (Evanio) - Tradução
+//===== Versão : =============================================
+//= 2.3
+//===== Compativél com: ======================================
+//= eAthena SVN SQL/TXT
+//= Cronus SVN SQL/TXT
+//===== Discrição: ===========================================
+//= Este NPC é o Gerente, ele por clonar o jogador,
+//= teleporta-lo a Gold Room, Teleporta-lo ao Shopping,
+//= negociar seus pontos por ouro, entre outros.
+//============================================================
+
+prontera,146,164,6	script	GRGerente	982,{
+
+	if(!##GRDefault) set ##GRDefault, $@GR_MobDefault;
+	if(!GR_CanClone) set GR_CanClone, 0;
+	if(!GR_Cloned) set GR_Cloned, 0;
+	set @HowMuch,getmapmobs ("bat_c01");
+	set @HowMuch, @HowMuch - $GRSYS_Clones;
+	if(@HowMuch==0) { 
+		monster "bat_c01",0,0,$@GR_MobName$,$@GR_MobId,$@GRAmount,"GRGerente::OnMyMobKilled";
+		monster "bat_c01",0,0,$@GR_GuardianName$,1900,$@GRAmount2,"GRGerente::OnMyMobKilled";
+	}
+	mes "[^77B700Gerente^000000]";
+	if(BaseLevel < $@GRSys_Lvl) {
+		mes "Você não está permitido de entra na Gold Room.";
+		mes "Por que seu level está baixo.";
+		close;
+	}
+	mes "Eu sou o Gerente da Gold Room";
+	mes "Em que posso ajuda-lo???";
+	next;
+
+	switch(select("~>Fale-me um pouco sobre a Gold Room","~>Quero trocar Pontos GP por Ouro","~>Teleporte-me para a Gold Room","~>Por favor me Clone","~>Teleporte-me até o Gold Room Shopping Center","~>^FF0000Sair^000000")) {
+
+	case 1:
+		mes "[^77B700Gerente^000000]";
+		mes "A Gold Room é um local onde você mata monstros e ganha pontos que poderá troca-los por Ouro.";
+		mes "Sendo que você só pode matar 100 Monstros por Hora.";
+		next;
+		mes "[^77B700Gerente^000000]";
+		mes "Mais uma coisa: Depois de trocar os seus pontos, você deve esperar alguns minutos para entrar na Gold Room";
+		mes "Exemplo: Você trocou seus pontos às 12:55 PM, você pode retornar apenas ás 13:00 PM";
+		next;
+		mes "[^77B700Gerente^000000]";
+		mes "Assim, se você mudar os seus pontos em 13:02 PM, você pode retornar ás 14:00.";
+		mes "Entendido?";
+		close;
+	case 2:
+		mes "[^77B700Gerente^000000]";
+		mes "Você tem ^FF0000"+##GRMob+"^000000 Ponto(s)";
+		mes "Justamente, eu troco "+$@GRP+" Ponto por 1 Ouro";
+		mes "Quanto de ouro você quer?";
+		next;
+		input @Mount;
+		set @amount, @Mount;
+		set @Mount, @Mount*$@GRP;
+		if(@Mount<=0 || @Mount > ##GRMob) {
+			mes "[^77B700Gerente^000000]";
+			mes "Você não tem pontos suficientes!";
+			close;
+		}
+		set ##GRMob,##GRMob-@Mount;
+		getitem 969,@amount;
+		set #GLD_DELAY,(GetTime(7)*12*31*24+GetTime(6)*31*24+GetTime(5)*24+GetTime(3) + 1);
+		mes "[^77B700Gerente^000000]";
+		mes "Pronto, você trocou "+@amount+" Ponto(s) por "+@Mount+" Ouro(s)";
+		mes "Venha em "+ (#GLD_DELAY - (GetTime(7)*12*31*24+GetTime(6)*31*24+GetTime(5)*24+GetTime(3)) )+" horas depois.";
+		close;
+
+	case 3:
+		if(##GRMob >= ##GRDefault) {
+			mes "[^77B700Gerente^000000]";
+			mes "Troque seus pontos antes de teleportar";
+			mes "Você sabe que pode conseguir";
+			mes "mais pontos.";
+			close;
+		}
+		if (#GLD_DELAY > (GetTime(7)*12*31*24 + GetTime(6)*31*24 + GetTime(5)*24 + GetTime(3)) ) {
+			mes "[^77B700Gerente^000000]";
+			mes "Eu disse para você:";
+			mes "Venha em "+ (#GLD_DELAY - (GetTime(7)*12*31*24+GetTime(6)*31*24+GetTime(5)*24+GetTime(3)) )+" horas depois.";
+			close;
+		}
+		if(Zeny < $@GRSys_EnterZeny) {
+			mes "Desculpe, eu não posso teleportar você.";
+			mes "Você não tem "+$@GRSys_EnterZeny+" Zenys";
+			close2;
+			emotion e_sry;
+			end;
+		}
+		if(BaseLevel < $@GRSys_Lvl) {
+			mes "Seu level é baixo";
+			mes "para entrar na Gold Room";
+			mes "Volte quando conseguir chegar no level "+$@GRSys_Lvl;
+			close;
+		}
+		mes "[^77B700Gerente^000000]";
+		mes "Ok, vou teleporta-lo agora.";
+		close2;
+		warp "bat_c01",0,0;
+		close;
+
+	case 4:
+		mes "[^77B700Gerente^000000]";
+		if(!GR_CanClone) {
+			mes "Ei "+strcharinfo(0)+" você ainda não fez a missão dos Clones.";
+			mes "Não posso clonar você.";
+			close;
+		}
+		if(GR_CanClone == GR_Cloned) {
+			mes "Você ja chegou no limite de clones.";
+			mes "Só posso lhe clonar quando você morrer.";
+			close;
+		}
+		
+		mes "Ok Vou clona-lo agora.";
+		close2;
+		atcommand "@slaveclone "+strcharinfo(0);
+		set $GRSYS_Clones,$GRSYS_Clones+1;
+		if(!GR_Cloned) set GR_Cloned, 0;
+		set GR_Cloned, GR_Cloned + 1;
+		emotion e_no1;
+		end;
+
+	case 5:
+		mes "[^77B700Gerente^000000]";
+		mes "Para entrar você precisa de ^AA55AA"+$@GRSys_Warp+"^000000 Zenys";
+		mes "Está interessado ?";
+		if(select("Ok, teleporte-me","Não")==2) {
+			mes "Ok.";
+			close2;
+			emotion e_ok;
+			end;
+		}
+		if(Zeny < $@GRSys_Warp) {
+			mes "Você não tem a quantia que eu falei";
+			mes "Me desculpe mais não posso";
+			mes "teleporta-lo.";
+			close2;
+			emotion e_sry;
+			end;
+		}
+		mes "ok, VOu teleporta-lo para o Gold Room Shopping Center agora !";
+		close2;
+		set Zeny, Zeny - $@GRSys_Warp;
+		warp "ra_in01",277,142;
+		end;
+	case 6:
+		mes "[^77B700Gerente^000000]";
+		mes "Ok, Boa sorte "+strcharinfo(0);
+		mes "Tchalzinho ~";
+		close2;
+		emotion e_heh;
+		end;
+	
+	}
+	
+	OnMyMobKilled:
+		if(##GRMob >= ##GRDefault) {
+			dispbottom "Ei "+strcharinfo(0)+" você matou 100 Monstros, não pode matar mais, você será teleportado para falar com o Gerente agora!";
+			warp "prontera",146,164;
+			end;
+		}
+
+		set ##GRMob,##GRMob + 1;
+		if(rand(99) <= $@GR_Show) dispbottom "Info: Você tem "+##GRMob+" GP (Gold Points)";
+		if(rand(99) <= $@GR_Buff && $@GR_Buff > 0) { 
+			specialeffect2 514; 
+			skilleffect 34,0;
+			sc_start 30,10000,10;
+		}
+		if ((GRSt_Str || GRSt_Dex || GRSt_Luck) && (rand(99)<=$@GRSys_Buff)) {		
+			if(GRSt_Str) { sc_start SC_INCSTR,$@GRSTTime,10; dispbottom "Você ganhou For por alguns segundos"; }
+			if(GRSt_Dex) { sc_start SC_INCDEX,$@GRSTTime,10; dispbottom "Você ganhou Des por alguns segundos"; }
+			if(GRSt_Luck){ sc_start SC_INCLUK,$@GRSTTime,10; dispbottom "Você ganhou Sor por alguns segundos"; }
+		}
+		set @HowMuch,getmapmobs ("bat_c01");
+		set @HowMuch, @HowMuch - $GRSYS_Clones;
+		if(@HowMuch==0) { 
+			monster "bat_c01",0,0,$@GR_MobName$,$@GR_MobId,$@GRAmount,"GRGerente::OnMyMobKilled";
+			monster "bat_c01",0,0,$@GR_GuardianName$,1900,$@GRAmount2,"GRGerente::OnMyMobKilled";
+		}
+		end;
+
+
+}
+//	****************************************
+//	****	M A P F L A G S		********
+//	****************************************
+
+bat_c01	mapflag	noskill
+bat_c01	mapflag	nowarpto
+bat_c01	mapflag	nobranch
+bat_c01	mapflag	noexp
+bat_c01	mapflag	pvp

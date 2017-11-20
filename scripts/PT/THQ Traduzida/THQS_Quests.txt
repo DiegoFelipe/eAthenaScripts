@@ -1,0 +1,1047 @@
+//===== eAthena Script =======================================
+//= Treasure Hunter Script
+//===== Converted By =========================================
+//= Fredzilla
+//= Original
+//////////////////////////////////////////////////////////////
+//                  Treasure Hunter Quests                  //
+//                       By: Ezekial                        //
+//             for the use on nRO run by Newbe5             //
+//                    revised By Warlock                    //
+//////////////////////////////////////////////////////////////
+//===== Version ==============================================
+//= 1.5
+//===== Compatible With ======================================
+//= eAthena 1.0
+//===== Description ==========================================
+//= Start for Treasure hunter quests
+//===== Comments =============================================
+//= Event_THQS - Used to check if you have already registered
+//= #Treasure_Token - used to keep track of tokens
+//= 1.0 - Straight conversionof Aegis NPC file
+//= 1.2 some bugfixes, typos [Lupus]
+//= 1.3 Removed Duplicates [Silent]
+//= 1.4 Further removed duplicates. [L0ne_W0lf]
+//= 1.5 Adapted to Portuguese Language [TecnoCronus]
+//= 1.6 One item was incorrect on NPC Jeramiah On line 162, was the ID of The "JUR" that he need, it was 1998 the correct is 1250 [TecnoCronus].
+//============================================================
+
+
+///////Job list 1///////
+//1-1
+mjolnir_09,187,189,6	script	Velho	107,{
+	if (one_qset==1) goto N_QuestStart;
+	mes "[Velho]";
+	mes "Ei! um Velho não pode mais caminhar em paz?!";
+	close;
+N_QuestStart:
+	mes "[Velho]";
+	mes "Eh? O que é isso?!";
+	mes " ";
+	mes "Minha esposa quer que eu volte pra casa?!Certo, Certo... Estou indo, Estou indo. Obrigado por me diser essa mensagem.";
+	mes " ";
+	mes "Aqui está 1 Pontos de Tesouro.";
+	set one_qset,0;
+	set On_Quest,0;
+	set #Treasure_Token,#Treasure_Token+1;
+	close;
+}
+//1-2;
+pay_arche,86,129,6	script	Arqueiro	732,{
+	if (one_qset == 2) goto N_QuestStart;
+	mes "[Kieth]";
+	mes "Desculpe, não posso falar, sou um homem ocupado, estou esperando minha entrega.";
+	close;
+N_QuestStart:
+	mes "[Kieth]";
+	mes "Ahh,Você deve ser da Agência dos Caçadores de Tesouro. Você tem meu arco??";
+	mes " ";
+	mes "Ahh, bom,pegue esses Pontos de Tesouro.";
+	set one_qset,0;
+	set On_Quest,0;
+	delitem 1072,1;
+	set #Treasure_Token,#Treasure_Token+1;
+	close;
+}
+//1-3
+prt_fild06,37,192,6	script	Farmer	125,{
+	if (one_qset == 3 && countitem(909) > 19 && countitem(955) > 19 && countitem(914) > 19 && countitem(705) > 19) goto N_QuestComp;
+	if (one_qset==3) goto N_QuestStart;
+	mes "[Billy-Bob]";
+	mes "Arrrg!... Aqueles insetos idiotas comeram tudo, não sobrou nada pra mim!!";
+	close;
+N_QuestComp:
+	mes "[Billy-Bob]";
+	mes "Ohhh, Obrigado.";
+	mes "Tomara que esses insetos sumam...";
+	mes " ";
+	mes "Bem, aqui está 2 Pontos de Tesouros.";
+	set one_qset,0;
+	set #Treasure_Token,#Treasure_Token+2;
+	set On_Quest,0;
+	delitem 909,20;
+	delitem 955,20;
+	delitem 914,20;
+	delitem 705,20;
+	close;
+N_QuestStart:
+	mes "[Billy-Bob]";
+	mes "Esses insetos idiotas estão em todo lugar!!!";
+	mes "Você deve ser do Clã dos caçadores! OK, traga-me 20 Peles de Verme, 20 Jellopys, 20 fluff e 20 Trevos.";
+	close;
+}
+//1-4
+prontera,264,353,6	script	Velha Dama#thq	103,{
+	if (one_qset == 4 && countitem(934) > 14) goto N_QuestComp;
+	if (one_qset == 4) goto N_QuestStart;
+	mes "[Velha Dama]";
+	mes "Esse é meu marido ... Estou apenas pagando à ele uma pequena visita.";
+	close;
+N_QuestComp:
+	mes "[Velha Dama]";
+	mes "Você tem os items?!";
+	next;
+	mes "[Velha Dama]";
+	mes "Muito obrigado, aqui está 3 Pontos de Tesouro.";
+	set #Treasure_Token,#Treasure_Token+3;
+	delitem 934,15;
+	set one_qset,0;
+	set On_Quest,0;
+	close;
+N_QuestStart:
+	mes "[Velha Dama]";
+	mes "Você é o único que veio pra me ajudar?";
+	mes " ";
+	mes "Ok eu preciso de Mementos, é porque eu prometi ao meu marido que eu os daria, o promblema é que eu não tenho nenhum aqui";
+	next;
+	mes "[Old Lady]";
+	mes "Traga-me 15 Mementos, por favor!.";
+	close;
+}
+///////Job list 2///////
+//2-1;
+morocc,59,109,6	script	Erika	700,{
+	if (two_qset == 1 && countitem(1072) > 0) goto N_QuestComp;
+	if (two_qset == 1) goto N_QuestStart;
+	mes "[Erika]";
+	mes "Olá me chamo Erika.";
+	close;
+N_QuestComp:
+	mes "[Erika]";
+	mes "O que é isso??? Você tem uma carta pra mim?!!";
+	mes "Oooooh Eu adoro,adoro cartas =D. Agora eu vou ler.";
+	mes "Me dê um tempo";
+	mes "....";
+	mes "Obrigado por ter entragado esta carta pra mim, pegue 1 Ponto de Tesouro.";
+	delitem 1072,1;
+	set two_qset,0;
+	set #Treasure_Token,#Treasure_Token+1;
+	set On_Quest,0;
+	close;
+N_QuestStart:
+	mes "[Erika]";
+	mes "Você é o único que tem uma Carta pra mim?";
+	mes " ";
+	mes "???ãmm??? Cadê a carta?";
+	close;
+}
+//2-2;
+in_moc_16,15,30,6	script	Jeramiah	730,{
+	if (two_qset == 2 && countitem(1998) > 0) goto N_QuestComp;
+	if (two_qset == 2) goto N_QuestStart;
+	mes "[Jeramiah]";
+	mes "É tão chato ficar aqui fazendo nada...";
+	close;
+N_QuestComp:
+	mes "[Jeramiah]";
+	mes "Ahh olá, você deve ser do clã dos Caçadores de Tesouros.";
+	mes "Você tem minha Jur??";
+	mes "Pegue esse Treasure Hunter Token.";
+	set two_qset,0;
+	set On_Quest,0;
+	delitem 1250,1;
+	set #Treasure_Token,#Treasure_Token+1;
+	close;
+N_QuestStart:
+	mes "[Jeramiah]";
+	mes "Você é o único que supostamente veio trazer minha Jur?";
+	mes "???ãmm???Cadê minha Jur?";
+	close;
+}
+//2-3;
+prt_fild07,316,263,6	script	Marsh Man	84,{
+	if (two_qset == 3 && countitem(518) > 19) goto N_QuestComp;
+	if (two_qset == 3) goto N_QuestStart;
+	mes "[Lenith]";
+	mes "Olá, eu não tenho tempo pra conversar, estou esperando por alguém.";
+	close;
+N_QuestComp:
+	mes "[Lenith]";
+	mes "Oi,você trouxe meu Mel?? minhas abelhas e eu agradeçemos.";
+	mes " ";
+	mes "Aqui está pra você: 2 Treasure Hunter Tokens.";
+	delitem 518,20;
+	set #Treasure_Token,#Treasure_Token+2;
+	set two_qset,0;
+	set On_Quest,0;
+	close;
+N_QuestStart:
+	mes "[Lenith]";
+	mes "Oi, meu nome é Lenith e eu tenho uma quest pra você.";
+	mes "Bem.. Recentemente alguns Ursos vieram aqui e comeram todo o meu mel.";
+	mes " ";
+	mes "O que eu preciso que você faça é o seguinte: traga-me 20 Mel.";
+	close;
+}
+//2-4;
+payon,161,72,6	script	Molly	714,{
+	if (two_qset == 4 && countitem(7005) > 0) goto N_QuestComp;
+	if (two_qset == 4) goto N_QuestStart;
+	mes "[Molly]";
+	mes "Desculpa, não posso conversar, estou esperando alguém.";
+	close;
+N_QuestComp:
+	mes "[Molly]";
+	mes "NOSSA VOCÊ FEZ ISSO!!!";
+	mes " ";
+	mes "Eu sabia que você parecia uma pessoa forte, Contudo, eu não tinha idéia que você tinha matado aquele monstro.";
+	mes "Muito Obrigado, Pegue 3 Pontos de Tesouro como recompensa.";
+	set two_qset,0;
+	set On_Quest,0;
+	set #Treasure_Token,#Treasure_Token+3;
+	delitem 7005,1;
+	close;
+N_QuestStart:
+	mes "[Molly]";
+	mes "lol você deve ser o homem bravo vindo do clã dos Caçadores de Tesouro!";
+	mes "Ok isso está acontecendo: Eu não sei quem começou isso, mas há um estranho esqueleto Roan correndo perto daqui.";
+	next;
+	mes "[Molly]";
+	mes "Nós tentamos matá-lo hà um tempo atrás mais isso...ummm...isso não foi uma boa idéia. O que eu quero que você faça é: Traga-me a Caveira dele como prova de que você o matou.";
+	mes " ";
+	mes "Good Luck";
+	close;
+}
+///////Job list 3///////
+//3-1;
+moc_fild04,208,322,6	script	Clark	65,{
+	if (three_qset == 1 && countitem(1040) > 29) goto N_QuestComp;
+	if (three_qset == 1) goto N_QuestStart;
+	mes "[Clark]";
+	mes Adoro conversar, mas estou esperando alguém.";
+	close;
+N_QuestComp:
+	mes "[Clark]";
+	mes "Ok isso já é um começo.";
+	mes " ";
+	mes "Eu espero que esse buraco suma em 1 dia, e se possível, tenho uma missão pra você no futuro.";
+	mes "Aqui está, pegue 2 Pontos de Tesouro.";
+	set #Treasure_Token,#Treasure_Token+2;
+	delitem 1040,30;
+	set three_qset,0;
+	set On_Quest,0;
+	close;
+N_QuestStart:
+	mes "[Clark]";
+	mes "Oiiiii.";
+	mes "Você deve ser do clã dos Caçadores de Tesouro.";
+	mes " ";
+	mes "Ok esse é meu problema: está vendo esse buraco em volta?? esse buraco apareceu não sei de onde hà uns dois anos atrás,Dentro dele há um monstro horrível chamado Giearths.";
+	next;
+	mes "[Clark]";
+	mes "O que eu quero que você faça é: mate alguns Giearths.Me traga 30 Bigodes Pequenos.";
+	close;
+}
+//3-2;
+yuno_fild01,186,162,6	script	Flank	73,{
+	if (three_qset == 2 && countitem(1082) > 0) goto N_QuestComp;
+	if (three_qset == 2) goto N_QuestStart;
+	mes "[Flank]";
+	mes "Me desculpe, estou esperando por minha entrega, então não quero  conversar.";
+	close;
+N_QuestComp:
+	mes "[Flank]";
+	mes "Bem na hora! Agora mesmo eu vou plantar esta bomba.... Err quer diser, vou entregar esse pacote à minha mãe no aniversário dela.";
+	next;
+	mes "[Flank]";
+	mes "Obrigado";
+	mes "Pegue esse Ponto de Tesouro";
+	set three_qset,0;
+	delitem 1082,1;
+	set #Treasure_Token,#Treasure_Token+1;
+	set On_Quest,0;
+	close;
+N_QuestStart:
+	mes "[Flank]";
+	mes "Então você tem meus pacotes?";
+	mes "O que? Onde estão eles?";
+	close;
+}
+//3-3 Goes to 7-3 using callfunc
+prt_sewb1,120,245,6	script	Sewer Managment Knight	705,{
+	if (three_qset == 3 && countitem(955) > 149) goto N_QuestComp;
+	if (three_qset == 3) goto N_QuestStart;
+	if (seven_qset == 3) goto N_QuestStart2;
+	mes "[Sewer Managmant]";
+	mes "Viver tendo prejuízos...Trabalhando nesse esgoto todo dia...";
+	close;
+N_QuestComp:
+	mes "[Sewer Managment]";
+	mes "Bem, vejo que isso não é problema para você.";
+	mes "Obrigado, pegue esses 4 Pontos de Tesouro.";
+	delitem 955,150;
+	set #Treasure_Token,#Treasure_Token+4;
+	set three_qset,0;
+	set On_Quest,0;
+	close;
+N_QuestStart:
+	mes "[Sewer Managmant]";
+	mes "Por enquanto nós temos monstros ruims e mais insetos infestando o esgoto todo dia...";
+	mes " ";
+	mes "O que eu quero que você faça é dar uma limpada aqui, cada pedacinho conta.";
+	mes "Traga-me 150 Peles de Inseto.";
+	close;
+N_QuestStart2:
+	callfunc "seven_qset-3";
+	close;
+}
+//3-4
+mjolnir_02,87,357,6	script	Man#01	51,{
+	if (three_qset == 4 && countitem(1041) > 49) goto N_QuestComp;
+	if (three_qset == 4) goto N_QuestStart;
+	mes "[Rudolfo]";
+	mes "Perigo! A mina de Carvão é uma área hostil agora.";
+	close;
+N_QuestComp:
+	mes "[Rudolfo]";
+	mes "Bom ver que você voltou a salvo.";
+	mes "Eu tenho minha valentia, mas obrigado por ter me ajudado.";
+	mes " ";
+	mes "Aqui, pegue 4 Pontos de Tesouro.";
+	set three_qset,0;
+	set On_Quest,0;
+	delitem 1041,50;
+	set #Treasure_Token,#Treasure_Token+4;
+	close;
+N_QuestStart:
+	mes "[Rudolfo]";
+	mes "Olá, você deve ser do clã dos Caçadores de Tesouro.";
+	mes " ";
+	mes "Eles devem ter te avisado o que está acontecendo na Mina de Carvão, eu sei isso está pertubando e nós ainda estamos tentando entender como 2 Druidas Negros deceram aqui.";
+	mes " ";
+	mes "Bem, o que eu quero que você faça é: trazer 50 lanternas como prova de que você,qualquer pilhagem que você achar você pode guardar como nos antigos tempo que você guardava pra mim";
+	close;
+}
+///////Job list 4///////
+//4-1;
+pay_arche,45,138,6	script	Flora	724,{
+	if (four_qset == 1 && countitem(957) > 49) goto N_QuestComp;
+	if (four_qset == 1) goto N_QuestStart;
+	mes "[Flora]";
+	mes "Olá, tenho cuidado ai em baixo, nós temos notícias de que um monstro zumbi está bagunçado ai.";
+	close;
+N_QuestComp:
+	mes "[Flora]";
+	mes "Seja Bem-vindo de volta.(Eu me admirarei-me se esse idiota flamejante ainda sobreviver)";
+	mes "Bem, eu espero que esse monstro tenha morrido, pegue 2 Pontos de Tesouro.";
+	set #Treasure_Token,#Treasure_Token+2;
+	delitem 957,50;
+	set four_qset,0;
+	set On_Quest,0;
+	killmonster "pay_dun00","Flora::OnMobDead";
+	close;
+N_QuestStart:
+	mes "[Flora]";
+	mes "Oi.";
+	mes " ";
+	mes "Isso é o que eu quero que vocÊ faça: Trage-me 50 Unhas empodrecidas - Antigamente a Caverna de Payonera um lugar seguro para ir...Mas agora coisas aconteceram e Zombis invadiram o primeiro andar...";
+	mes " ";
+	mes "E além disso, alguns monstros novos fugiram daqui, nós os chamamos de Idiotas Flamejantes...Tenha cuidado se você ainda não é forte, porque eles são.";
+	next;
+	mes "[Flora]";
+	mes "Good Luck";
+	mes "Remember I need 50 Nail's";
+	monster "pay_dun00",0,0,"Flaming Bastard",1072,1,"Flora::OnMobDead";
+	monster "pay_dun00",0,0,"Flaming Bastard",1072,1,"Flora::OnMobDead";
+	close;
+OnMobDead:
+	end;
+}
+//4-2;
+yuno,45,138,6	script	Zed	735,{
+	if (four_qset == 2 && countitem(1999) > 0) goto N_QuestComp;
+	if (four_qset == 2) goto N_QuestStart;
+	mes "[Zed]";
+	mes "Sai da minha frente idiota.";
+	close;
+N_QuestComp:
+	mes "[Zed]";
+	mes "ah, que idiota você é tão leso quanto chato!";
+	mes "Você sabe quando o meu tempo custa!!!!";
+	mes "Você é devagar e eu nunca vou te recomendar para um trabalho! me dê meu cajado e suma da minha frente!";
+	next;
+	mes "[Zed]";
+	mes "Leve esse Ponto de Tesouro.";
+	set On_Quest,0;
+	set four_qset,0;
+	delitem 1999,1;
+	set #Treasure_Token,#Treasure_Token+1;
+	close;
+N_QuestStart:
+	mes "[Zed]";
+	mes "... Cadê meu Cajado??";
+	close;
+}
+//4-3;
+prontera,176,204,6	script	Dassy	95,{
+	if (four_qset == 3 && countitem(711) > 19) goto N_QuestComp;
+	if (four_qset == 3) goto N_QuestStart;
+	mes "[Dassy]";
+	mes "Oiii!";
+	close;
+N_QuestComp:
+	mes "[Dassy]";
+	mes "Sim!agora meu animal de estimação não vai morrer de fome!";
+	mes "Thank you so much!";
+	mes "Pegue esse Ponto de Tesouro.";
+	set On_Quest,0;
+	set four_qset,0;
+	delitem 711,20;
+	set #Treasure_Token,#Treasure_Token+1;
+	close;
+N_QuestStart:
+	mes "[Dassy]";
+	mes "Olá!!";
+	mes "Você veio pra me ajudar? Sim?? Sim???.";
+	mes " ";
+	mes "Ok eu não quero falar sobre isso mas eu preciso que você me traga 20 Brotos";
+	mes "Obrigado!";
+	close;
+}
+//4-4;
+prt_gld,157,99,6	script	Czhore	752,{
+	if (four_qset == 4 && countitem(714) > 0) goto N_QuestComp;
+	if (four_qset == 4) goto N_QuestStart;
+	mes "[Czhore]";
+	mes "Olá Amigo";
+	mes "Você veio pra dar uma olhada nesses salões dos clãs?";
+	close;
+N_QuestComp:
+	mes "[Czhore]";
+	mes "Obrigado!";
+	mes " ";
+	mes "Estou tão feliz em ver um desses empérios! Obrigado "+strcharinfo(0)+".";
+	next;
+	mes "[Czhore]";
+	mes "ei pegue 2 Pontos de Tesouro.";
+	mes "E um velho tesouro meu...";
+	monster "prt_gld",155,99,"Old Man's Treasure",1324,1;
+	set four_qset,0;
+	set On_Quest,0;
+	delitem 714,1;
+	set #Treasure_Token,#Treasure_Token+2;
+	close;
+N_QuestStart:
+	mes "[Czhore]";
+	mes "Olá amigo";
+	mes "Eu sei, isso pode parecer estúpido, mas todo vez que eu vejo um garoto eu desejo ter um Empério...";
+	mes "Como eu sei eu apreço ser velho, eu nunca estive pronto pra procurar um, agora eu sai do Clã dos Caçadores de Tesouro, não há mais ação pra mim...";
+	mes " ";
+	mes "Se você puder me trazer um... eu vou te recompensar.";
+	close;
+}
+///////Job list 5///////
+//5-1;
+prt_maze01,18,184,6	script	Lithin#01	752,{
+	if (five_qset == 1 && countitem(1028) > 14) goto N_QuestComp;
+	if (five_qset == 1) goto N_QuestStart;
+	mes "[Lithin]";
+	mes "Olá.";
+	mes "Bem-vindo ao Labirinto da Floresta.";
+	close;
+N_QuestComp:
+	mes "[Lithin]";
+	mes "Oh.., muito obrigado, mas eles voltarão...";
+	next;
+	mes "Pegue esses 2 Pontos de Tesouro";
+	set five_qset,0;
+	set On_Quest,0;
+	set #Treasure_Token,#Treasure_Token+2;
+	delitem 1028,15;
+	close;
+N_QuestStart:
+	mes "[Lithin]";
+	mes "Como vai?.";
+	mes "Bem-vindo ao Labirinto da Floresta. Eu tenho uma tarefa pra você.";
+	mes " ";
+	mes "ouviu falar de um monstro chamado Savage? ele parece ser malvado mas ele está aborrecido.";
+	mes "O que eu quero que você faça é: Trage-me 15 Jubas de Selvagens.";
+	close;
+}
+//5-2 goes to 6-2 using callfunc;
+moc_ruins,75,167,6	script	Lithin#02	87,{
+	if (five_qset == 2 && countitem(932) > 29) goto N_QuestComp;
+	if (five_qset == 2) goto N_QuestStart;
+	if (six_qset == 2) goto N_QuestStart2;
+	mes "[Strange Man]";
+	mes "...";
+	close;
+N_QuestComp:
+	mes "[Strange Man]";
+	mes "Tenho um muito obrigado pra você.";
+	next;
+	mes "pegue esses 2 Pontos de Tesouro.";
+	set #Treasure_Token,#Treasure_Token+2;
+	set five_qset,0;
+	set On_Quest,0;
+	delitem 932,30;
+	close;
+N_QuestStart:
+	mes "[Strange Man]";
+	mes "Faça algo por mim, viaje em sua mente até as pirâmedes.";
+	mes "Quando achar o segundo andar, mate esqueletos do mal.";
+	mes "Traga-me osso é o que você deve.";
+	mes "são 30 que eu desejo.";
+	close;
+N_QuestStart2:
+	callfunc "six_qset2";
+}
+//5-3;
+geffen,57,130,6	script	Blonde Girl	724,{
+	if (five_qset == 3 && countitem(744) > 0) goto N_QuestComp;
+	if (five_qset == 3) goto N_QuestStart;
+	mes "[Blonde Girl]";
+	mes "Eu estranhei o que aconteceu com minhas flores";
+	close;
+N_QuestComp:
+	mes "[Blonde Girl]";
+	mes "Oh essas são minhas flores.... Muito ruim, eu não as quero mais...";
+	mes " ";
+	mes "Você pode guardá-las se quiser.";
+	next;
+	mes "[Blonde Girl]";
+	mes "Leve esse Ponto de Tesouro como recompensa.";
+	set five_qset,0;
+	set On_Quest,0;
+	set #Treasure_Token,#Treasure_Token+1;
+	close;
+N_QuestStart:
+	mes "[Blonde Girl]";
+	mes "Olá, você trouxe minhas flores!?!";
+	close;
+}
+//5-4;
+gef_tower,49,27,6	script	Wizard#01	735,{
+	if (five_qset == 4 && countitem(1059) > 49) goto N_QuestComp;
+	if (five_qset == 4) goto N_QuestStart;
+	mes "[Wizard]";
+	mes "Olá, você viu meu amigo sussurador?";
+	close;
+N_QuestComp:
+	mes "[Wizard]";
+	mes "Obrigado por me ajudar, eu presumi que você merece.";
+	next;
+	mes "[Wizard]";
+	mes "Pegue esses 4 Pontos de Tesouro.";
+	set five_qset,0;
+	set On_Quest,0;
+	delitem 1059,50;
+	set #Treasure_Token,#Treasure_Token+4;
+	close;
+N_QuestStart:
+	mes "[Wizard]";
+	mes "Olá, o motivo o qual eu te troxe aqui é que há muito tempo atrás eu fiz um amigo.";
+	mes "Ele me falou que estava brigando com os outros fantasmas aqui debaixo e ele sumiu em um instante.";
+	mes "Agora eu quero uma vingança!";
+	mes " ";
+	mes "Traga-me 50 Tecidos!";
+	close;
+}
+///////Job list 6///////
+//6-1;
+moc_prydb1,47,132,6	script	Thief	48,{
+	if (six_qset == 1 && countitem(1083) > 0) goto N_QuestComp;
+	if (six_qset == 1) goto N_QuestStart;
+	mes "[Thief]";
+	mes "Bem-vindo ao Clã dos Gatunos.";
+	close;
+N_QuestComp:
+	mes "[Thief]";
+	mes "Obrigado por essa entrega.";
+	next;
+	mes "[Thief]";
+	mes "Pegue esse Ponto de Tesouro como recompensa.";
+	set six_qset,0;
+	delitem 1083,1;
+	set On_Quest,0;
+	set #Treasure_Token,#Treasure_Token+1;
+	close;
+N_QuestStart:
+	mes "[Thief]";
+	mes "Onde está minha entrega?";
+	close;
+}
+//6-2
+function	script	six_qset2	{
+	if (six_qset == 2 && countitem(930) > 29) goto N_QuestComp2;
+	mes "[Strange Man]";
+	mes "Tenho outra missão pra você.";
+	mes "Bem no interior das Pirâmedes você deve ir.";
+	mes "Lutar com múmias é seu futuro.";
+	mes " ";
+	mes "Trazer seus trapos é o seu dever.";
+	mes "Desejo 30 Bandanas Estragadas.";
+	close;
+N_QuestComp2:
+	mes "[Strange Man]";
+	mes "Muito obrigado.";
+	next;
+	mes "[Strange Man]";
+	mes "Pegue 3 pontos de Tesouro.";
+	set #Treasure_Token,#Treasure_Token+3;
+	delitem 930,30;
+	set On_Quest,0;
+	set six_qset,0;
+	close;
+}
+//6-3;
+xmas,144,136,6	script	Chirach	48,{
+	if (six_qset == 3 && countitem(1083) > 0) goto N_QuestComp;
+	if (six_qset == 3) goto N_QuestStart;
+	mes "[Chirach]";
+	mes "Welcome.";
+	close;
+N_QuestComp:
+	mes "[Chirach]";
+	mes "Thank you for this delivery.";
+	next;
+	mes "[Chirach]";
+	mes "Here take this Ponto de Tesouro como recompensa.";
+	set six_qset,0;
+	delitem 1083,1;
+	set On_Quest,0;
+	set #Treasure_Token,#Treasure_Token+1;
+	close;
+N_QuestStart:
+	mes "[Chirach]";
+	mes "Where's my delivery?";
+	close;
+}
+//6-4;
+gef_tower,52,87,6	script	Wizard#02	735,{
+	if (six_qset == 4 && countitem(944) > 19) goto N_QuestComp;
+	if (six_qset == 4) goto N_QuestStart;
+	mes "[Zuuzuu]";
+	mes "Olá, Bem-vindo à Torre de Geffen.";
+	close;
+N_QuestComp:
+	mes "[Wizard]";
+	mes "Obrigado por me ajudar.";
+	next;
+	mes "Leve estes 4 Pontos de Tesouro.";
+	set six_qset,0;
+	set On_Quest,0;
+	delitem 944,20;
+	set #Treasure_Token,#Treasure_Token+4;
+	next;
+	mes "[Zuuzuu]";
+	mes "Ohh Querido!!!";
+	mes "Um desses monstros malvado que me matar, Mate-o, Mate-o!!!";
+	next;
+	monster "gef_tower",42,89,"Evil Nightmare",1061,1;
+	close;
+N_QuestStart:
+	mes "[Zuuzuu]";
+	mes "Olá, a razão de que eu trouxe um jovem aventureiro aqui, é porque temos problemas debaixo da Torre.";
+	mes "Veja, a cada dia que passa, mais e mais fantasmas vão pra lá. o que eu quero que você faça é ir lá embaixo e procura por alguns desses monstros que chamamos de Nightmares.";
+	mes " ";
+	mes "Você deve matá-los e me traze 20 sapatos de Cavalo.";
+	close;
+}
+///////Job list 7///////
+//7-1 goes to 8-1 using callfunc;
+prontera,123,208,6	script	Little Girl	717,{
+	if (seven_qset == 1 && countitem(531) > 4) goto N_QuestComp;
+	if (seven_qset == 1) goto N_QuestStart;
+	if (eight_qset == 1) goto N_QuestStart2;
+	mes "[Girl]";
+	mes "Olá senhor "+strcharinfo(0)+".";
+	close;
+N_QuestComp:
+	mes "[Girl]";
+	mes "Muito Obrigado!";
+	next;
+	mes "[Girl]";
+	mes "Pegue esse 1 Ponto de Tesouro.";
+	set seven_qset,0;
+	set On_Quest,0;
+	delitem 531,5;
+	set #Treasure_Token,#Treasure_Token+1;
+	close;
+N_QuestStart:
+	mes "[Girl]";
+	mes "Olá senhor, você pode me dar alguns Sucos de Maçã?";
+	mes "Eu quero 5 deles.";
+	close;
+N_QuestStart2:
+	callfunc "eight_qset1";
+}
+//7-2;
+alberta,101,84,6	script	Charles	48,{
+	if (seven_qset == 2 && countitem(1082) > 0) goto N_QuestComp;
+	if (seven_qset == 2) goto N_QuestStart;
+	mes "[Charles]";
+	mes "Olá "+strcharinfo(0)+" Bem-vindo à Alberta.";
+	close;
+N_QuestComp:
+	mes "[Charles]";
+	mes "Muito Obrigado por esta Entrega.";
+	next;
+	mes "[Charles]";
+	mes "Aqui está, pegue esse Ponto de Tesouro como recompensa.";
+	set seven_qset,0;
+	delitem 1082,1;
+	set On_Quest,0;
+	set #Treasure_Token,#Treasure_Token+1;
+	close;
+N_QuestStart:
+	mes "[Charles]";
+	mes "Então, onde está minha Entrega?";
+	close;
+}
+//7-3
+function	script	seven_qset-3	{
+	if (seven_qset == 3 && countitem(969) > 0) goto N_QuestComp2;
+	mes "[Sewer Managment]";
+	mes "Temos notícias de que um Inseto de Ouro Ladrão está correndo ao redor do Esgoto";
+	mes " ";
+	mes "Traga-me Um Ouro dele.";
+	close;
+N_QuestComp2:
+	mes "[Sewer Managment]";
+	mes "Muito Obrigado pela Ajuda.";
+	next;
+	mes "[Sewer Managment]";
+	mes "Aqui está, pegue esses these 4 Pontos de Tesouro.";
+	set seven_qset,0;
+	set On_Quest,0;
+	delitem 969,1;
+	set #Treasure_Token,#Treasure_Token+4;
+	close;
+}
+//7-4;
+alb2trea,94,102,6	script	Scarlet	725,{
+	if (seven_qset == 4 && countitem(1127) > 0) goto N_QuestComp;
+	if (seven_qset == 4) goto N_QuestStart;
+	mes "[Scarlet]";
+	mes "Desculpe, estou cheio de coisas pra fazer.";
+	close;
+N_QuestComp:
+	mes "[Scarlet]";
+	mes "Obrigado pela Ajuda.";
+	next;
+	mes "[Scarlet]";
+	mes "Leve esses 4 Pontos de Tesouro.";
+	set seven_qset,0;
+	set On_Quest,0;
+	delitem 1127,1;
+	set #Treasure_Token,#Treasure_Token+4;
+	close;
+N_QuestStart:
+	mes "[Scarlet]";
+	mes "Bom te ver, Bom, temos notícias que um vleho capitão chamado Drake apareceu nesse navio. Mate-o Já!!";
+	mes " ";
+	mes "Traga-me seu Sabre como Prova!";
+	close;
+}
+///////Job list 8///////
+//8-1
+function	script	eight_qset1	{
+	if (eight_qset == 1 && countitem(532) > 4) goto N_QuestComp2;
+	mes "[Girl]";
+	mes "Olá senhor misterioso. Você poderia me trazer uns Sucos de Banana?";
+	mes "Quero 5 deles.";
+	close;
+N_QuestComp2:
+	mes "[Girl]";
+	mes "Muito Obrigado!";
+	next;
+	mes "[Girl]";
+	mes "Pegue este 1 Ponto de Tesouros.";
+	set eight_qset,0;
+	set On_Quest,0;
+	delitem 532,5;
+	set #Treasure_Token,#Treasure_Token+1;
+	close;
+}
+//8-2;
+morocc,165,55,6	script	Klye	48,{
+	if (eight_qset == 2 && countitem(1081) > 0) goto N_QuestComp;
+	if (eight_qset == 2) goto N_QuestStart;
+	mes "[Klye]";
+	mes "Oi "+strcharinfo(0)+".";
+	close;
+N_QuestComp:
+	mes "[Klye]";
+	mes "Obrigado por esta entrega.";
+	next;
+	mes "[Klye]";
+	mes "Pegue aqui este Ponto de Tesouro como uma recompensa.";
+	set eight_qset,0;
+	delitem 1081,1;
+	set On_Quest,0;
+	set #Treasure_Token,#Treasure_Token+1;
+	close;
+N_QuestStart:
+	mes "[Kyle]";
+	mes "?? O QUÊ???? Não trouxe minha Entrega";
+	close;
+
+}
+//8-3;
+prt_maze02,103,86,6	script	Zack	751,{
+	if (eight_qset == 3 && countitem(923) > 0) goto N_QuestComp;
+	if (eight_qset == 3) goto N_QuestStart;
+	mes "[Zack]";
+	mes "Olá, você viu meu amigo fofoqueiro por aí?";
+	close;
+N_QuestComp:
+	mes "[Zack]";
+	mes "Obrigado pela Ajuda.";
+	next;
+	mes "[Zack]";
+	mes Leve esses 5 Pontos de Tesouros.";
+	set eight_qset,0;
+	set On_Quest,0;
+	delitem 923,1;
+	set #Treasure_Token,#Treasure_Token+5;
+	close;
+N_QuestStart:
+	mes "[Zack]";
+	mes "Olá, a reação que me fez te trazer é um Homem-Bode chamado Baphomet.";
+	mes "As pessoas disem que ele é imortal, mas eu não acredito,Mate Baphomet!";
+	mes " ";
+	mes "Traga-me o seu Chifre Malígno!";
+	close;
+}
+//8-4;
+payon,136,129,6	script	Flower	703,{
+	if (eight_qset == 4 && countitem(746) > 9) goto N_QuestComp;
+	if (eight_qset == 4) goto N_QuestStart;
+	mes "[Flower]";
+	mes "Desculpe, estou esperando por alguém volte mais tarde.";
+	close;
+N_QuestComp:
+	mes "[Flower]";
+	mes "Obrigado pela Ajuda.";
+	next;
+	mes "[Flower]";
+	mes "Leve esses 2 Pontos de Tesouros.";
+	set eight_qset,0;
+	set On_Quest,0;
+	delitem 746,10;
+	set #Treasure_Token,#Treasure_Token+2;
+	close;
+N_QuestStart:
+	mes "[Flower]";
+	mes "Socorro, Socorro eu perdi minhas bolinhas de Gude, minha mãe disse que vai me matar";
+	mes " ";
+	mes "Traga-me 10 Bolinhas de Gude!";
+	close;
+}
+///////Job list 9///////
+//9-1;
+geffen_in,168,124,6	script	Mage	48,{
+	if (nine_qset == 1 && countitem(1082) > 0) goto N_QuestComp;
+	if (nine_qset == 1) goto N_QuestStart;
+	mes "[Mage]";
+	mes "Olá "+strcharinfo(0)+" Bem-vindo ao clã dos Feiticeiros.";
+	close;
+N_QuestComp:
+	mes "[Mage]";
+	mes "Obrigado por ter entregue isso pra mim";
+	next;
+	mes "[Mage]";
+	mes "Pegue esse ponto de Tesouro como recompensa.";
+	set nine_qset,0;
+	delitem 1082,1;
+	set On_Quest,0;
+	set #Treasure_Token,#Treasure_Token+1;
+	close;
+N_QuestStart:
+	mes "[Mage]";
+	mes "Olá "+strcharinfo(0)+",Cade minha Caixa de Línguas de Sapo?.";
+	close;
+}
+//9-2;
+pay_arche,98,74,6	script	School Girl	703,{
+	if (nine_qset == 2 && countitem(1020) > 19) goto N_QuestComp;
+	if (nine_qset == 2) goto N_QuestStart;
+	mes "[School Girl]";
+	mes "Desculpe, estou esperando por alguém você terá que voltar mais tarde";
+	close;
+N_QuestComp:
+	mes "[School Girl]";
+	mes "Obrigado por me ajudar.";
+	next;
+	mes "[School Girl]";
+	mes "Leve estes 4 Pontos de Tesouros.";
+	set nine_qset,0;
+	set On_Quest,0;
+	delitem 1020,20;
+	set #Treasure_Token,#Treasure_Token+4;
+	close;
+N_QuestStart:
+	mes "[School Girl]";
+	mes "Ajuda, o Que nós sabemos sobre Payon é que em algum tempo atrás uma Escola pegou fogo.";
+	next;
+	mes "[School Girl]";
+	mes "Uma coisa estranha que aconteceu é que uma garota dentro da escola não morreu. Vá até o Terceiro Andar da Caverna de Payon.";
+	mes ".....";
+	mes "Traga-me 20 Cabelos Escuros!";
+	close;
+}
+//9-3
+payon_in02,19,33,6	script	Jack	740,{
+	if (nine_qset == 3 && countitem(1022) > 0) goto N_QuestComp;
+	if (nine_qset == 3) goto N_QuestStart;
+	if (nine_qset == 4) goto N_QuestStart2;
+	mes "[Jack]";
+	mes "Desculpe-me, estou esperando por alguém, volte mais tarde";
+	close;
+N_QuestComp:
+	mes "[Jack]";
+	mes "Valeu pela Ajuda.";
+	next;
+	mes "[Jack]";
+	mes "Pegue estes 4 Pontos de Tesouros.";
+	set nine_qset,0;
+	set On_Quest,0;
+	delitem 1022,1;
+	set #Treasure_Token,#Treasure_Token+4;
+	close;
+N_QuestStart:
+	mes "[Jack]";
+	mes "Bem, eu não sei muito sobre isso, só sei que ninguém nunca voltou vivo das Regiões mais profundas de Payon, nós suspeitamos de um Monstro Chamado Moonlight Flower";
+	mes " ";
+	mes "Traga 1 NOVE-RABOS!";
+	close;
+N_QuestStart2:
+//9-4
+	if (nine_qset == 4 && countitem(901) > 39) goto N_QuestComp2;
+	mes "[Jack]";
+	mes "Olá, nós precisamos investigar algo no Terceiro Andar na Caverna de Payon.";
+	mes " ";
+	mes "Traga-me 40 Tranças.";
+	close;
+N_QuestComp2:
+	mes "[Jack]";
+	mes "Muito Obrigado pela Ajuda.";
+	next;
+	mes "[Jack]";
+	mes "Pegue estes 3 Pontos de Tesouros.";
+	set nine_qset,0;
+	set On_Quest,0;
+	delitem 901,40;
+	set #Treasure_Token,#Treasure_Token+3;
+	close;
+}
+///////Job list 10///////
+//10-1
+morocc,193,51,6	script	Kreg	48,{
+	if (ten_qset == 1 && countitem(1082) > 0) goto N_QuestComp;
+	if (ten_qset == 1) goto N_QuestStart;
+	mes "[Kreg]";
+	mes "Senhor "+strcharinfo(0)+" seja Bem-vindo à Morroc.";
+	close;
+N_QuestComp:
+	mes "[Kreg]";
+	mes "Muito Obrigado por esta Entrega.";
+	next;
+	mes "[Kreg]";
+	mes "Aqui, pegue este Ponto de Tesouro as a reward.";
+	set ten_qset,0;
+	delitem 1082,1;
+	set On_Quest,0;
+	set #Treasure_Token,#Treasure_Token+1;
+	close;
+N_QuestStart:
+	mes "[Kreg]";
+	mes "So where's my Delivery";
+	close;
+}
+//10-2;
+pay_fild10,145,252,6	script	Man#02	122,{
+	if (ten_qset == 2 && countitem(1029) > 0) goto N_QuestComp;
+	if (ten_qset == 2) goto N_QuestStart;
+	mes "[Man]";
+	mes "Estou Ocupado volte mais tarde";
+	close;
+N_QuestComp:
+	mes "[Man]";
+	mes "Estou feliz por sua ajuda.";
+	next;
+	mes "[Man]";
+	mes "leve estes 4 Pontos de Tesouros.";
+	set ten_qset,0;
+	set On_Quest,0;
+	delitem 1029,1;
+	set #Treasure_Token,#Treasure_Token+4;
+	close;
+N_QuestStart:
+	mes "[Man]";
+	mes "Tony o Tigre está destruindo tudo Mate-o!";
+	mes " ";
+	mes "Traga-me 1 Pede le Tigre!";
+	close;
+}
+//10-3;
+moc_fild04,193,51,6	script	Caral	119,{
+	if (ten_qset == 3 && countitem(1015) > 0) goto N_QuestComp;
+	if (ten_qset == 3) goto N_QuestStart;
+	mes "[Caral]";
+	mes "Esstou muito ocupado, não tenho tempo à perder.";
+	close;
+N_QuestComp:
+	mes "[Caral]";
+	mes "Sua ajuda foi de muito valor.";
+	next;
+	mes "[Caral]";
+	mes "Pegue estes 4 Pontos de Tesouros.";
+	set ten_qset,0;
+	set On_Quest,0;
+	delitem 1015,1;
+	set #Treasure_Token,#Treasure_Token+4;
+	close;
+N_QuestStart:
+	mes "[Caral]";
+	mes "Phreeoni é um monstro Rosa, ele está aterrorizando os Noviços, Mate-o!";
+	mes " ";
+	mes "Traga-me 1 Língua!";
+	close;
+}
+//10-4
+moc_fild15,250,251,6	script	Jeni	727,{
+	if (ten_qset == 4 && countitem(1096) > 0) goto N_QuestComp;
+	if (ten_qset == 4) goto N_QuestStart;
+	mes "[Jeni]";
+	mes "Espero por alguém, saia daqui";
+	close;
+N_QuestComp:
+	mes "[Jeni]";
+	mes "Bom Trabalho.";
+	next;
+	mes "[Jeni]";
+	mes "Pegue estes 3 Pontos de Tesouros.";
+	set ten_qset,0;
+	set On_Quest,0;
+	delitem 1096,1;
+	set #Treasure_Token,#Treasure_Token+3;
+	close;
+N_QuestStart:
+	mes "[Jeni]";
+	mes "Este homem meio nu precisa de ajuda, ajudar é sua missão.";
+	mes " ";
+	mes "Traga-me 1 Casca Redonda!";
+	close;
+}

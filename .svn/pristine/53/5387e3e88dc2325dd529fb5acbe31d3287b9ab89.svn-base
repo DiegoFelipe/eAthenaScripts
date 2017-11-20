@@ -1,0 +1,600 @@
+//===== Athena Doc ============================================
+//= eAthena Source Documentation				
+//===== Description ===========================================
+//= A reference manual for the function used on eAthena
+//= source files.
+//===== Version ===============================================
+//= 1.2
+//===== By ====================================================
+//= TecnoCronus
+//=============================================================
+//= 1.0 * First release, it should have much things to add
+//=     - yet. [TecnoCronus]
+//= 1.1 * Fixed Spelling Mistakes
+//=     - Added Additional Information for Checking
+//=     - Added Array Type to BUILDIN_DEF
+//=     - Added Additional Information to BUILDIN_DEF [Jonne]
+//= 1.2 * Changed, just an little the doc style [TecnoCronus]
+//=============================================================
+
+This document is a reference for the main function used in eAthena source files,
+it will not teach you C language, it's not my intention, this doc will teach and
+show the arguments needs to be used in some cases and how to pass them. it will
+also give some goods tips for you.
+
+NOTES
+-----
+
+Since v1.3 the style is changed an little, now the codes are inside the boxs, to
+make it more viewfull, and the titles too addes an "comment" style.
+
+/**************************\
+ * Pointers and Structures*
+\**************************/
+		
+
+
+The functions usualy works with pointer ands structures, in the most of cases you
+will pass some pointer, but to work, it will need to include the header files that
+this structure is declared, as you should know the name of pointer don't have an
+default model.
+
+here are some structures that are commonly used:
+
+ structure                Header File
+
+ map_session_data        pc.h
+ map_data                map.h
+ spawn_data              map.h
+ flooritem_data          map.h
+ pet_data                pet.h
+ homun_data              homunculus.h
+ item_data               itemdb.h
+
+almost all structures are declared on header files.
+
+Sometimes you will need acess an struct that is inside other, to do it follow the example:
+
+        // First Step: make an pointer to the main structure:
+
+        struct map_session_data *sd;
+
+        // Inside map_session_data we have the structure mmo_charstatus
+        // that contain char_id, zeny, account_id and other things.
+        // we need to change the zeny of the player attached, remeber
+        // the link to mmo_charstatus is "status" so we do it:
+
+        sd->status.zeny += 500;
+
+        // this will increase the zeny of the RID Attached by 10.
+
+All the links that are inside an structure can be found on the header file that declares the function
+Look the "link" declared on map.h (map_session_data structure):
+
+struct mmo_charstatus status;
+
+Another times, you don't need to use the RID attached to check/use some thing/function you need one
+specific, so in the declaration of pointer you need do it:
+
+Example:
+	+-------------------------------------------------------------------------------+
+	|        // Lets say that you are using an NPC Script command and the		|
+	|        // first value given is the id:					|
+	|										|
+	|                TBL_PC* sd = map_id2sd(script_getnum(st,2));			|
+	+-------------------------------------------------------------------------------+
+
+Now the sd pointer will be refered to the player with the given id, other case is inside script
+commands (script.c) we create the functions this way:
+
+				+----------------------+
+				|		       |
+				|BUILDIN_FUNC(FUNCNAME)|
+				|{		       |
+				|<code>		       |
+				|} 		       |
+				+----------------------+
+
+				+--------------------------+
+				|BUILDIN_DEF(FUNCNAME,args)|
+				+--------------------------+
+
+where args means the kind of arguments:
+
+        "s"   - string.
+        ""    - null (no arguments).
+        "l"   - labels.
+        "v"   - variables.
+        "r"   - reference (of a variable)
+        "i"   - numbers (ints)
+        "*"   - optional parameter (unknow number of).
+	"?"   - one optional parameter
+        
+Note: You can combine them. E.g. BUILDIN_DEF(getgdskilllv,"iv")
+
+You see that don't show what arguments you need pass, so it pass the rid, there's an function
+that change the rid to sd, called "rid2sd" example:
+
+		+-----------------------------------+
+		|        TBL_PC *sd;		    |
+		|				    |
+		|        sd=script_rid2sd(st);	    |
+		+-----------------------------------+
+
+After you converted the rid to sd, you can use the sd pointer.
+
+/*************\
+ * FUNCTIONS *
+\*************/
+
+To use the "function" will need, first, be sure that the file that you're using have the header
+file who declares the function included, the names of functions will help you to find it, for
+example, most of pc functions start with "pc_", so all the function that starts with "pc_" are
+declared in pc.h header file, so to this function work well you need check if the file that you're
+editing have this on this case:
+
+#include "pc.h"
+
+Note that you don't used the folder link, it means that the file that you're editing and pc.h are in
+the same folder, to include files that are in another folder you need include the link, let's say that
+you did an file in 'src/map/' folder and you want to include an file that is at 'src/common' so do it:
+
+#include "../common/filename"
+
+Follow this example to other files.
+
+The second thing that you need be sure is that you are passing the arguments needs, if they are really
+pointer or just variables, before you use an function read the arguments needs, the arguments are declared
+this way:
+
+vartype varname(arguments...);
+
+example:
+
+int pc_isGM(struct map_session_data* sd);
+
+/****************************\
+ * Some importants functions *
+\****************************/ 
+
+ NAME                                TYPE                FILE                DESCRIPTION
+
+ clif_parse_GlobalMessage	     void                clif.c              Validates and processes Global Messages.
+ clif_parse_WisMessage               void                clif.c              Validates and process Whispered Messages.
+ battle_calc_weapon_attack           static struct       battle.c            Calculates the damage of weapon.
+ make_new_char                       int                 char.c              Create an new character.
+ trade_traderequest                  void                trade.c             Initiates a trade request.
+ battle_calc_gvg_damage              int                 battle.c            Calculates GVG related damage adjustments.
+ battle_calc_base_damage             static int          battle.c            Calculates the standard damage of a normal attack assuming it hits,
+ battle_consume_ammo                 void                battle.c            Consumes ammo for the given skill.
+ chat_createpcchat                   int                 chat.c              Player chatroom creation.
+ chrif_save                          int                 chrif.c             Saves character data.
+ merc_hom_alloc                      int                 homunuclus.c        Create homunculus structure.
+ mob_dead                            int                 mob.c               Signals death mob (runs when an mob dies).
+
+
+/****************\
+ * Source Files *
+\****************/
+
+eAthena source files are all saved in src folder, I'll make an little description of the some source files:
+
+ FILE                DESCRIPTION
+
+ script.c        Contain all NPC commands/functions and some mapflag data. it checks for syntaxs
+                 erros on those scripts.
+ battle.c        Contain battle configuration like damage calculation, damage delay, skill damage
+                 woe damage, normal damage and other things.
+ atcommand.c     Contain all GM Commands codes.
+ clif.c          One of the most importants fles, this is refered to client's effects.
+ guild.c         Contain datas about guild, it create/dele guilds and all the others
+                 things related to guild.
+ map.c           related to the map, it create/delete blocks, have information about
+                 how much people is on the map, ips and many other things.
+ npc.c           Contain data about npc, it creates npc, delete ncps, call npcs ...
+ mob.c           Contain all data about mob, structs, mob routines ...
+ pc.c            Very important too, it contain "what an player can do" like: drop an item
+                 receive an item, delete an item, contain bonus data too.
+ quest.c         Contain everything related to the quest log system.
+ storage.c       Everything about storage, saves data about items stored,move an item
+                 from cart to storage, retrieve an item from the storage...
+ trade.c         Everything about trade, trade checks, add/delete items to trade.
+ unit.c          Related to player/mob/npc actions, like: use skills, walk, follow etc.
+ core.c          like the name suggests the main file, contain the int main.
+ mmo.h           contain the mains definitions like: max storage item, max guild members
+                 max party members, ...
+
+---------------------------------------
+
+Now The Document will be divided in parts:
+
+
+1.- Basic Functions.
+2.- Checking Functions.
+3.- Action Commands
+
+======================
+|1.- Basic Functions.|
+======================
+---------------------------------------
+
+*pc_readregistry(struct map_session_data *sd,const char *reg,int type);
+*pc_setregistry_str(struct map_session_data*,const char*,const char*,int);
+*pc_readregistry_str(struct map_session_data*,const char*,int);
+*pc_setregistry_str(struct map_session_data*,const char*,const char*,int);
+
+Found in pc.c file, those functions check/set an variable, it returns the value of the
+given variable (*reg), you will need pass the type, and sure the pointer to the
+struct map_session_data, in the case, sd pointer. or it will set the value.
+
+Possible types are:
+
+        3 - Char reg.
+        2 - Account reg.
+        1 - Account2 reg.
+
+the pointer *reg is an string with the name of variable that you need to check.
+
+Example:
+                // Will show an message as in "dispbottom".
+
+	      +---------------------------------------------------------------------------+
+              | int cashpoints;								  |
+              | cashpoints = pc_readregistry(sd,"#CASHPOINTS",2);			  |
+              | clif_displaymessage(sd->fd, "Hey you have %d Cash Points !!!",cashpoints);|
+	      +---------------------------------------------------------------------------+
+
+
+On This example, the int variable "cashpoint" will get the value of #CASHPOINT variable
+of the RID attached, this function have some macros:
+
+ MACRO                                        Passed arguments
+
+ pc_readglobalreg(sd,reg)                 pc_readregistry(sd,reg,3)
+ pc_setglobalreg(sd,reg,val)              pc_setregistry(sd,reg,val,3)
+ pc_readglobalreg_str(sd,reg)             pc_readregistry_str(sd,reg,3)
+ pc_setglobalreg_str(sd,reg,val)          pc_setregistry_str(sd,reg,val,3)
+ pc_readaccountreg(sd,reg)                pc_readregistry(sd,reg,2)
+ pc_setaccountreg(sd,reg,val)             pc_setregistry(sd,reg,val,2)
+ pc_readaccountregstr(sd,reg)             pc_readregistry_str(sd,reg,2)
+ pc_setaccountregstr(sd,reg,val)          pc_setregistry_str(sd,reg,val,2)
+ pc_readaccountreg2(sd,reg)               pc_readregistry(sd,reg,1)
+ pc_setaccountreg2(sd,reg,val)            pc_setregistry(sd,reg,val,1)
+ pc_readaccountreg2str(sd,reg)            pc_readregistry_str(sd,reg,1)
+ pc_setaccountreg2str(sd,reg,val)         pc_setregistry_str(sd,reg,val,1)
+
+What those macros are for is obvious, just read the name, the "val" is the value to set, can be
+string or numbers, to set/check string variables use the macros that ends with "str".
+
+---------------------------------------
+
+*pc_additem(struct map_session_data *sd,struct item *item_data,int amount);
+*pc_delitem(struct map_session_data *sd,int n,int amount,int type)
+
+Those functions get or adds an item on the inventory of the RID attached.
+
+Where:
+
+ *item_data - pointer with the item id.
+ amount        - amount of the item.
+
+The types:
+
+        0 - will display clif effect and update weight status.
+        1 - will not display clif effect.
+        2 - will not update weight status.
+
+Example:
+
+        int item_id;
+        struct item *item_data;
+        TBL_PC *sd;
+        int amount = script_getnum(st,3);
+
+        item_id = script_getnum(st,2);
+        item_data = itemdb_exists(item_id);
+        sd=script_rid2sd(st);
+        if(!item_data) {
+                script_pushint(st,0);
+        } else {
+                pc_additem(sd,&item_data,amount);
+                script_pushint(st,1);
+        }
+        return 0;
+        
+
+This example is an script command where the first argument(st,2) is the item_id and
+the second is the amount, it will first check if the item exists and if so you add
+the specific item on the inventory of the player attached (RID).
+
+---------------------------------------
+
+*pc_search_inventory(struct map_session_data *sd,int item_id);
+
+This function will find an specfic item on the inventory of the player.
+
+Example:
+
+        int id;
+        clif_scriptmes(sd,st->oid,"Let me see if you have an Yggdrasil in your inventory ...");
+        id = pc_search_inventory(*,607);
+        if (id > 0)
+                clif_scriptmes(*,st->oid,"yes you really have !");
+         else
+                clif_scriptmes(*,st->oid,"you don't have");
+        
+        st->state = END;
+        clif_scriptclose(*, st->oid);
+        return 0;
+
+This example to the same thing of the npc code bellow:
+
+        mes "Let me see if you have an Yggdrasil in your inventory ...";
+        if(countitem(607) > 0)
+                mes "yes you really have!";
+        else
+                mes "you don't have";
+        close;
+
+Where * means the pointer of map_session_data. (usually sd).
+
+---------------------------------------
+
+pc_checkskill(struct map_session_data *sd,int skill_id);
+
+This function checks if the player have the specific skill. if the player have
+it returns the level of skill.
+
+Example:
+
+        int skill = pc_checkskill(*,10000);
+        if (skill > 0)
+                clif_displaymessage(*->fd,"you have the guild aproval skill");
+        else
+                clif_displaymessage(*->fd,"you don't have the guild aproval skill");
+        return 0;
+
+Where * means the pointer of map_session_data. (usually sd).
+
+---------------------------------------
+
+=========================
+|2.- Checking Functions.|
+=========================
+---------------------------------------
+
+*pc_isdead(sd);
+*pc_issit(sd);
+*pc_iscarton(sd);
+*pc_iscloaking(sd);
+*pc_isfalcon(sd);
+*pc_ishiding(sd);
+
+Those macros checks if the player is dead/sit/cloaking/hiding or is using cart.
+
+Example:
+        TBL_PC* sd;
+
+        // If the Player is sit it will uphold him.
+        if(pc_issit(*))
+                pc_setstand(*);
+
+        // If the player is dead will show an message to the main chat.
+
+        if(pc_isdead == 1)
+                clif_displaymessage(*->fd,"Oh noes you're dead");
+
+Where * means the pointer of map_session_data. (usually sd).
+
+---------------------------------------
+
+*map_flag_vs(m);
+
+Those function returns if in the specific map, players may hit each other.
+
+Example:
+        // Lets say that sd, bl pointer are given in the function
+        // and this code is inside one.
+
+        if(map_flag_vs(bl->m))
+                *->base_status.aspd += 1;
+
+This example will increase attack speed by 1 of ther player attached if he's on map that he
+can hit another player.
+
+* means the pointer of map_session_data. (usually sd).
+
+---------------------------------------
+
+*pc_is50overweight(struct map_session_data *sd);
+*pc_is90overweight(struct map_session_data *sd);
+
+Those function checks if the player is 50%/90% overweight.
+
+---------------------------------------
+
+*pc_isGM(struct map_session_data* sd);
+
+This function returns the Game Master level of the player.
+
+Example:
+
+        // Display on main chat the gm level.
+        int level = pc_isGM(*);
+        clif_displaymessage("Your gm level is:%d",level);
+
+* means the pointer of map_session_data. (usually sd).
+
+---------------------------------------
+
+*pc_nextbaseexp(sd);
+*pc_nextjobexp(sd);
+
+Those macros returns the EXP necessary for the next Base/Job level up.
+
+---------------------------------------
+
+*pc_gainexp(struct map_session_data *sd, struct block_list *src, unsigned int base_exp,unsigned int job_exp)
+
+
+This function gives EXP
+
+   *sd = RID pointer to the map_session_data
+   *bl = RID pointer to block_list.
+   *X  = Base XP
+   *Y  = Job XP
+
+Remember: There's no default name to the pointers !! [TecnoCronus]
+
+Remember??: If you want to find a specific check, go to the logical associated HEADER file!
+
+---------------------------------------
+
+=====================
+|3.- Action Commands|
+=====================
+---------------------------------------
+
+*trade_traderequest(struct map_session_data *sd, struct map_session_data *target_sd);
+
+This function initiates a trade request, to use just pass the pointer of who is requesting
+(RID) and the pointer to the structure map_session_data of the target.
+
+---------------------------------------
+
+*pc_follow(struct map_session_data *sd,int target_id);
+*pc_stop_following (struct map_session_data *sd);
+
+This function make the player attached to the script follow/Stop follow another player,
+given by target_id var (account id)
+
+Example:
+        int id;
+        TBL_PC *sd;
+        TBL_PC *ssd;
+
+        id = 12586536;
+
+        ssd=map_nick2sd(id);
+        pc_follow(sd,ssd->status.account_id);
+
+This example make the attached player follow the player that have account id 12586536.
+
+---------------------------------------
+
+*pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y, uint8 clrtype);
+
+This function change the position of an player.
+
+Where:
+        mapindex = map to warp
+        x = coordinate x
+        y = coordinate y
+        clrtype = type of respawn.
+        
+        clrtype = 3 (warp out animation)
+        clrtype = 0 (no warp out animation/vanish/no animation) 
+
+
+Example:
+
+        pc_setpos(*,sd->status.save_point.map,sd->status.save_point.x,sd->status.save_point.y,3);
+
+Warps the RID to his save point.
+
+* means the pointer of map_session_data. (usually sd).
+
+---------------------------------------
+
+*pc_dropitem(struct map_session_data *sd,int n,int amount);
+
+This function drop an item from the inventory of the player.
+
+Where:
+        n = the item id
+        amount = amount of the item to drop.
+
+Example:
+
+        int id, find;
+        TBL_PC *sd;
+
+        id = script_getnum(st,2);
+        sd= rid2sd(st);
+        find = pc_search_inventory(sd,id);
+        if(find > 0)
+                pc_dropitem(sd,id,find);
+        else
+                clif_displaymessage(sd,"you don't have the item with the id %d",id);
+        return 0;
+
+This example is an script command that find for the specific item on the player
+attached to the script and if he have it, will drop it on the floor.
+
+---------------------------------------
+
+*pc_payzeny(struct map_session_data *sd,int zeny);
+
+This function get the zeny specific from the player attached.
+
+Example:
+
+        int zeny = 1000;
+        pc_payzeny(*,zeny);
+
+This example will get 1000 zenys from the player.
+
+* means the pointer of map_session_data. (usually sd).
+
+---------------------------------------
+
+*pc_getzeny(struct map_session_data *sd,int zeny);
+
+This function give to the player the amount of zeny specific.
+
+Example:
+        // Will give the amount of fame as the amount to give zeny.
+        int zeny = *->status.fame;
+        pc_getzeny(*,zeny);
+
+* is the pointer of map_session_data. (usually sd).
+
+---------------------------------------
+
+*guild_create(struct map_session_data *sd, const char *name);
+
+This function is responsiveble for the creation of an guild, it checks the name of guild,
+if you're already in one, in an item is need.
+
+The only two arguments needs are the session data of the RID and the name of guild.
+
+---------------------------------------
+
+*add_timer(unsigned int tick, TimerFunc func, int id, int data);
+
+This function adds a temporary timer to the GID
+
+Where
+
+     Tick:
+          - Time that it will be executed (In Milliseconds)
+          - ie. gettick()+360000
+          - in 5 minutes 
+    func: 
+          - Linked Function (ie. battle_delay_damage_sub)
+    id:   
+          - Game ID (ie. mob_data->block_list.id)
+    data: 
+          - Additional Arguments ie. (int)script_state)
+
+---------------------------------------
+
+*storage_storageopen(struct map_session_data *sd);
+
+This function, like the name suggest open the sotrage windows of the RID attached,
+you just need pass the session data of the RID to it work.
+
+
+Returns 0 if it don't failed and 1 if it fail.
+
+---------------------------------------

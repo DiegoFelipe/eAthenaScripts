@@ -1,0 +1,16 @@
+prontera,150,150,5	script	Buffs	50,{
+
+	mes "[Buffs]";
+	mes "Deseja se buffar?";
+	if(select("Sim","Não") == 1) {
+	        percentheal 100,100;
+        	skilleffect 8,0; sc_start SC_ENDURE,600000,10;
+	        skilleffect 29,0; sc_start SC_INCREASEAGI,600000,10;
+    		skilleffect 67,0; sc_start SC_SUFFRAGIUM,600000,3;
+	        skilleffect 75,0; sc_start SC_GLORIA,600000,5;
+        	skilleffect 357,0; sc_start SC_CONCENTRATION,600000,10;
+	        skilleffect 388,0; sc_start SC_TRUESIGHT,600000,10;
+        	skilleffect 34,0; sc_start SC_BLESSING,600000,10;
+	}
+	close;
+}

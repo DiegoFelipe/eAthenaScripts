@@ -1,0 +1,55 @@
+Index: script.c
+===================================================================
+--- script.c	(revision 14274)
++++ script.c	(working copy)
+@@ -14283,7 +14283,7 @@
+ 
+ struct script_function buildin_func[] = {
+ 	// NPC interaction
+-	BUILDIN_DEF(mes,"s"),
++	BUILDIN_DEF2(mes,"show","s"),
+ 	BUILDIN_DEF(next,""),
+ 	BUILDIN_DEF(close,""),
+ 	BUILDIN_DEF(close2,""),
+@@ -14296,9 +14296,9 @@
+ 	BUILDIN_DEF(callfunc,"s*"),
+ 	BUILDIN_DEF(return,"?"),
+ 	BUILDIN_DEF(getarg,"i?"),
+-	BUILDIN_DEF(jobchange,"i*"),
++	BUILDIN_DEF2(jobchange,"setjob","i*"),
+ 	BUILDIN_DEF(jobname,"i"),
+-	BUILDIN_DEF(input,"v??"),
++	BUILDIN_DEF2(input,"digit","v??"),
+ 	BUILDIN_DEF(warp,"sii"),
+ 	BUILDIN_DEF(areawarp,"siiiisii"),
+ 	BUILDIN_DEF(warpchar,"siii"), // [LuzZza]
+@@ -14313,9 +14313,9 @@
+ 	BUILDIN_DEF(getarraysize,"r"),
+ 	BUILDIN_DEF(deletearray,"r?"),
+ 	BUILDIN_DEF(getelementofarray,"ri"),
+-	BUILDIN_DEF(getitem,"vi?"),
++	BUILDIN_DEF2(getitem,"additem","vi?"),
+ 	BUILDIN_DEF(rentitem,"vi"),
+-	BUILDIN_DEF(getitem2,"iiiiiiiii*"),
++	BUILDIN_DEF2(getitem2,"additem2","iiiiiiiii*"),
+ 	BUILDIN_DEF(getnameditem,"is"),
+ 	BUILDIN_DEF2(grouprandomitem,"groupranditem","i"),
+ 	BUILDIN_DEF(makeitem,"iisii"),
+@@ -14434,7 +14434,7 @@
+ 	BUILDIN_DEF(resetstatus,""),
+ 	BUILDIN_DEF(resetskill,""),
+ 	BUILDIN_DEF(skillpointcount,""),
+-	BUILDIN_DEF(changebase,"i"),
++	BUILDIN_DEF2(changebase,"setbase","i"),
+ 	BUILDIN_DEF(changesex,""),
+ 	BUILDIN_DEF(waitingroom,"si??"),
+ 	BUILDIN_DEF(delwaitingroom,"?"),
+@@ -14618,7 +14618,7 @@
+ 	BUILDIN_DEF(setwall,"siiiiis"),
+ 	BUILDIN_DEF(delwall,"s"),
+ 	BUILDIN_DEF(searchitem,"rs"),
+-	BUILDIN_DEF(mercenary_create,"ii"),
++	BUILDIN_DEF2(mercenary_create,"createmercenary","ii"),
+ 	BUILDIN_DEF(mercenary_heal,"ii"),
+ 	BUILDIN_DEF(mercenary_sc_start,"iii"),
+ 	BUILDIN_DEF(mercenary_get_calls,"i"),

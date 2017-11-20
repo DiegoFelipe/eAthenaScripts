@@ -1,0 +1,71 @@
+-	script	broadcastall	-1,{
+
+	cutin "kafra_7",2;
+	mes "[Coordenadora de Difusão]";
+
+	if(Zeny < .@Zeny) {
+
+		mes "me desculpe mas você não tem zeny suficiente";
+	}
+
+		
+	if(bcdelay >= gettimetick(2)) {
+
+		mes "Espere até o término do delay";
+		mes "Para enviar mensagen novamente";
+		close2;
+
+	} else {
+
+		mes "Por Favor, digite a mensagem que você deseja anunciar:";
+		input @mes$;
+		mes "^FF0000Confirmando:^000000";
+		mes @mes$;
+		next;
+
+		mes "[Coordenadora de Difusão]";
+		mes "Este serviço custará "+.@Zeny+" Zenys";
+		mes "Deseja continuar ?";
+
+		if(select("Sim:Não")==1) {
+
+			set Zeny, Zeny - .@Zeny;
+			mes "agora escolha a cor do anúncio:";
+
+			switch(select("Vermelho","Verde","Azul")) {
+
+			case 1: announce @mes$,0xFF0000|bc_all; break;
+			case 2: announce @mes$,0x00FF00|bc_all; break;
+			case 3: announce @mes$,0x0000FF|bc_all; break;
+
+			}
+
+			set bcdelay, gettimetick(2) + (getgmlevel() > 0 ? (.@delay2*60):(.@delay*60));
+	
+			mes "Obrigada por usar nossos serviços !!!";
+			mes "Tenha um"+(isday() == 1 ? "" : "a")+" bo"+(isday() == 1 ? "m" : "a")+" "+(isday() == 1 ? "dia" : "noite")+" senho"+(Sex > 0 ? "r" : "ra")+" "+strcharinfo(0);
+
+			cutin "",255;
+			close;
+
+		}
+
+		mes "Sem problemas, volte quando desejar";
+		mes "Tenha um"+(isday() == 1 ? "" : "a")+" bo"+(isday() == 1 ? "m" : "a")+" "+(isday() == 1 ? "dia" : "noite")+" senho"+(Sex > 0 ? "r" : "ra")+" "+strcharinfo(0);
+
+	}
+
+	cutin "",255;
+	end;
+
+	OnInit:
+
+//	Quantidade de Zeny Necessária
+	set .@Zeny, 1000000;
+
+//	Tempo do Delay, em minutos para players normais	
+	set .@Delay, 3;
+
+//	Tempo do Delay, em minutos para players VIPS
+	set .@Delay2, 1;
+}

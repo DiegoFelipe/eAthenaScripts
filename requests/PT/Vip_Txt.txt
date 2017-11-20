@@ -1,0 +1,23 @@
+function	script	addvip	{
+
+	set Vip_Tick,(gettimetick(2))+(getarg(0)*24*60*60*1000);
+	set LevelTick, getgmlevel();
+	atcommand "@adjgmlvl "+getarg(1);
+	end;
+}
+
+-	script	VipTickControl	-1,{
+
+	end;
+
+	OnPCLoginEvent:
+
+		if(Vip_Tick > gettimetick(2)) {
+
+			atcommand "@adjgmlvl "+LevelTick;
+			dispbottom "Seus dias Vips Acabaram.":
+
+		}
+
+	end;
+}

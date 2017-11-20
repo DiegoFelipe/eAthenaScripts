@@ -1,0 +1,41 @@
+Index: script.c
+===================================================================
+--- script.c	(revision 19020)
++++ script.c	(working copy)
+@@ -14489,6 +14489,28 @@
+ 	return true;
+ }
+ 
++/****************************
++ * UnequipAll [TecnoCronus] *
++ ****************************/
++ BUILDIN(unequipall)
++ {
++	int i;
++	TBL_PC *sd;
++	
++	sd = script->rid2sd(st);
++	
++	if (sd != NULL) {
++		
++		for (i=0; i<EQI_MAX; i++)
++			if (sd->equip_index[i] >= 0) pc->unequipitem(sd, sd->equip_index[i], PCUNEQUIPITEM_RECALC|PCUNEQUIPITEM_FORCE);
++		return 1;
++		
++	}
++	
++	return 0;
++		
++ }
++
+ BUILDIN(equip)
+ {
+ 	int nameid=0,i;
+@@ -20064,6 +20086,7 @@
+ 		BUILDIN_DEF(checkequipedcard,"i"),
+ 		BUILDIN_DEF(globalmes,"s?"), //end jA addition
+ 		BUILDIN_DEF(unequip,"i"), // unequip command [Spectre]
++		BUILDIN_DEF(unequipall,""), // unequipall command [TecnoCronus]
+ 		BUILDIN_DEF(getstrlen,"s"), //strlen [Valaris]
+ 		BUILDIN_DEF(charisalpha,"si"), //isalpha [Valaris]
+ 		BUILDIN_DEF(charat,"si"),

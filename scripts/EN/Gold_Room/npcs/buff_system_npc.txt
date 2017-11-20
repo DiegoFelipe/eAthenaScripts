@@ -1,0 +1,31 @@
+//===== eAthena Script =======================================
+//= Buff System NPC
+//===== By: ==================================================
+//= TecnoCronus
+//===== Current Version: =====================================
+//= 1.1
+//===== Compatible With: =====================================
+//= eAthena SVN SQL/TXT
+//===== Description: =========================================
+//= This is NPC who buffs the player if the made the can that
+//= allows him to be buffed and if he says "Buff" on GR.
+//============================================================
+
+-	script	GRSys_Buff	-1,{
+
+	getmapxy(@map$,@x,@y,0);
+	if(@map$!="bat_c01") end;
+	if(GR_CanGetBuff > 0) {
+	for (set @c, 0; $@GRSys_BuffArray[@c]; set @c, @c + 1) sc_start $@GRSys_BuffArray[@c],$@GRSys_BuffTime,10;
+	}
+	end;
+
+	OnInit:
+//		Arrays with buffs ids.
+//		Note: See 'const.txt' in db folder for to see all sc_stats, find "sc_".
+		setarray $@GRSys_BuffArray[0],30,29,23,37,40,41,42,43;
+
+//		Buff time (in milliseconds).
+		set $@GRSys_BuffTime, 60000;
+		end;
+}

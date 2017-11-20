@@ -1,0 +1,158 @@
+/* 	  ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___   
+         /\  \     /\  \     /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\__\     /\  \  
+         \:\  \   /::\  \   /::\  \   /:| _|_   /::\  \   /::\  \   /::\  \   /::\  \   /:| _|_   /:/ _/_   /::\  \ 
+         /::\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/\:\__\ /:/\:\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/_/\__\ /\:\:\__\
+        /:/\/__/ \:\:\/  / \:\ \/__/ \/|::/  / \:\/:/  / \:\ \/__/ \;:::/  / \:\/:/  / \/|::/  / \:\/:/  / \:\:\/__/
+        \/__/     \:\/  /   \:\__\     |:/  /   \::/  /   \:\__\    |:\/__/   \::/  /    |:/  /   \::/  /   \::/  / 
+        	   \/__/     \/__/     \/__/     \/__/     \/__/     \|__|     \/__/     \/__/     \/__/     \/__/ 
+
+ 					           Advanced Scripts
+
+					  (C) Copyright TecnoCronus 25/12/09
+			    	 	
+	*--------------------------------------------Cronus Script ---------------------------------------------*
+	*- Evento Amon Ra			       								*
+	*------------------------------------------------ By: --------------------------------------------------*
+	*- TecnoCronus	                                                                                       	*
+	*------------------------------------------ Current Version: -------------------------------------------*
+	*- 1.0												       	*
+	*---------------------------------------- Additional Comments: -----------------------------------------*
+	*- Um NPC de Evento, todo dia 15 do mês o Evento começa							*
+	*- Quem Matar Faraó, Osíris e o Anubis Verdadeiro, ganhará um Item à sua escolha, quem matar Múmias 	*
+	*- e falsos Anubis ganhará Zeny à sua escolha também.							*
+	*-------------------------------------------- Changelog ------------------------------------------------*
+	*- http://trac.xp-dev.com/TC_Scripts/log/scripts/PT/Evento_Amon_Ra.txt				       	*
+	*-------------------------------------------------------------------------------------------------------*/
+
+-	script	Guardiao_AmonRA	-1,{
+
+	OnDay0115:
+	OnDay0215:
+	OnDay0315:
+	OnDay0415:
+	OnDay0515:
+	OnDay0615:
+	OnDay0715:
+	OnDay0815:
+	OnDay0915:
+	OnDay1015:
+	OnDay1115:
+	OnDay1215:
+
+		donpcevent "Timer_AmonRa::OnEvent";
+		end;
+
+
+	OnFaraoKilled:
+		set $FaMum,$FaMum - 1;
+		announce "Obrigado "+strcharinfo(0)+" por ter matado Faraó, você ganhará um "+getitemname(.@item3)+", como recompensa",bc_all,0x00FF00;
+		getitem .@item3,1;
+		end;
+
+	OnOsirisKilled:
+		set $FaMum,$FaMum - 1;
+		announce "Obrigado "+strcharinfo(0)+" por ter matado Osíris, você ganhará um "+getitemname(.@item4)+", como recompensa",bc_all,0x00FF00;
+		getitem .@item4,1;
+		end;
+
+	OnMumiaKilled:
+		set $FaMum,$FaMum - 1;
+		dispbottom "Você Matou uma Múmia, continue assim";
+		set Zeny,Zeny + .@Zeny;
+		end;
+
+	OnFalseAnubisKilled:
+		set Zeny,Zeny + .@Zeny;
+		dispbottom "Você Matou um Anubis Falso";
+		end;
+
+	OnTrueAnubisKilled:
+
+		announce "Parabéns "+strcharinfo(0)+" você salvou a Todos você receberá um "+getitemname(.@item2)+", como recompensa",bc_all,0x00FF00;
+		getitem .@item2,1;
+		killmonsterall "prontera";
+		announce "A Invasão acabou, O Mundo foi salvo por "+strcharinfo(0)+", PARABÉNS",bc_all,0x00FF00;
+		set $OnEvent, 0;
+		end;
+
+	OnInit:
+		// ID do item dado a quem matar o verdadeiro Anubis
+		set .@item2, 504;
+
+		// ID do item dado a quem matar o Faraó
+		set .@item3, 504;
+
+		// ID do item dado a quem matar o Osíris
+		set .@item4, 504;
+
+		// Quantidade de Zeny dada a quem matar múmias e falsos anubis
+		set .@Zeny, 1;
+
+		// Quantidade de falsos anúbis que serão sumonados
+		set $Fanubis, 30;
+
+		// Quantidade de múmias que serão sumonadas
+		set $MumAmEvent, 60;
+
+		// Nome do Mapa que ocorrerá a invasão
+		set $AmMap$, "prontera";
+
+		set $FaMum,$MumAmEvent+$MumAmEvent;
+}
+
+-	script	Timer_AmonRa	-1,{
+
+	end;
+
+	OnEvent:
+
+		set $FaMum,$MumAmEvent+$MumAmEvent;
+		announce "Oh meu Deus, o poderoso Rei das Trevas Anubis foi Despertado",bc_all,0X00FF00;
+		initnpctimer;
+		end;
+
+	OnTimer5000:
+
+		monster $AmMap$,0,0,"Faraó",1157,1,"Guardiao_AmonRA::OnFaraoKilled";
+		monster $AmMap$,0,0,"Osíris",1038,1,"Guardiao_AmonRA::OnOsirisKilled";
+		monster $AmMap$,0,0,"Múmia",1041,$MumAmEvent,"Guardiao_AmonRA::OnMumiaKilled";
+		announce "Meu Deus !!! Algo Inacreditável Aconteceu: Anubis hipnotizou Faraó e Osíris, e eles estão espalhados e atacando todo mundo em Prontera",bc_all,0x00FF00;
+		end;
+
+	OnTimmer30000:
+
+		announce "Vamos pessoal, matem TODOS invasores, Lembre-se: Vocês serão recompensados",bc_all,0x00FF00;
+		end;
+
+	OnTimer60000:
+
+		announce "Amon Rá recompençará à todos que ajudarem a acabar com a invasão",bc_all,0x00FF00;
+		monster $AmMap$,0,0,"Múmia",1041,$MumAmEvent,"Guardiao_AmonRA::OnMumiaKilled";
+		announce "Anubis Aparecerá quando Osiris, Faraó e as Múmias morrem",bc_all,0x00FF00;
+		setnpctimer 0;
+		stopnpctimer;
+		donpcevent "Timer_AmonRa2::OnEvent";	
+
+}
+-	script	Timer_AmonRa2	-1,{
+
+	end;
+
+	OnEvent:
+		initnpctimer;
+		end;
+
+	OnTimer60000:
+
+		if(getmapmobs ($AmMap$) > $FaMum) {
+
+			announce "O Tempo está passando e ainda há monstros invasores em "+$AmMap$,bc_all,0x00FF00;
+			setnpctimer 0;
+
+		}
+		announce "Amon Rá disse que Anubis se Clonou, há vários deles em "+$AmMap$+", mais somente um é o verdadeiro, quem o matar será recompensado ",bc_all,0x00FF00;
+		monster $AmMap$,0,0,"Anubis",1098,$FAnubis,"Guardiao_AmonRA::OnFalseAnubisKilled";
+		monster $AmMap$,0,0,"Anubis",1098,1,"Guardiao_AmonRA::OnTrueAnubisKilled";
+		end;
+
+}

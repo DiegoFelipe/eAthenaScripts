@@ -1,0 +1,89 @@
+Index: db/const.txt
+===================================================================
+--- db/const.txt	(revision 2872)
++++ db/const.txt	(working copy)
+@@ -226,6 +226,7 @@
+ mf_guildlock	45
+ mf_nostorage    46 
+ mf_noguildstorage       47
++mf_nohit	48
+ 
+ cell_walkable	0
+ cell_shootable	1
+Index: src/map/battle.c
+===================================================================
+--- src/map/battle.c	(revision 2872)
++++ src/map/battle.c	(working copy)
+@@ -3177,6 +3177,19 @@
+ 	if( (s_bl = battle_get_master(src)) == NULL )
+ 		s_bl = src;
+ 
++	if(map[m].flag.nohit) {// TecnoCronus
++
++		struct map_session_data *sd;
++		const char *message;
++
++		sd = BL_CAST(BL_PC, t_bl);
++		message = "Você não pode atacar neste mapa";
++		
++		clif_disp_onlyself(sd,message,(int)strlen(message));
++		return 0;
++
++	}
++
+ 	switch( target->type )
+ 	{ // Checks on actual target
+ 		case BL_PC:
+Index: src/map/map.h
+===================================================================
+--- src/map/map.h	(revision 2872)
++++ src/map/map.h	(working copy)
+@@ -469,6 +469,7 @@
+ 		unsigned src4instance : 1; // To flag this map when it's used as a src map for instances
+ 		unsigned nostorage :1; // [SoulBlaker]
+ 		unsigned noguildstorage :1; // [SoulBlaker]
++		unsigned nohit :1; // [TecnoCronus]
+ 	} flag;
+ 	struct point save;
+ 	struct npc_data *npc[MAX_NPC_PER_MAP];
+Index: src/map/npc.c
+===================================================================
+--- src/map/npc.c	(revision 2872)
++++ src/map/npc.c	(working copy)
+@@ -3046,6 +3046,8 @@
+ 		map[m].flag.nostorage=state;
+ 	else if (!strcmpi(w3,"noguildstorage"))
+ 		map[m].flag.noguildstorage=state;
++	else if (!strcmpi(w3,"nohit"))
++		map[m].flag.nohit=state;
+ 	else
+ 		ShowError("npc_parse_mapflag: unrecognized mapflag '%s' (file '%s', line '%d').\n", w3, filepath, strline(buffer,start-buffer));
+ 
+Index: src/map/script.c
+===================================================================
+--- src/map/script.c	(revision 2872)
++++ src/map/script.c	(working copy)
+@@ -9250,6 +9250,7 @@
+ 			case MF_GUILDLOCK:		script_pushint(st,map[m].flag.guildlock); break;
+ 			case MF_NOSTORAGE:		script_pushint(st,map[m].flag.nostorage); break;
+ 			case MF_NOGUILDSTORAGE:	script_pushint(st,map[m].flag.noguildstorage); break;
++			case MF_NOHIT:			script_pushint(st,map[m].flag.nohit); break;
+ 		}
+ 	}
+ 
+@@ -9316,6 +9317,7 @@
+ 			case MF_GUILDLOCK:     map[m].flag.guildlock=1; break;
+ 			case MF_NOSTORAGE:     map[m].flag.nostorage=1; break;
+ 			case MF_NOGUILDSTORAGE: map[m].flag.noguildstorage=1; break;
++			case MF_NOHIT:     	map[m].flag.nohit=1; break;
+ 		}
+ 	}
+ 
+@@ -9379,6 +9381,7 @@
+ 			case MF_GUILDLOCK:     map[m].flag.guildlock=0; break;
+ 			case MF_NOSTORAGE:     map[m].flag.nostorage=0; break;
+ 			case MF_NOGUILDSTORAGE: map[m].flag.noguildstorage=0; break;
++			case MF_NOHIT:     map[m].flag.nohit=0; break;
+ 		}
+ 	}
+ 

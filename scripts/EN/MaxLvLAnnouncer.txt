@@ -1,0 +1,95 @@
+/*	    ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___
+	   /\  \     /\  \     /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\__\     /\  \
+	   \:\  \   /::\  \   /::\  \   /:| _|_   /::\  \   /::\  \   /::\  \   /::\  \   /:| _|_   /:/ _/_   /::\  \
+	   /::\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/\:\__\ /:/\:\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/_/\__\ /\:\:\__\
+	  /:/\/__/ \:\:\/  / \:\ \/__/ \/|::/  / \:\/:/  / \:\ \/__/ \;:::/  / \:\/:/  / \/|::/  / \:\/:/  / \:\:\/__/
+	  \/__/     \:\/  /   \:\__\     |:/  /   \::/  /   \:\__\    |:\/__/   \::/  /    |:/  /   \::/  /   \::/  /
+        	     \/__/     \/__/     \/__/     \/__/     \/__/     \|__|     \/__/     \/__/     \/__/     \/__/
+
+	*-----------------------------------------Hercules Script ---------------------------------------------*
+	* Maximum Level Announce									       *
+	*----------------------------------------------- By: --------------------------------------------------*
+	* TecnoCronus                                                                                          *
+	*----------------------------------------- Current Version: -------------------------------------------*
+	* 1.0												       *
+	*----------------------------------------- Compatible With: -------------------------------------------*
+	* rAthena											       *
+	* eAthena		             								       *
+	*------------------------------------------- Description: ---------------------------------------------*
+	* A NPC that announce the 10th firsts persons who got the maximum level				       *
+	*----------------------------------------- Additional Comments: ---------------------------------------*
+	* It give a item as reward, the item ids of reward are keeped at $@Glob_Array_Item array	       *
+	* The index of array will be get randomly.							       *
+	*-------------------------------------------- Changelog -----------------------------------------------*
+	*- https://xp-dev.com/trac/TC_Scripts/log/tecnocronus_scripts/scripts/EN/MaxLvLAnnouncer.txt	       *
+	*------------------------------------------------------------------------------------------------------*/
+
+-	script	MaxLvLAn	-1,{
+
+	end;
+
+	OnPCBaseLvUpEvent:
+
+		if($numMaxLevel == 10)
+			disablenpc "MaxLvLAn";
+		else if (BaseLevel==.MaxLvl) {
+				// Check if the player for some reason, reached to Maximum level again
+				if(Rew > 0) end;
+
+				// Keep the player name on array
+				setarray $Rank$[$numMaxLevel], strcharinfo(0);
+
+				announce strcharinfo(0)+", you are the "+.places$[$numMaxLevel]+" person to reach the level "+.MaxLvl+", you will receive a reward",0;
+
+				//give prize
+				set @Rnd_Item, rand(0,(getarraysize(.Global_Array_Item)-1));
+				getitem .Global_Array_Item[@Rnd_Item],1;
+
+				// set this variable, to don't take rewards again
+				set Rew, 1;
+
+				// Keep the last array index
+				set $numMaxLevel,$numMaxLevel+1;
+
+				if($numMaxLevel == 9) // Should be 9 now because the array index start in 0 (Thanks to ToastOfDoom)
+					disablenpc "MaxLvLAn";
+			}
+		end;
+
+	OnInit:
+		// Set here the maximum level of your server
+		set .MaxLvl, 99;
+
+		// Array with the item id rewards
+		setarray .Global_Array_Item[0],504,505;
+
+		//array lookup for place names
+		setarray .places$[0], "First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth";
+
+		if(!$numMaxLevel) set $numMaxLevel, 0;
+}
+
+prontera,146,165,6	script	MaxLvLRank	718,{
+
+	mes "[Constantin]";
+	mes "Hello, I'm Constantin, I'm the person";
+	mes "Who have access to all the Rune Midgard Registries";
+	mes "Are you interested in something ?";
+	if(select("I want see the Top Level Ranking: No, Nothing.")==1) {
+		mes "This rank shows the first 10 people who reached the";
+		mes "Maximum Level.";
+		next;
+		mes "[Constantin]";
+
+		if($Rank$ != "") {
+			mes "No one reached the maximum level yet";
+			close;
+		}
+
+		for(set @i, 0; @i < getarraysize( $Rank$ ); set @i, @i + 1) mes @i+"º"+$Rank$[@i]+".";
+	} else {
+		mes "Ok, no problems.";
+	}
+
+	close;
+}

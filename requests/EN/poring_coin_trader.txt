@@ -1,0 +1,48 @@
+prontera,174,215,6	script	PoringCoinTrader	718,{
+
+	mes "[Poring Coin Trader]";
+	mes "Hey, you want to trade some porings coins ?";
+	//7539 Dragon_Helm = 20Poring coins  2421
+	mes "I have good items here.";
+	if(select("Yes:No")==1) {
+		mes "select one item:";
+		switch(select("Dragom Helm","Valkyrie's Shoes")) {
+		case 1:
+			mes "A Dragon Helm ?";
+			mes "It cost 20 Poring coins";
+			if(countitem(7539) >= 20) {
+				mes "Let's Continue ?";
+				if(select("Yes:No")==1) {
+					getitem DRAGONHELMRID, 1;// PUT THE DRAGON HELM ID HERE
+					delitem 7539,20;
+				} else {
+					mes "You don't liked the Dragon Helm ?";
+					mes "Ok, good bye";
+				}
+			} else {
+				mes "You haven't enought Poring Coins";
+			}
+		break;
+
+		case 2:
+			mes "A Valkyrie's Shoes?";
+			mes "It cost 20 Poring coins";
+			if(countitem(7539) >= 20) {
+				mes "Let's Continue ?";
+				if(select("Yes:No")==1) {
+					getitem DRAGONKILLERID, 1;
+					delitem 2421,20;
+				} else {
+					mes "You don't liked the Valkyrie's Shoes ?";
+					mes "Ok, good bye";
+				}
+			} else {
+				mes "You haven't enought Poring Coins";
+			}
+		break;
+		}
+	} else {
+		mes "You don't know what are you loosing ..";
+	}
+	close;
+}

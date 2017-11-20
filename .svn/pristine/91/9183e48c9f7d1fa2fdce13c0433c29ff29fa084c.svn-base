@@ -1,0 +1,353 @@
+/* 	  ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___   
+         /\  \     /\  \     /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\__\     /\  \  
+         \:\  \   /::\  \   /::\  \   /:| _|_   /::\  \   /::\  \   /::\  \   /::\  \   /:| _|_   /:/ _/_   /::\  \ 
+         /::\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/\:\__\ /:/\:\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/_/\__\ /\:\:\__\
+        /:/\/__/ \:\:\/  / \:\ \/__/ \/|::/  / \:\/:/  / \:\ \/__/ \;:::/  / \:\/:/  / \/|::/  / \:\/:/  / \:\:\/__/
+        \/__/     \:\/  /   \:\__\     |:/  /   \::/  /   \:\__\    |:\/__/   \::/  /    |:/  /   \::/  /   \::/  / 
+        	   \/__/     \/__/     \/__/     \/__/     \/__/     \|__|     \/__/     \/__/     \/__/     \/__/ 
+
+
+
+					  (C) Copyright TecnoCronus 03/06/15
+			    	 	
+	*--------------------------------------------eAthena Script---------------------------------------------*
+	*- Evento Guerra do Empério		       								*
+	*------------------------------------------------ By: --------------------------------------------------*
+	*- TecnoCronus	                                                                                       	*
+	*------------------------------------------ Current Version: -------------------------------------------*
+	*- 2.0												       	*
+	*------------------------------------------ Description: -----------------------------------------------*
+	*													*
+	* - NPC de evento, Não-Oficial, criado por mim, com base na História do Ragnarok. Toda vez que a   	*
+	*   WOE começar, existe uma chance de esse evento começar, e o NPC íris vai ser ativado, quem falar	*
+	*   com o NPC enquanto o evento estiver ativo poderá fazer a quest primeiro para poder participar	*
+	*   do evento, que é trazer 100 mantos e estar usando um manto sagrado. O Objetivo é matar 100 players	*
+	*   (por padrão) na WOE para ganhar o prêmio que é uma Coroa do Deus-Sol ()				*
+	*													*
+	*---------------------------------------- Additional Comments: -----------------------------------------*
+	*													*
+	* - Enquanto o jogador estiver no evento, há uma chance de ele ser bufado e ganhar porção branca	*
+	* - O NPC vai dar prêmio somente para 1 jogador, ou seja, o primeiro a matar 100 players		*
+	* 											       		*
+	*-------------------------------------------- Changelog ------------------------------------------------*
+	*- http://trac.xp-dev.com/TC_Scripts/log/scripts/PT/Woe Event.txt				       	*
+	*-------------------------------------------------------------------------------------------------------*/
+
+
+prontera,168,187,4	script	Íris	117,{
+
+OnClick:
+	if($WEventON == 1) {
+
+		set @PName$, strcharinfo(0);
+
+		if(IrisH==1) {
+
+			mes "^D8202F [Íris] ^000000";
+			mes "^3FF000 "+ @PName$ +" ^000000, meu Subordinado, lhe esqueci de contar algo:";
+			mes "O Feitiço de Chaos sempre existirá, Os Corações Humanos almadiaçoados pela ganância";
+			mes "é a sua fonte de poder, que pena você não poder mais me Ajudar, agora preciso";
+			mes "tentar novamente me libertar, mas somente um Guerreiro Mais Forte que você pode me ajudar";
+			close;
+		}
+
+		if(IrisComplete==1) {
+
+			mes "^D8202F [Íris] ^000000";
+			mes "Meu mais importante subordinado, você completou sua jornada, e me ajudou";
+			mes "Você, ^0F0F0F "+ @PName$ +" ^000000, provou sua Honra e Coragem, agora";
+			mes "você receberá aquilo que lhe prometi, um ^FF0000 Coroa do Deus Sol ^000000, os deuses";
+			mes "de Rune Midgard estão felizes, pois consegui prová-los que sou uma boa líder";
+			mes "e agora eles me libertarão daqui, como prometido...";
+			getitem 5022, 1;
+			close2;
+			npctalk "Obrigado "+ @PName$ +" agora estou livre";
+			sleep2 1500;
+			npctalk "Estarei no Céu, sempre olhando por você....";
+			set Iriscomplete, 0;
+			set IrisHelper, 0;
+			set IrisTest, 0;
+			set IrisKill, 0;
+			set IrisH, 1;
+			callfunc "Ending";
+			end;
+		}
+
+		if(IrisHelper==1) {
+
+			callfunc "IrisHelper";
+			mes "^D8202F [Íris] ^000000";
+
+			if(@MyQuest<100 || isequipped(2325) != 1) {
+
+				mes "Escute, ^6E26D7 "+ @PName$ +" ^000000, complete os requisitos para começar sua missão";
+				mes "São eles: ^FF0000 100 Mantos Cerimoniais Celestiais ^000000";
+				mes "e estar usando um Manto Sagrado (Armadura)";
+				mes "Você já tem ^333333 "+ @MyQuest +" ^000000 Manto(s) Sagrado(s)";
+				mes "e/ou ainda não está usando o Manto Sagrado";
+				close;
+			}
+
+			mes "Parabéns meu Fiél Subordinado, você provou que tem Força e Honra suficiente";
+			mes "Para ser meu subordinado, Meus Parabéns, agora você já pode começar sua missão";
+			mes "Você se Lembra dela?";
+			next;
+
+			if(select("Sim Mestre","Desculpe-me Mestre, esqueci")==2) {
+
+				mes "^D8202F [Íris] ^000000";
+				mes "Não precisa se desculpar, sua Missão é a seguinte:";
+				mes "^D39337 Matar 100 Humanos na Guerra do Empério ^000000 nos Castelos de ^0FF000 Prontera ^000000";
+				mes "Quando você fizer isso, eu lhe invocarei aqui e lhe darei sua Recompença";
+				mes "Uma Lendário ^FF0000 Coroa do Deus Sol ^000000, que ganhei de presente dos Deuses";
+				mes "Vamos começar o Ritual, você receberá 50 Porções Brancas agora";
+				mes "E receberá meus Buffs agora e quando matar...";
+				set IrisTest, 1;
+				close2;
+				callfunc "StartingMainQuest";
+				end;
+			}
+
+			mes "Certo, agora devo lhe contar sua recompença, é algo muito valioso,";
+			mes "Uma Lendária ^FF0000 Coroa do Deus Sol ^000000, que ganhei de presente dos Deuses";
+			mes "Agora vá e Complete sua Missão";
+			mes "Vamos começar o Ritual, você receberá 50 Porções Brancas agora";
+			mes "E receberá meus Buffs agora e quando matar...";
+			set IrisTest, 1;
+			close2;
+			callfunc "StartingMainQuest";
+			end;
+		}
+
+		if (BaseLevel<60 || Upper < 1) {
+
+			mes "^D8202F [Íris] ^000000";
+			mes "Desculpe-me, ^6E26D7 "+ @PName$ +" ^000000, não preciso de sua ajuda,";
+			mes "Você é muito fraco";
+			close;
+		}
+
+		mes "^D8202F [Íris] ^000000";
+		mes "Olá ^6E26D7 "+ @PName$ +" ^000000, eu me chamo íris";
+		mes "sou uma Guerreira muito antiga, e estou procurando por fiéis Guerreiros";
+		mes "Você deseja ouvir minha História ?";
+
+		if(select("Sim, Me Conte mais","Não, estou Ocupado") ==2) {
+
+			mes "Que pena ^6E26D7 "+ @PName$ +" ^000000...";
+			mes "É uma grande honra poder ajudar uma guerreira valkíria.";
+			close;
+
+		}
+
+		mes "Há muito, MUITO tempo atrás os Deuses de Rune Midgard estavam anciosos.";
+		mes "Eles temiam o Fim do Mundo, O Terrível ^FF1200 Ragnarok ^000000, o dia em que o mundo acabaria";
+		mes "nesses tempos de preocupações, os deuses selecionavam, em toda Rune Midgard";
+		mes "os guerreiros mais valentes para formar a Guarda Celestial, que protegeria os Humanos.";
+		next;
+		mes "^D8202F [Íris] ^000000";
+		mes "Os Guerreiros da Guarda Celestial eram muito Fortes e temidos";
+		mes "por toda Rune Midgard, eles eram abençoados pelos deuses e";
+		mes "adorados pelos mortais...";
+		next;
+		mes "^D8202F [Íris] ^000000";
+		mes "Eu, era a Líder da primeira Guarda celestial";
+		mes "os deuses de Rune Midgard me abençoaram com a imortalidade";
+		mes "Mas, o meu principal Subordinado e membro da Guarda Celestial";
+		mes "Chaos guardava muita inveja em seu coração e,";
+		mes "Ajudado pelos Demônios que queriam acabar com Rune Midgard,";
+		mes "Conseguiu me enfeitiçar e retirar minha imortalidade...";
+		next;
+		mes "^D8202F [Íris] ^000000";
+		mes "Todos os Deuses ficaram muito preocupados, mas não sabiam";
+		mes "Sobre a Traição de ^080833 Chaos ^000000, e assim o elegeram";
+		mes "Novo Líder da Guarda Celestial";
+		next;
+		mes "^D8202F [Íris] ^000000";
+		mes "Chaos, juntamente com os Demônios, se rebeleram contra os";
+		mes "deuses de Rune Midgard, Assim Começou Temido ^FF1200 Ragnarok ^000000";
+		mes "Deuses e Demônios travaram uma batalha Terrível,";
+		mes "Que durou 7 Dias e 7 Noites, O Terror estava espalhado por Rune Midgard,";
+		mes "os Deuses venceram, mas, antes de ser destruído, Chaos";
+		mes "Lançou seu último e mais Malígno feitiço";
+		next;
+		mes "^D8202F [Íris] ^000000";
+		mes "Ele conseguiu o que queria, plantou o Mal, a Ambição nos Corações dos Mortais";
+		mes "Ele criou a ^A6A413 Guerra do Empério ^000000, onde os mortais procurariam cada";
+		mes "vez mais e mais o poder, Ele Amaldiçoou os 17 Templos dos deuses, onde os Humanos";
+		mes "Procurariam por Poder, os Deuses não podiam ficar mais em Rune Midgard, pois estavam";
+		mes "muito fracos e não conseguiram retirar seu feitiço até hoje,";
+		mes "Assim Os Deuses de Rune Midgard Subirão ao Céu, onde lá estão";
+		next;
+		mes "^D8202F [Íris] ^000000";
+		mes "Disse Chaos que eu os Deuses só me libertariam dessa prisão, quando eu";
+		mes "provar novamente que mereço ser Líder da Guarda Celestial, então, eu";
+		mes "procuro por guerreiros que possa me ajudar em minha longa Jornada...";
+		mes "Os Deuses Ficaram impedidos de me liberta, somente quando eu comcluir minha missão";
+		mes "Mas, como seu último ato, os Deuses me deram uma ^FF0000 Coroa do Deus Sol ^000000, para";
+		mes "recompensar aqueles que me ajudarem...";
+		next;
+		mes "^D8202F [Íris] ^000000";
+		mes "Mas, Primeiramete, você tem que passar no meu teste,";
+		mes "para provar sua força, eu preciso que você mate ^D39337 100 ^000000";
+		mes "Humanos na ^A6A413 Guerra do Empério ^000000 nos Castelos de ^0FF000 Prontera ^000000";
+		mes "Mas Primeirante, precisamos iniciar nosso ritual, assim";
+		mes "provará que é forte o Bastante para me ajudar a sair";
+		mes "dessa maldita prisão, eu lhe irei ajudar, como disse, ainda tenho";
+		mes "alguns poderes...";
+		next;
+		mes "^D8202F [Íris] ^000000";
+		mes "Bem, ^6E26D7 "+ @PName$ +" ^000000, primeiramente me traga alguns items";
+		mes "Para que eu lhe poça curar e abençoar durante sua missão";
+		mes "Mas, antes de tudo desejo saber se você pode me ajudar...";
+
+		if(select("Certamente, serei seu mais Fiél Subordinado","Não, Sou Muito Fraco...")==2) {
+
+			emotion 23;
+			mes "Que pena, ^6E26D7 "+ @PName$ +" ^000000, vejo que você";
+			mes "é realmente fraco e Covarde, vá embora!";
+			close;
+		}
+
+		next;
+		emotion 21;
+		mes "^D8202F [Íris] ^000000";
+		mes "Muito Obrigada, ^6E26D7 "+ @PName$ +" ^000000, para começar sua jornada, traga-me";
+		mes "--- ^FF0000 100 Mantos Cerimoniais Celestiais ^000000 ---";//7165
+		mes "E Use um ^FF0000 Manto Sagrado ^000000, esses são os requisitos";//2325
+		mes "Para que eu possa começar o Ritual Sagrado, que permitirá que eu lhe";
+		mes "transfira minha força para você, vá meu caro subordinado, não demore";
+		mes "volte antes que a ^A6A413 Guerra do Empério ^000000 acabe, pois só posso";
+		mes "surgir enquanto ela durar, quando ela acaba, sou levada misteriosamente";
+		mes "para outro lugar...";
+		set IrisHelper, 1;
+		close;
+
+	}
+
+end;
+
+
+}
+
+function	script	IrisHelper	{
+
+		set @MyQuest, countitem(7165);
+		return @MyQuest;
+
+}
+
+function	script	StartingMainQuest	{
+
+		delitem 7165, 100;
+		percentheal 100,100;
+		sc_start 32,240000,10; //Increase Agi.
+		sc_start 30,240000,10; //Blessing
+		sc_start 39,240000,10; //Kyrie Eleison
+		sc_start 21,240000,10; //Endure
+		sc_start 43,240000,10; //Adrenaline Rush
+		sc_start 46,240000,10; //Maximize Power
+		sc_start 110,240000,10; //Improve Concentration
+		sc_start 40,240000,10; //Magnificat
+		getitem 505, 50;
+
+}
+
+function	script	Ending	{
+
+		set @FirstRandomNumber, rand(100,600);
+		set @SecondRandomNumber, rand(100,600);
+		movenpc "Íris",@FirstRandomNumber,@SecondRandomNumber;
+		end;
+	
+}
+
+-	script	OnPCKillEvent	-1,{
+
+		if(IrisTest!=1) end;
+		if(IrisH == 1) end;
+		if (getmapxy(@mapname$,@mapx,@mapy,0) == -1) end;
+
+		if (@mapname$ == "prtg_cas01") || (@mapname$ == "prtg_cas02") || (@mapname$ == "prtg_cas03") || (@mapname$ == "prtg_cas04") || (@mapname$ == "prtg_cas05") {
+
+			set IrisKill, Iriskill+1;
+
+			if(IrisKill==$WEPKAmount) {
+
+				set IrisComplet, 1;
+				announce "Mensagem de Íris: Você completou sua Missão, Venha receber sua recompensa",bc_self,0;
+				sleep2 2000;
+				warp "prontera",166,185;
+				end;
+
+			}
+
+		dispbottom "VOZ PROFUNDA: Parabéns Meu Subordinado, continue assim, até matar os 100...";
+		set @IrisTestRandTakePotion, rand(1,100);
+
+		if (@IrisTestRandTakePotion<=$WEBuffChance) {
+
+			percentheal 100,100;
+			sc_start 32,240000,10;	//Increase Agi.
+			sc_start 30,240000,10; 	//Blessing
+			sc_start 39,240000,10; 	//Kyrie Eleison
+			sc_start 21,240000,10; 	//Endure
+			sc_start 43,240000,10; 	//Adrenaline Rush
+			sc_start 46,240000,10; 	//Maximize Power
+			sc_start 110,240000,10;	//Improve Concentration
+			sc_start 40,240000,10; 	//Magnificat
+
+		if(checkweight(505,50)==1) getitem 505,50;
+
+			dispbottom "VOZ PROFUNDA: Íris está te ajudando...";
+			end;
+		}
+
+		end;
+}
+			
+-	script	WEventControl	-1,{
+
+	end;
+
+OnInit:
+
+	// Chance pro evento começar, em porcentagem. (1%-100%)
+	set $WEChance, 10;
+
+	// Chance pros jogadores ser bufados quando matar alguém, em porcentagem.
+	set $WEBuffChance, 10;
+
+	// Quantidade de jogadores que deve se matar para ganhar o prêmio.
+	set $WEPKAmount, 100;
+
+	disablenpc "Íris";
+	end;
+
+OnAgitStart:
+	
+
+	set $RandomChanceToStart, rand(1,100);
+
+	if($RandomChanceToStart<=$WEChance) {
+
+		enablenpc "Íris"; 
+		announce "VOZ PROFUNDA: Uma Lendária Guerreira precisa de Ajuda, ela se encontra em Prontera e Procura por Guerreiros para lhe ajudar...",0;
+		set $WEventON, 1;
+
+	}
+	end;
+
+OnAgitEnd:
+		
+	if($WEvent == 1) {
+
+		set $WEvent, 0;
+		disablenpc "Íris";
+		announce "VOZ PROFUNDA: Algo de muito estranho aconteceu, A Guerreira Íris que estava em Prontera sumiu Misteriosamente...",0;
+
+	}
+
+	end;
+
+}

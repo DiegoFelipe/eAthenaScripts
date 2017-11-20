@@ -1,0 +1,40 @@
+Index: map/script.c
+===================================================================
+--- map/script.c	(revision 14268)
++++ map/script.c	(working copy)
+@@ -13601,7 +13601,28 @@
+   clif_quest_show_event(sd, &nd->bl, state, color);
+   return 0;
+ }
++BUILDIN_FUNC(inactivequest)
++{
+ 
++	TBL_PC *sd =script_rid2sd(st);
++	int quest_id = script_getnum(st,2);
++	int id;
++	quest_state status = Q_INACTIVE;
++
++	if( sd == NULL || quest_id <= 0) return 0;
++
++	ARR_FIND(0, sd->avail_quests, id, sd->quest_log[id].quest_id == quest_id);
++	if(id == sd->avail_quests)
++	{
++		ShowError("script_inactivequest: Character %d doesn't have quest %d.\n", sd->status.char_id, quest_id);
++		return -1;
++	}
++
++	sd->quest_log[id].state = status;
++	sd->save_quest = true;
++
++	return 0;
++}
+ /*==========================================
+  * BattleGround System
+  *------------------------------------------*/
+@@ -14668,5 +14689,6 @@
+ 	BUILDIN_DEF(checkquest, "i*"),
+ 	BUILDIN_DEF(changequest, "ii"),
+ 	BUILDIN_DEF(showevent, "ii"),
++	BUILDIN_DEF(inactivequest, "i"),
+ 	{NULL,NULL,NULL},
+ };

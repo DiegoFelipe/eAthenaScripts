@@ -1,0 +1,51 @@
+Index: clif.c
+===================================================================
+--- clif.c	(revision 14215)
++++ clif.c	(working copy)
+@@ -8564,8 +8564,45 @@
+ 	WFIFOW(fd,2) = 8 + textlen;
+ 	WFIFOL(fd,4) = sd->bl.id;
+ 	safestrncpy((char*)WFIFOP(fd,8), text, textlen);
+-	clif_send(WFIFOP(fd,0), WFIFOW(fd,2), &sd->bl, sd->chatID ? CHAT_WOS : AREA_CHAT_WOC);
+ 
++	if(!strisstr(message,'{') && !strisstr(message,'}'))
++		clif_send(WFIFOP(fd,0), WFIFOW(fd,2), &sd->bl, sd->chatID ? CHAT_WOS : AREA_CHAT_WOC);
++
++	else {
++
++		/* Remind: You just can change the NUMBERS that means the Required Zeny */
++
++
++		// Send a message to all connected client as a global announce
++		// Will coast 10000 Zeny change it to your wish
++
++		if(strisstr(message,"{all}") && sd->status.zeny >= 1000) { 
++
++			clif_send(WFIFOP(fd,0), WFIFOW(fd,2), &sd->bl,ALL_CLIENT)
++			sd->status.zeny -= 10000;
++
++		}
++
++		// Send a message to all online guild members
++
++		if(strisstr(message,"{guild}") && sd->status.zeny >= 10000) {
++
++			clif_send(WFIFOP(fd,0), WFIFOW(fd,2), &sd->bl,GUILD)
++			sd->status.zeny -= 10000;
++
++		}
++
++		// Send a message to all online party members
++
++		if(strisstr(message,"{party}") && sd->status.zeny >= 10000) {
++
++			clif_send(WFIFOP(fd,0), WFIFOW(fd,2), &sd->bl,PARTY)
++			sd->status.zeny -= 10000;
++
++		}
++
++	}
++
+ 	// send back message to the speaker
+ 	memcpy(WFIFOP(fd,0), RFIFOP(fd,0), RFIFOW(fd,2));
+ 	WFIFOW(fd,0) = 0x8e;

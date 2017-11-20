@@ -1,0 +1,30 @@
+Index: char.c
+===================================================================
+--- char.c	(revision 14189)
++++ char.c	(working copy)
+@@ -1164,6 +1164,25 @@
+ 	// check length of character name
+ 	if( name[0] == '\0' )
+ 		return -2; // empty character name
++	if( (name[0] == '[' && name[1] == 'G' && name[2] == 'M' && name[3] == ']' ) ||//By TecnoCronus
++	(name[0] == '[' && name[1] == 'G' && name[2] == 'm' && name[3] == ']' ) ||
++	(name[0] == '[' && name[1] == 'g' && name[2] == 'm' && name[3] == ']' ) ||
++	(name[0] == '[' && name[1] == 'C' && name[2] == 'M' && name[3] == ']' ) ||
++	(name[0] == '[' && name[1] == 'C' && name[2] == 'm' && name[3] == ']' ) ||
++	(name[0] == '[' && name[1] == 'c' && name[2] == 'm' && name[3] == ']' ) ||
++	(name[0] == '[' && name[1] == 'A' && name[2] == 'D' && name[3] == 'M' && name[4] == ']' ) ||
++	(name[0] == '[' && name[1] == 'A' && name[2] == 'd' && name[3] == 'm' && name[4] == ']' ) ||
++	(name[0]	 == '[' && name[1] == 'a' && name[2] == 'd' && name[3] == 'm' && name[4] == ']' ) ||
++	(name[0] == 'G' && name[1] == 'M') ||
++	(name[0] == 'G' && name[1] == 'm') ||
++	(name[0] == 'g' && name[1] == 'm') ||
++	(name[0] == 'C' && name[1] == 'M') ||
++	(name[0] == 'c' && name[1] == 'm') ||
++	(name[0] == 'A' && name[1] == 'D' && name[2] == 'M') ||
++	(name[0] == 'A' && name[1] == 'D' && name[2] == 'm') ||
++	(name[0] == 'A' && name[1] == 'd' && name[2] == 'm') ||
++	(name[0] == 'a' && name[1] == 'd' && name[2] == 'm') )
++	return -2;
+ 
+ 	// check content of character name
+ 	if( remove_control_chars(name) )

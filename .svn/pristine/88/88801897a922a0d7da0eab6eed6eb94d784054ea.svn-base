@@ -1,0 +1,115 @@
+/* 	  ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___   
+         /\  \     /\  \     /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\__\     /\  \  
+         \:\  \   /::\  \   /::\  \   /:| _|_   /::\  \   /::\  \   /::\  \   /::\  \   /:| _|_   /:/ _/_   /::\  \ 
+         /::\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/\:\__\ /:/\:\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/_/\__\ /\:\:\__\
+        /:/\/__/ \:\:\/  / \:\ \/__/ \/|::/  / \:\/:/  / \:\ \/__/ \;:::/  / \:\/:/  / \/|::/  / \:\/:/  / \:\:\/__/
+        \/__/     \:\/  /   \:\__\     |:/  /   \::/  /   \:\__\    |:\/__/   \::/  /    |:/  /   \::/  /   \::/  / 
+        	   \/__/     \/__/     \/__/     \/__/     \/__/     \|__|     \/__/     \/__/     \/__/     \/__/ 
+
+ 					           Advanced Scripts
+
+					  (C) Copyright TecnoCronus 01/01/2010
+			    	 	
+	*------------------------------------------ eAthena Script ---------------------------------------------*
+	*- GM Mail				       								*
+	*----------------------------------------------- By: ---------------------------------------------------*
+	*- TecnoCronus                                                                                         	*
+	*------------------------------------------ Current Version: -------------------------------------------*
+	*- 1.0												       	*
+	*------------------------------------------ Compatible With: -------------------------------------------*
+	*- eAthena	 	             								       	*
+	*------------------------------------------- Description: ----------------------------------------------*
+	*- This is the npc that will be triggered when the player use the atcommand requestgm			*
+	*--------------------------------------------- Changelog:  ---------------------------------------------*
+	*- http://trac.xp-dev.com/TC_Scripts/log/snippets/EN/npc.txt						*
+	*-------------------------------------------------------------------------------------------------------*/
+-	script	requestnpc	-1,{
+
+
+	if(#MesDelay > gettimetick(2)) {
+
+		mes "[GM Mail]";
+		mes "You need to wait until your delay ends";
+		mes "To send messages again";
+		mes "Wait ^FF0000"+(#MesDelay * 60)+" Minutes";
+
+	} else {
+
+		mes "Hello "+strcharinfo(0);
+		mes "Do you wish to send a message to all Game Masters ?";
+
+		if(select("Sure:No")==2) close;
+
+		mes "Type the message please";
+		mes "Type at maximum 255 characters";
+
+		input @Msg$;
+
+		if(getstrlen(@Msg$) > 255) {
+
+			mes "Your message execed the maximum lenght";
+			close;
+
+		}
+
+		set $MESID, $MESID + 1;
+
+		query_sql "INSERT INTO `GM_Tables` (`message`,`mes_id`) VALUES (`"+@Message$+"`,`"+$MESID+"`)";
+
+		mes "Mensage sent";
+
+		set #MesDelay,gettimetick(2) + (.Delay * 60);
+
+		mes "Wait "+(#MesDelay * 60)+" Minute to send messages again";
+
+		
+
+	}
+
+
+	close;
+
+
+	OnPCLoginEvent:
+
+		if(getgmlevel() < .GmLvL) end;
+
+		query_sql "SELECT `mes_id` FROM `GM_Tables`",.@Mes;
+
+		if(.@Mes == ##mes_read ||(!.@Mes || .@Mes == 0)) end;
+
+		set .@left, .@Mes - ##mes_read;
+
+		mes "[GM Mail]";
+		mes "Your have now ^00FF00"+.@left+"^000000 Mensagens to read";
+		mes "You should read all messages ..";
+		next;
+
+		for(set .@i, ##mes_read; .@i <= .@Mes; set .@i, .@i + 1) {
+
+			query_sql "SELECT `message` FROM `GM_tables` WHERE `mes_id` = `"+##mes_read+"`",.@message$;
+
+			mes .@message$;
+
+			close2;
+
+			set ##mes_read, ##mes_read + 1;
+
+		}
+
+		mes "[GM Mail]";
+		mes "All messages read !";
+
+		close;
+
+	OnInit:
+
+	query_sql "CREATE TABLE IF NOT EXISTS `GM_Tables` (`message` varchar(255) NOT NULL,`mes_id` tinyint(3) NOT NULL DEFAULT '0', PRIMARY KEY (`mes_id`)) ENGINE=MyISAM;";
+
+	// Delay in minutes
+	set .Delay, 60;
+
+	// GM level need to read the messages
+	set .GmLvL, 60; 
+
+}

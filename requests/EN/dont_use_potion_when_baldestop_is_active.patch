@@ -1,0 +1,26 @@
+Index: map/pc.c
+===================================================================
+--- map/pc.c	(revision 14274)
++++ map/pc.c	(working copy)
+@@ -3434,10 +3434,12 @@
+ int pc_isUseitem(struct map_session_data *sd,int n)
+ {
+ 	struct item_data *item;
++	struct status_change *sc;
+ 	int nameid;
+ 
+ 	nullpo_retr(0, sd);
+ 
++	sc = status_get_sc(&sd->bl);
+ 	item = sd->inventory_data[n];
+ 	nameid = sd->status.inventory[n].nameid;
+ 
+@@ -3558,6 +3560,8 @@
+ 	))
+ 		return 0;
+ 
++	if(sc->data[SC_BLADESTOP_WAIT] && item->type == IT_HEALING) return 0; // If blade stop is active ... [TecnoCronus]
++
+ 	//Dead Branch & Bloody Branch & Porings Box
+ 	if((log_config.branch > 0) && (nameid == 604 || nameid == 12103 || nameid == 12109))
+ 		log_branch(sd);

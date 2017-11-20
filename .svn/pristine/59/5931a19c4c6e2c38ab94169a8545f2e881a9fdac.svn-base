@@ -1,0 +1,34 @@
+//===== Cronus / eAthena Script ==============================
+//= NPCs das Quests
+//===== By: ==================================================
+//= TecnoCronus
+//= DeMoN (Evanio) - Tradução
+//===== Versão : =============================================
+//= 1.0++
+//===== Compativél com: ======================================
+//= eAthena SVN SQL/TXT
+//= Cronus SVN SQL/TXT
+//===== Discrição: ===========================================
+//= Aqui esta todos os NPCs das Quests
+//============================================================
+
+prontera,175,216,4	script	GR Missionário#1	710,{
+
+	callfunc("GRSysQuest","^654321Missionário de Prontera^000000");
+	end;
+
+}
+
+payon,173,225,4	script	GR Missionário#2	866,{
+
+	callfunc("GRSysQuest","^00FF00Missionário de Payon^000000");
+	end;
+
+}
+
+alberta,197,151,4	script	GR Missionário#3	897,{
+
+	callfunc("GRSysQuest","^ABFFCDMissionário de Alberta^000000");
+	end;
+
+}

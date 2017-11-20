@@ -1,0 +1,31 @@
+-	shop	Custom_Seller	-1,501:20
+
+
+prontera,150,150,5, script Custom Seller 899,{
+
+
+	callshop "Custom_Seller",1;
+	npcshopattach "Custom_Seller";
+	end;
+
+	OnBuyItem:
+
+		for(set @i, 0; @i < getarraysize(@bought_nameid); set @i,@i+1) {
+
+			// o id dentro do countitem é o id do item que será no lugar do zeny
+			// o 10 de 10*@bought_quantity[@i] é a quantidade do item que o jogador deverá dar
+			if(countitem(671) < 10*@bought_quantity[@i]) break;
+			delitem 20002,10*@bought_quantity[@i];
+  			getitem @bought_nameid[@i],@bought_quantity[@i];
+		}
+
+	deletearray @bought_quantity, getarraysize(@bought_quantity);
+	deletearray @bought_nameid, getarraysize(@bought_nameid);
+	close;
+
+	OnInit:
+
+	// Ponha os item a ser vendido e o preço em zeny respectivamente
+	// Mas isso não importa muito é só para o item aparecer
+	npcshopitem "Custom_Seller",501,20;
+}

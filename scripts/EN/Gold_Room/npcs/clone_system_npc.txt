@@ -1,0 +1,34 @@
+//===== eAthena Script ========================================
+//= Buff System NPC
+//===== By: ===================================================
+//= TecnoCronus
+//===== Current Version: ======================================
+//= 1.1
+//===== Compatible With: ======================================
+//= eAthena SVN SQL/TXT
+//===== Description: ==========================================
+//= This NPC only can be trigged, when an pla yer says 
+//= "Clone me Please" Inside Gold Room. and if he did the quest
+//= that allows him to be cloned.
+//=============================================================
+
+-	script	GRSys_Clone	-1,{
+
+	getmapxy(@map$,@x,@y,0);
+	if(@map$!="bat_c01") end;
+	if(GR_CanClone == 0) {
+		dispbottom "Hey "+strcharinfo(0)+" you don't did the quest to use clones.";
+		dispbottom "I Cann't clone you now";
+		end;
+	}
+	if(GR_CanClone == GR_Cloned) {
+		dispbottom "I See you was cloned to your Limit right ?";
+		dispbottom "I Only can clone you when you die";
+		end;
+	}
+	dispbottom "Ok I'll Clone you right now";
+	atcommand "@slaveclone "+strcharinfo(0);
+	set $GRSYS_Clones,$GRSYS_Clones+1;
+	set GR_Cloned, GR_Cloned + 1;
+	end;
+}

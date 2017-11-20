@@ -1,0 +1,206 @@
+/*	    ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___   
+	   /\  \     /\  \     /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\__\     /\  \  
+	   \:\  \   /::\  \   /::\  \   /:| _|_   /::\  \   /::\  \   /::\  \   /::\  \   /:| _|_   /:/ _/_   /::\  \ 
+	   /::\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/\:\__\ /:/\:\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/_/\__\ /\:\:\__\
+	  /:/\/__/ \:\:\/  / \:\ \/__/ \/|::/  / \:\/:/  / \:\ \/__/ \;:::/  / \:\/:/  / \/|::/  / \:\/:/  / \:\:\/__/
+	  \/__/     \:\/  /   \:\__\     |:/  /   \::/  /   \:\__\    |:\/__/   \::/  /    |:/  /   \::/  /   \::/  / 
+        	     \/__/     \/__/     \/__/     \/__/     \/__/     \|__|     \/__/     \/__/     \/__/     \/__/ 
+			          T e c n o C r o n u s  N e t W o r k  P r e s e n t s
+	*----------------------------------------- eAthena Script ---------------------------------------------*
+	* TecnoBRoadcaster										       *
+	*----------------------------------------------- By: --------------------------------------------------*
+	* TecnoCronus                                                                                          *
+	*----------------------------------------- Current Version: -------------------------------------------*
+	* v1.0												       *
+	*----------------------------------------- Compatible With: -------------------------------------------*
+	* eAthena SQL		             								       *
+	*------------------------------------------- Description: ---------------------------------------------*
+	* 1.0 Um BroadCast Com Sistema "anti-palavrão" e "anti-flood".					       *
+	*----------------------------------------- Additional Comments: ---------------------------------------*
+	* 1.0 Funciona SOMENTE em eAthena MySQL.					 		       *
+	* 1.1 As Mensagem podem conter no máximo 10 Palavras.						       *
+	* 1.2 -Sobre as Variáveis, encontram-se da Linha 203 até a Linha 205, são elas: 		       *
+	*    '$times' Corresponde ao número de vezes que o jogador tentou usar palavrão e será impedido de     *
+	*    usar o NPC.									               *
+	*    '$price' Corresponde ao preço a ser paga pela mensagem.					       *
+	*    '$Delay' Quantas Mensagens o Jogador poderá mandar por hora.				       *
+	*----------------------------------------- Bug Report Link:  ------------------------------------------*
+	*											               *
+	*------------------------------------------------------------------------------------------------------*/
+prontera,159,187,6	script	TecnoBRoadcaster	806,{
+		if($UsingTXT==1) end;
+		set @name$, strcharinfo(0);
+		if(Manner>=$times) {
+			emotion 32;
+			mes "[Tecno^00FF00B^000000^FFFD03R^000000oadCaster] ";
+			mes " ^FF0000 "+ @name$ +" ^000000 Você foi banido de usar este NPC, por Usar Linguagem suja além do Limite~";
+			close;
+		}
+		if(Full==1 && MyDelay != gettime(3)) {
+			set Full, 0;
+			set MyDelay, 0;
+			set MsgSent, 0;
+		}
+		if(Full==1) {
+			mes "[Tecno^00FF00B^000000^FFFD03R^000000oadCaster] ";
+			mes "Você já mandou ^0FF0FF "+ $Delay +" ^000000 Mensagens, aguarde a próxima Hora para enviar Mensagens";
+			close;
+		}
+		emotion 21;
+		mes "[Tecno^00FF00B^000000^FFFD03R^000000oadCaster] ";
+		mes "Ol? ^FF0000"+ @name$ +"^000000 Gostaria de mandar uma mensagem?";
+		mes "Essa Mensagem custa "+ $price + " Zenys";
+		mes "Você pode mandar ^0FF0FF "+ $Delay +" ^000000 Mensagens por Hora";
+		next;
+		switch(select("Sim","Não")) {
+		case 1:
+			L_Again:
+			mes "[Tecno^00FF00B^000000^FFFD03R^000000oadCaster] ";
+			mes "Ser? aceito no m?ximo uma mensagem com 10 Palavras";
+			mes "Regra Principal: N?o use palavrões se insistir por "+ $times +" Vezes";
+			mes "você não poderá enviar mensagens";
+			mes "Quando acabar a mensagem, digite a ultima palavra ^3cbd32 endmsg ^000000";
+			mes "Assim saberei que sua mensagem est? pronta";
+			next;
+			mes "[Tecno^00FF00B^000000^FFFD03R^000000oadCaster] ";
+			mes "Escreva sua mensagem, Por Favor";
+			mes "Palavra por palavra, não digite espa?o nem digitos";
+			mes "A cada palavra digitada aperte enter ou ok";
+			mes "Quando escrever a décima palavra, a Mensagem será enviada automaticamente";
+			mes "Tenha Calma, isso pode levar alguns segundos...";
+			next;
+			L_Input:
+			input @msg$;
+			if(@msg$==endmsg) {
+				set @done, 1;
+				goto M_Check;
+			}
+			set @usespace, charisalpha(@msg$,1);
+			if(@usespace==1) {
+				dispbottom "Você digitou um dígito, não é permitido isso, tente novamente, se quiser acabar a mensagem antes das 10 palavras digite: endmsg";
+				goto L_Again;
+			}
+			query_sql "SELECT `manners` FROM `mannerdb` WHERE `manners` = '"+ @msg$ +"'", @badword$;
+			if (getstrlen("@badword$") > 0) {
+			emotion 23;
+			mes "^710080 "+ @name$ + " ^000000 você não pode usar este tipo de linguagem.";
+			mes "Se você continuar falando palavrões";
+			mes "você não poderá enviar mensagens, NUNCA mais";
+			set Manner,Manner+1;
+			close;
+			}
+			emotion 17;
+			L_NoBadWord:
+			if(Zeny < $price) {
+			mes "[Tecno^00FF00B^000000^FFFD03R^000000oadCaster] ";
+			mes "Você não tem ^FF8000 "+ $price +" ^000000 Zenys, volte quando tiver";
+			close;
+			}
+			if(@Msg10!="") goto M_SendBC;
+			if (!getarraysize(@Msg1)) {
+			set @Msg1, @Msg$;
+			goto M_Check;
+			}
+			if (!getarraysize(@Msg2)) {
+			set Msg2, @msg$;
+			goto M_Check;
+			}
+			if (!getarraysize(@Msg3)) {
+			set @Msg3, @msg$;
+			goto M_Check;
+			}
+			if (!getarraysize(@Msg4)) {
+			set @Msg4, @msg$;
+			goto M_Check;
+			}
+			if (!getarraysize(@Msg5)) {
+			set @Msg5, @msg$;
+			goto M_Check;
+			}
+			if (!getarraysize(@Msg6)) {
+			set @Msg6, @msg$;
+			goto M_Check;
+			}
+			if (!getarraysize(@Msg7)) {
+				set @Msg7, @msg$;
+				goto M_Check;
+			}
+			if (!getarraysize(@Msg8)) {
+				set @Msg8, @msg$;
+				goto M_Check;
+			}
+			if (!getarraysize(@Msg9)) {
+				set @Msg9, @msg$;
+				goto M_Check;
+			}
+			if (!getarraysize(@Msg10)) {
+				set @Msg10, @msg$;
+				set @done, 1;
+			}
+			M_Check:
+			if(@done!=1) goto L_Input;
+			M_SendBC:
+			mes "Confirmando a Mensagem:";
+			mes " "+ @Msg1 +" "+ @Msg2 +" "+ @Msg3 +" "+ @Msg4 +" "+ @Msg5 +" "+ @Msg6 + " "+ @Msg7 +" "+ @Msg8 +" "+ @Msg9 +" "+ @Msg10 +" ";
+			mes "Deseja Trocar a Mensagem ou apagá-la?";
+			if(select("Sim","Não, pode continuar")==1) {
+				mes "Certo, irei apagar essa Mensagem...";
+				set @Msg1, 0;
+				set @Msg2, 0;
+				set @Msg3, 0;
+				set @Msg4, 0;
+				set @Msg5, 0;
+				set @Msg6, 0;
+				set @Msg7, 0;
+				set @Msg8, 0;
+				set @Msg9, 0;
+				set @Msg10, 0;
+				mes "mensagem apagada, deseja enviar outra?";
+				if(select("Não, quero sair","Sim, Por Favor")==1) close;
+				next;
+				goto L_Again;
+			}
+			if (!getarraysize(MyDelay)) {
+				set MyDelay, gettime(3);
+			}
+			mes "Enviando mensagem...";
+			set Zeny,Zeny-$price;
+			set MsgSent, MsgSent+1;
+			if(MsgSent==$Delay) set Full, 1;
+			Announce "Mensagem de "+ strcharinfo(0) +": "+ @Msg1 +" "+ @Msg2 +" "+ @Msg3 +" "+ @Msg4 +" "+ @Msg5 +" "+ @Msg6 + " "+ @Msg7 +" "+ @Msg8 +" "+ @Msg9 +" "+ @Msg10 +" ",0;
+			mes "Mensagem enviada";
+			emotion 21;
+			close;
+			
+
+		case 2:
+			mes "[Tecno^00FF00B^000000^FFFD03R^000000oadCaster]";
+			mes "Ok, volte quando quiser";
+			close;
+}
+
+OnInit:
+//					******************************
+//					***   PRIMEIRA INICIAÇÃO   ***
+//					******************************
+	set $MainDetection, query_sql("select version()");
+	if($MainDetection < 0) {
+	debugmes "O Sistema de Broadcast TecnoBRoadcaster n?o pode Trabalha em eAthena TXT~";
+	set $UsingTXT, 1;
+	end;
+	}
+	if (!.MannerTable) {
+	debugmes "Criando Tabela 'mannerdb'...";
+	query_sql "CREATE TABLE `mannerdb` ( `mannerid` tinyint(3) NOT NULL DEFAULT '0',`manners` varchar(255) NOT NULL DEFAULT '0',PRIMARY KEY(`manners`)) ENGINE=MyISAM;";
+	debugmes "Tabela Mannerdb Criada com Sucesso";
+	set .MannerTable, 1;
+	}
+//					*********************************************
+//					***	- Vari?veis / Configura??o -  	  ***
+//					*********************************************
+//
+			set $times, 5;
+			set $price, 1000000;
+			set $Delay, 50;
+end;
+}

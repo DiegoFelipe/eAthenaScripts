@@ -1,0 +1,16 @@
+Index: clif.c
+===================================================================
+--- clif.c	(revision 14268)
++++ clif.c	(working copy)
+@@ -8939,9 +8939,9 @@
+ 	//-------------------------------------------------------//
+ 	//   Lordalfa - Paperboy - To whisper NPC commands       //
+ 	//-------------------------------------------------------//
+-	if (target[0] && (strncasecmp(target,"NPC:",4) == 0) && (strlen(target) > 4))
++	if (target[0] && (strlen(target) > 4))
+ 	{
+-		char* str = target+4; //Skip the NPC: string part.
++		char* str = target; //Skip the NPC: string part.
+ 		struct npc_data* npc;
+ 		if ((npc = npc_name2id(str)))	
+ 		{

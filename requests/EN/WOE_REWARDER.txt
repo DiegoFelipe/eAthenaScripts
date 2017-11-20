@@ -1,0 +1,30 @@
+// TecnoCronus
+-	script	WOE_REWARD	-1,{
+
+	end;
+
+	// When WOE ends:
+	OnAgitEnd:
+
+		// Keeps all guild ids on $@gids variable
+		query_sql "SELECT guild_id FROM guild_castle",$@gids$;
+
+		while($@gids$[$@i]) {
+
+			// Take all guild's master account ids
+			query_sql "SELECT account_id FROM char WHERE name = "+$@gids$[$@i]+"",$@accids[$@i];
+
+			// Take all guild master's char ids
+			query_sql "SELECT char_id FROM char WHERE name = "+$@gids$[$@i]+"",$@charids[$@i];
+
+			//  Change here if you wish, the map and coordinates only
+			warpchar "prontera",0,0,$@charids[$@i];
+
+			// Change ITEMID to the id of item that is the reward, AMOUN to amount (obvious)
+			getitem ITEMID,AMOUNT,$@accids[$@i];
+
+			// Increase the "Loop" variable
+			set $@i, $@i + 1;
+
+		}
+}// Is not need a "end;" here

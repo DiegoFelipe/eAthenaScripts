@@ -1,0 +1,159 @@
+Index: db/mob_noatk.txt
+===================================================================
+--- db/mob_noatk.txt	(revision 0)
++++ db/mob_noatk.txt	(revision 0)
+@@ -0,0 +1,37 @@
++//--------------------------------------------------------------------------------------------------------------\\
++//   ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___    \\
++//  /\  \     /\  \     /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\__\     /\  \   \\
++//  \:\  \   /::\  \   /::\  \   /:| _|_   /::\  \   /::\  \   /::\  \   /::\  \   /:| _|_   /:/ _/_   /::\  \  \\
++//  /::\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/\:\__\ /:/\:\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/_/\__\ /\:\:\__\ \\
++// /:/\/__/ \:\:\/  / \:\ \/__/ \/|::/  / \:\/:/  / \:\ \/__/ \;:::/  / \:\/:/  / \/|::/  / \:\/:/  / \:\:\/__/ \\
++// \/__/     \:\/  /   \:\__\     |:/  /   \::/  /   \:\__\    |:\/__/   \::/  /    |:/  /   \::/  /   \::/  /  \\
++//	      \/__/     \/__/     \/__/     \/__/     \/__/     \|__|     \/__/     \/__/     \/__/     \/__/   \\
++//--------------------------------------------------------------------------------------------------------------\\
++//														\\
++// How it works:												\\
++//														\\
++// <mob_id>,<flag>												\\
++//														\\
++// mob_id = monster id that you want to apply the flag								\\
++//														\\
++// flag   = id of flag that will be applied									\\
++//														\\
++// Valid Flags are:												\\
++//														\\
++// 1   = If the player is hiding.										\\
++// 2   = If the player is 50% overweight.									\\
++// 4   = If the player is 90% overweight.									\\
++// 8   = If the player doesn't have a guild.									\\
++// 16  = If the player doesn't have a party.									\\
++// 32  = If the player doesn't have a PET.									\\
++// 64  = If WOE is active.											\\
++// 128 = If WOE isn't active.											\\
++//														\\
++// Example1: Player can't attack porings (ID 1002) if he's hiding:						\\
++//														\\
++// 1002,1													\\
++//														\\
++// Example2: Player can't attack poring if he's hiding (flag 1) and if WOE is active (flag 64) so 64+1= 65	\\
++//														\\
++// 1002,65													\\
++//--------------------------------------------------------------------------------------------------------------\\
+Index: src/map/battle.c
+===================================================================
+--- src/map/battle.c	(revision 14271)
++++ src/map/battle.c	(working copy)
+@@ -3147,7 +3147,26 @@
+ 	} while (src && src != prev);
+ 	return prev;
+ }
++/*==========================================
++ * Checks if the mb is targetable according
++ * the restrictions defined on mob_noatk [TecnoCronus]
++ *==========================================*/
++int mob_targetable(struct mob_data *md, struct map_session_data *sd)
++{
+ 
++	if (
++		(pc_ishiding(sd) && md->is_targetable&1) ||
++        	(pc_is50overweight(sd) && md->is_targetable&2) ||
++	        (pc_is90overweight(sd) && md->is_targetable&4) ||
++        	(sd->status.guild_id <= 0 && md->is_targetable&8) ||
++	        (sd->status.party_id <= 0 && md->is_targetable&16) ||
++		(sd->status.pet_id <= 0 && md->is_targetable&32) ||
++        	((agit_flag) && md->is_targetable&64) ||
++	        ((agit2_flag) && md->is_targetable&128)
++	) return 0;
++
++	return 1;
++}
+ /*==========================================
+  * Checks the state between two targets (rewritten by Skotlex)
+  * (enemy, friend, party, guild, etc)
+@@ -3184,6 +3203,7 @@
+ 				return -1; //Cannot be targeted yet.
+ 			break;
+ 		case BL_MOB:
++			if(!(mob_targetable(((TBL_MOB*)target),((TBL_PC*)src)))) return 0;
+ 			if((((TBL_MOB*)target)->special_state.ai == 2 || //Marine Spheres
+ 				(((TBL_MOB*)target)->special_state.ai == 3 && battle_config.summon_flora&1)) && //Floras
+ 				s_bl->type == BL_PC && src->type != BL_MOB)
+Index: src/map/mob.c
+===================================================================
+--- src/map/mob.c	(revision 14271)
++++ src/map/mob.c	(working copy)
+@@ -2665,7 +2665,53 @@
+ {
+ 	return map_foreachinmap(mob_countslave_sub, bl->m, BL_MOB,bl->id);
+ }
++/*==========================================
++ * Read mob_atk [TecnoCronus]
++ *==========================================*/
++static int mob_readdb_targetable(void)
++{
++	FILE *fp;
++	char line[1024];
++	struct mob_data *md;
++	int j, mob_id;
++	int ln = 0;
++	char *str[32],*p;
+ 
++	sprintf(line, "%s/mob_noatk.txt", db_path);
++	if( (fp=fopen(line,"r"))==NULL) {
++
++		ShowError("Could not read %s !\n",line);
++		return -1;
++
++	}
++
++	while(fgets(line, sizeof(line), fp))
++	{
++		if(line[0]=='/' && line[1]=='/')
++			continue;
++		memset(str,0,sizeof(str));
++
++		for (j= 0, p = line; j<2 && p; j++) {
++			str[j]=p;
++			p=strchr(p,',');
++			if(p) *p++=0;
++		}
++		mob_id = atoi(str[0]);
++		if ((str[0]==NULL) || (mob_db(mob_id) == mob_dummy)) continue;
++		md = map_id2md(mob_id);
++
++		if(md==NULL) continue;
++
++		md->is_targetable |= atoi(str[1]);
++		ln++;
++	}
++	fclose(fp);
++
++	if(ln > 0) ShowStatus("Done reading '"CL_WHITE"%s"CL_RESET"', found '"CL_WHITE"%d"CL_RESET"' entries","db/mob_noatk",ln);
++
++	return 0;
++
++}
+ /*==========================================
+  * Summons amount slaves contained in the value[5] array using round-robin. [adapted by Skotlex]
+  *------------------------------------------*/
+@@ -4381,6 +4427,7 @@
+ 	mob_readchatdb();
+ 	mob_readskilldb();
+ 	mob_readdb_race();
++	mob_readdb_targetable();
+ }
+ 
+ void mob_clear_spawninfo()
+Index: src/map/mob.h
+===================================================================
+--- src/map/mob.h	(revision 14271)
++++ src/map/mob.h	(working copy)
+@@ -151,6 +151,7 @@
+ 	short skillidx;
+ 	unsigned int skilldelay[MAX_MOBSKILL];
+ 	char npc_event[50];
++	unsigned int is_targetable; // db/mob_noatk [TecnoCronus]
+ };
+ 
+ 

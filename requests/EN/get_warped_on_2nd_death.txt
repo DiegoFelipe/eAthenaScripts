@@ -1,0 +1,20 @@
+-	script	getwarpedon2nddie	-1,{
+	end;
+
+	OnPCDieEvent:
+	getmapxy(@m$,@x,@y,0);
+	if(@m$ == "YourMap") {
+		set dies, dies + 1;
+		if(dies == 2) {
+			atcommand "@alive";
+			warp "SavePoint",0,0;
+			set dies, 0;
+			}
+		}
+	end;
+
+	OnPCLogoutEvent:
+		set dies, 0;
+}
+// Change <map name> to the map that you have pvp
+<map name>	mapflag	loadevent

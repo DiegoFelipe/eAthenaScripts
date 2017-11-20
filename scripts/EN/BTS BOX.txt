@@ -1,0 +1,100 @@
+/* 	 	  ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___   
+         /\  \     /\  \     /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\__\     /\  \  
+         \:\  \   /::\  \   /::\  \   /:| _|_   /::\  \   /::\  \   /::\  \   /::\  \   /:| _|_   /:/ _/_   /::\  \ 
+         /::\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/\:\__\ /:/\:\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/_/\__\ /\:\:\__\
+        /:/\/__/ \:\:\/  / \:\ \/__/ \/|::/  / \:\/:/  / \:\ \/__/ \;:::/  / \:\/:/  / \/|::/  / \:\/:/  / \:\:\/__/
+        \/__/     \:\/  /   \:\__\     |:/  /   \::/  /   \:\__\    |:\/__/   \::/  /    |:/  /   \::/  /   \::/  / 
+				   \/__/     \/__/     \/__/     \/__/     \/__/     \|__|     \/__/     \/__/     \/__/     \/__/ 
+
+
+					  (C) Copyright TecnoCronus 06/06/2017
+			    	 	
+	*-------------------------------------------Hercules Script---------------------------------------------*
+	*- Break the seal trader   																				*
+	*------------------------------------------------ By: --------------------------------------------------*
+	*- TecnoCronus	                                                                                       	*
+	*------------------------------------------ Current Version: -------------------------------------------*
+	*- 1.0.0																						       	*
+	*------------------------------------------ Description: -----------------------------------------------*
+	* - Trade all items required to complete BTS quest to a complete BTS box								*
+	*---------------------------------------- Additional Comments: -----------------------------------------*
+	* 											       														*
+	*-------------------------------------------- Changelog ------------------------------------------------*
+	*												 												       	*
+	*-------------------------------------------------------------------------------------------------------*/
+
+prontera,154,198,4	script	BTS_BOX 811,{
+
+	mes "[BTS BOX TRADER]";
+	mes "I can trade all required items";
+	mes "of the Break The Seal Quest";
+	mes "and pack it into a single box"
+	next;
+	mes "[BTS BOX TRADER]";
+	mes "These are what I need";
+	mes "100 Pieces of Ancient Lips";
+	mes "20 Pieces of Peridot";
+	mes "10 Pieces of Pyroxene";
+	mes "10 Pieces of Muscovite";
+	mes "10 Pieces of Biotite";
+	mes "10 Pieces of Talon of Griffon";
+	mes "10 Pieces of Rose Quartz";
+	mes "10 Pieces of Agate";
+	mes "10 Pieces of Young Twig";
+	mes "10 Pieces of Fragment of Rossata";
+	mes "10 Pieces of Mother's Nightmare";
+	mes "10 Pieces of Matchstick";
+	mes "10 Pieces of Phlogopite";
+	mes "10 Pieces of Skeletal Armor Piece";
+	mes "200 Pieces of Hand of God";
+	mes "100 Pieces of Cursed Seal";
+	next;
+	mes "[BTS BOX TRADER]";
+	mes "Confirm the trade ?";
+	
+	if (select("Yes, let's do it","Not now")==2) {
+		mes "All right, come back when you wish!";
+		close;
+	}
+	
+	mes "Let me check if you got all items...";
+	next;
+	if(countitem(1054) >= 100 || countitem(7289) >= 20 || countitem(7296) >= 10 || countitem(7292) >= 10 || countitem(7297) >= 10 || countitem(704) >= 10 || countitem(7293) >= 10 || countitem(7291) >= 10 || countitem(701) >= 10 || countitem(7211) >= 10 || countitem(7020) >= 10 || countitem(7035) >= 10 || countitem(7290) >= 10 ||  countitem(1009) >= 200 || countitem(7442) >= 300) {
+		delitem 1054,100;
+		delitem 7289,20;
+		delitem 7296,10;
+		delitem 7292,10;
+		delitem 7297,10;
+		delitem 704,10;
+		delitem 7293,10;
+		delitem 7291,10;
+		delitem 701,10;
+		delitem 7211,10;
+		delitem 7020,10;
+		delitem 7035,10;
+		delitem 7290,10;
+		delitem 7450,10;
+		delitem 1009,200;
+		delitem 7442,300;
+		
+		mes "Well done, get your BTS Box now";
+		getitem .BTSBOXID, 1;
+	} else {
+		mes "You are missing some item(s)...";
+		mes "Please check all items again.";
+	}
+
+	close;
+	
+	
+	OnInit:
+
+	/* ********************
+	 * CONFIGURATION HERE *
+     * ********************/
+
+
+	// SET THE ITEM ID OF THE BTS BOX HERE
+	set .BTSBOXID, 99999;
+	end;
+}

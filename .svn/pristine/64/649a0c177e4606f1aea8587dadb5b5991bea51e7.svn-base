@@ -1,0 +1,46 @@
+//===== Cronus / eAthena Script ==============================
+//= NPCs de Chat
+//===== By: ==================================================
+//= TecnoCronus
+//= DeMoN (Evanio) - Tradução
+//===== Versão : =============================================
+//= 1.1
+//===== Compativél com: ======================================
+//= eAthena SVN SQL/TXT
+//= Cronus SVN SQL/TXT
+//===== Discrição: ===========================================
+//= Os NPCs falam sobre a Gold Room, como participar,
+//= sobre as missões e outras coisas.
+//= Para adicionar outros NPCs de chat, é só seguir o modelo:
+//= callfunc("GRSys_Chatting","NPCNAME",*pontos);
+//= * Você pode ganhar alguns pontos por algum acaso.
+//============================================================
+
+ra_in01,297,140,4	script	Mandara	821,{
+
+	callfunc("GRSys_Chatting","^123456Mandara^000000",3);
+	end;
+
+}
+
+
+prontera,158,193,4	script	TecnoCronus	939,{
+
+	callfunc("GRSys_Chatting","^123456TecnoCronus^000000",5);
+	end;
+
+}
+
+morocc,141,103,4	script	Young Inotheph	984,{
+
+	callfunc("GRSys_Chatting","^123123Young Inotheph^000000",2);
+	end;
+
+}
+
+geffen,124,74,4	script	Minerador Dourado	848,{
+
+	callfunc("GRSys_Chatting","^AB9ABCMinerador Dourado^000000",3);
+	end;
+
+}

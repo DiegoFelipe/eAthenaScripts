@@ -1,0 +1,24 @@
+Index: battle.c
+===================================================================
+--- battle.c	(revision 14217)
++++ battle.c	(working copy)
+@@ -584,6 +584,7 @@
+ {
+ 	struct mob_data* md = BL_CAST(BL_MOB, bl);
+ 	int class_ = status_get_class(bl);
++	TBL_PC *sd = ((TBL_PC*)bl);
+ 
+ 	if (!damage) //No reductions to make.
+ 		return 0;
+@@ -606,8 +607,11 @@
+ 			if (battle_config.guild_max_castles && guild_checkcastles(g)>=battle_config.guild_max_castles)
+ 				return 0; // [MouseJstr]
+ 		}
++
++		if(mapreg_readreg(add_str("$@Dontbreakemp")) == sd->status.char_id) return 0;
+ 	}
+ 
++	if(mapreg_readreg(add_str("$@Dontbreakemp")) > 0) mapreg_setreg(add_str("$@Dontbreakemp"), 0;
+ 	switch (skill_num) {
+ 	//Skills with no damage reduction.
+ 	case PA_PRESSURE:

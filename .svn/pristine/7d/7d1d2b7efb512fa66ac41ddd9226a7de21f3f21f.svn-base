@@ -1,0 +1,29 @@
+-	script	Dont_allow_2_clients	-1,{
+
+	end;
+
+
+	OnPCLoginEvent:
+		query_sql "SELECT last_ip FROM login WHERE account_id = "+getcharid(3)+"",@RIDIP;
+		query_sql "INSERT INTO On_ip_table ("+@RIDIP+")";
+		query_sql "UPDATE On_ip_table SET ips_online = ips_online + 1 WHERE last_ip = "+@RIDIP+"";
+		query_sql "SELECT ips_online FROM on_ip_table WHERE last_ip = "+@RIDIP+"",@TIMESON;
+		if(@TIMESON >= 2) {
+			dispbotton "[Staff]";
+			dispbotton strcharinfo(0)+" you can't log with two windows opened";
+			dispbotton "I need kick you now";
+			sleep2 5000; // Just to the player read.
+			atcommand "@kick "+strcharinfo(0);
+		}
+		end;
+
+	OnPCLogoutEvent:
+		query_sql "SELECT last_ip FROM login WHERE account_id = "+getcharid(3)+"",@RIDIP;
+		query_sql "UPDATE on_ip_table SET ips_online = 0 WHERE last_ip = "+@RIDIP+"";
+		end;
+
+	OnInit:
+		CREATE TABLE IF NOT EXISTS on_ip_table (last_ip varchar(100) NOT NULL default '',ips_online int(11) NOT NULL DEFAULT '0',PRIMARY KEY  (`last_ip`)) ENGINE=MyISAM AUTO_INCREMENT=2000000;// SET THE ENGINE MAKE THE TABLE BE ACESSED FASTER
+
+}
+		

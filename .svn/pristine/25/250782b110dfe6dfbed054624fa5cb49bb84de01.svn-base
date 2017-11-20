@@ -1,0 +1,198 @@
+//===== eAthena Script =======================================
+//= Manager of GR
+//===== By: ==================================================
+//= TecnoCronus
+//===== Current Version: =====================================
+//= 2.3
+//===== Compatible With: =====================================
+//= eAthena SVN SQL/TXT
+//===== Description: =========================================
+//= This NPC is the manager, he can clone the player, warp him
+//= to the shopping center, trade his/her points for golds and
+//= many other things.
+//============================================================
+
+prontera,146,164,6	script	GRManager	982,{
+
+	if(!##GRDefault) set ##GRDefault, $@GR_MobDefault;
+	if(!GR_CanClone) set GR_CanClone, 0;
+	if(!GR_Cloned) set GR_Cloned, 0;
+	set @HowMuch, mobcount ("bat_c01","all");
+	set @HowMuch, @HowMuch - $GRSYS_Clones;
+	if(@HowMuch==0) { 
+		monster "bat_c01",0,0,$@GR_MobName$,$@GR_MobId,$@GRAmount,"GRManager::OnMyMobKilled";
+		monster "bat_c01",0,0,$@GR_GuardianName$,1900,$@GRAmount2,"GRManager::OnMyMobKilled";
+	}
+	mes "[^77B700Manager^000000]";
+	if(BaseLevel < $@GRSys_Lvl) {
+		mes "You aren't able to enter in Gold Room";
+		mes "Because your level is to low";
+		close;
+	}
+	mes "I'm the Manager of Gold Room";
+	mes "How Can I Help you???";
+	next;
+
+	switch(select("~>Talk me more about Gold Room","~>Change Points for Gold","~>Warp me to Gold Room","~>Clone me Please","~>Warp me to Gold Room Shop Center","~>^FF0000Leave^000000")) {
+
+	case 1:
+		mes "[^77B700Manager^000000]";
+		mes "So, Gold Room is a place that you kill Monsters and receive Points, you can Change it for Gold";
+		mes "But, you can Kill at Maximum 100 Monsters/Hour";
+		next;
+		mes "[^77B700Manager^000000]";
+		mes "More one Thing: After Change your points, you should wait some minutes to enter on Gold Room";
+		mes "Example: You changed your points at 12:55 PM, you can return only 13:00 PM";
+		next;
+		mes "[^77B700Manager^000000]";
+		mes "So,if you change your points at 13:02PM, you will can return 14:00";
+		mes "All Right?";
+		close;
+	case 2:
+		mes "[^77B700Manager^000000]";
+		mes "You have ^FF0000"+##GRMob+"^000000 Point(s)";
+		mes "Right, I Can trade "+$@GRP+" Point for 1 Gold";
+		mes "How Much Gold you want?";
+		next;
+		input @Mount;
+		set @amount, @Mount;
+		set @Mount, @Mount*$@GRP;
+		if(@Mount<=0 || @Mount > ##GRMob) {
+			mes "[^77B700Manager^000000]";
+			mes "You don't have all point that you said!";
+			close;
+		}
+		set ##GRMob,##GRMob-@Mount;
+		getitem 969,@amount;
+		set #GLD_DELAY,(gettime(7)*12*31*24+gettime(6)*31*24+gettime(5)*24+gettime(3)+1);
+		mes "[^77B700Manager^000000]";
+		mes "Done, you changed "+@amount+" Point(s) for "+@Mount+" Gold(s)";
+		mes "Call in "+ (#GLD_DELAY - (gettime(7)*12*31*24+gettime(6)*31*24+gettime(5)*24+gettime(3)) )+" hours later.";
+		close;
+
+	case 3:
+		if(##GRMob >= ##GRDefault) {
+			mes "[^77B700Manager^000000]";
+			mes "Trade your points now to warp";
+			mes "You know that you cann't get";
+			mes "More points, so do it.";
+			close;
+		}
+		if (#GLD_DELAY > (gettime(7)*12*31*24 + gettime(6)*31*24 + gettime(5)*24 + gettime(3)) ) {
+			mes "[^77B700Manager^000000]";
+			mes "I Said to you";
+			mes "Call in "+ (#GLD_DELAY - (gettime(7)*12*31*24+gettime(6)*31*24+gettime(5)*24+gettime(3)) )+" hours later.";
+			close;
+		}
+		if(Zeny < $@GRSys_EnterZeny) {
+			mes "I Cann't warp you if you";
+			mes "Don't have "+$@GRSys_EnterZeny+" Zenys";
+			close2;
+			emotion e_sry;
+			end;
+		}
+		if(BaseLevel < $@GRSys_Lvl) {
+			mes "Your level is too low";
+			mes "To enter on the gold room";
+			mes "Come back when you got the level "+$@GRSys_Lvl;
+			close;
+		}
+		mes "[^77B700Manager^000000]";
+		mes "Ok I Will Warp you Right Now";
+		close2;
+		warp "bat_c01",0,0;
+		close;
+
+	case 4:
+		mes "[^77B700Manager^000000]";
+		if(!GR_CanClone) {
+			mes "Hey "+strcharinfo(0)+" you don't did the quest to use clones.";
+			mes "I Cann't clone you";
+			close;
+		}
+		if(GR_CanClone == GR_Cloned) {
+			mes "I See you was cloned to your Limit right ?";
+			mes "I Only can clone you when you die";
+			close;
+		}
+		
+		mes "Ok I'll Clone you right now";
+		close2;
+		atcommand "@slaveclone "+strcharinfo(0);
+		set $GRSYS_Clones,$GRSYS_Clones+1;
+		if(!GR_Cloned) set GR_Cloned, 0;
+		set GR_Cloned, GR_Cloned + 1;
+		emotion e_no1;
+		end;
+
+	case 5:
+		mes "[^77B700Manager^000000]";
+		mes "I Can warp you for ^AA55AA"+$@GRSys_Warp+"^000000 Zenys";
+		mes "Are you interested ?";
+		if(select("Ok, Warp me","No")==2) {
+			mes "See ya";
+			close2;
+			emotion e_ok;
+			end;
+		}
+		if(Zeny < $@GRSys_Warp) {
+			mes "You don't have much zeny";
+			mes "I'm sorry but, I Cann't";
+			mes "Warp you.";
+			close2;
+			emotion e_sry;
+			end;
+		}
+		mes "ok, I will warp you to Gold Room Shopping Center now !";
+		close2;
+		set Zeny, Zeny - $@GRSys_Warp;
+		warp "ra_in01",277,142;
+		end;
+	case 6:
+		mes "[^77B700Manager^000000]";
+		mes "Ok, Good Luck young "+strcharinfo(0);
+		mes "Bye Bye ~";
+		close2;
+		emotion e_heh;
+		end;
+	
+	}
+	
+	OnMyMobKilled:
+		if(##GRMob >= ##GRDefault) {
+			dispbottom "Hey "+strcharinfo(0)+" You killed 100 Monsters, you can't kill more, I Need warp you out to talk to Manager now!";
+			warp "prontera",146,164;
+			end;
+		}
+
+		set ##GRMob,##GRMob + 1;
+		if(rand(99) <= $@GR_Show) dispbottom "Info: You have "+##GRMob+" GP (Gold Points)";
+		if(rand(99) <= $@GR_Buff && $@GR_Buff > 0) { 
+			specialeffect2 514; 
+			skilleffect 34,0;
+			sc_start 30,10000,10;
+		}
+		if ((GRSt_Str || GRSt_Dex || GRSt_Luck) && (rand(99)<=$@GRSys_Buff)) {		
+			if(GRSt_Str) { sc_start SC_INCSTR,$@GRSTTime,10; dispbottom "Your Str has been increased for some seconds"; }
+			if(GRSt_Dex) { sc_start SC_INCDEX,$@GRSTTime,10; dispbottom "Your Dex has been increased for some seconds"; }
+			if(GRSt_Luck){ sc_start SC_INCLUK,$@GRSTTime,10; dispbottom "Your Luk has been increased for some seconds"; }
+		}
+		set @HowMuch,mobcount ("bat_c01","all");
+		set @HowMuch, @HowMuch - $GRSYS_Clones;
+		if(@HowMuch==0) { 
+			monster "bat_c01",0,0,$@GR_MobName$,$@GR_MobId,$@GRAmount,"GRManager::OnMyMobKilled";
+			monster "bat_c01",0,0,$@GR_GuardianName$,1900,$@GRAmount2,"GRManager::OnMyMobKilled";
+		}
+		end;
+
+
+}
+//	****************************************
+//	****	M A P F L A G S		********
+//	****************************************
+
+bat_c01	mapflag	noskill
+bat_c01	mapflag	nowarpto
+bat_c01	mapflag	nobranch
+bat_c01	mapflag	noexp
+bat_c01	mapflag	pvp

@@ -1,0 +1,7 @@
+-	script	LoadAnnNPC	-1,{
+
+
+	getmapxy(@ml$,@xl,@yl,0);
+	announce "O Jogador "+strcharinfo(0)+" entrou no mapa "+@ml$+".",bc_all|bc_blue;
+
+}

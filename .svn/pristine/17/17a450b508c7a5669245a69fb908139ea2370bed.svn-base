@@ -1,0 +1,19 @@
+Index: atcommand.c
+===================================================================
+--- atcommand.c	(revision 14262)
++++ atcommand.c	(working copy)
+@@ -5530,6 +5530,14 @@
+ 		return -1;
+ 	}
+ 
++	if(agit_flag || agit2_flag)
++	{
++
++		clif_displaymessage(fd,"You can't use this command while WOE is active.");
++		return -1;
++
++	}
++
+ 	if (sd->followtarget == pl_sd->bl.id) {
+ 		pc_stop_following (sd);
+ 		clif_displaymessage(fd, "Follow mode OFF.");

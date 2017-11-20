@@ -1,0 +1,17 @@
+Index: atcommand.c
+===================================================================
+--- atcommand.c	(revision 14281)
++++ atcommand.c	(working copy)
+@@ -2295,6 +2295,12 @@
+ 		town = 25;
+ 	}
+ 
++	if(town == 29 && sd->gmlevel < 1) {
++
++		clif_displaymessage(fd,"Somente Vips podem acessar esse mapa.");
++		return 0;
++	}
++
+ 	if (town >= 0 && town < ARRAYLENGTH(data))
+ 	{
+ 		m = map_mapname2mapid(data[town].map);

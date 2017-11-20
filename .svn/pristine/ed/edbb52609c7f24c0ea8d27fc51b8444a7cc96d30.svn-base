@@ -1,0 +1,354 @@
+//===== eAthena Script =======================================
+//= Quest Funtion
+//===== By: ==================================================
+//= TecnoCronus
+//===== Current Version: =====================================
+//= 1.1
+//===== Compatible With: =====================================
+//= eAthena SVN SQL/TXT
+//===== Description: =========================================
+//= This is the function of Questor NPCS
+//============================================================
+
+function	script	GRSysQuest	{
+
+	mes "[^FF0000"+getarg(0)+"^000000]";
+	if(!##GRMob) {
+		mes "I See you don't know the Gold Room right ?";
+		select("Er, Gold Room ???");
+		mes "Its an Room where you Kill monster and get points and them";
+		mes "Trade it for Gold ...";
+		if(select("Wow, Tell Me more please","Nah... I'm not interested")==2) close;
+		mes "But, you can Kill at Maximum 100 Monsters/Hour";
+		next;
+		mes "[^FF0000"+getarg(0)+"^000000]";
+		mes "More one Thing: After Change your points, you should wait some minutes to enter on Gold Room";
+		mes "Example: You changed your points at 12:55 PM, you can return only 13:00 PM";
+		next;
+		mes "[^FF0000"+getarg(0)+"^000000]";
+		mes "So,if you change your points at 13:02PM, you will return 14:00";
+		mes "All Right?";
+		close;
+	} else if(##GRMob) {
+			mes "Hey ^FF0001"+strcharinfo(0)+"^000000, I See you are an Gold Room User ...";
+			select("Yes, you are right.");
+			mes "I see that you don't know my";
+			mes "Quests, my Rewards are very usefull on Gold Room.";
+			if(select("Really ? Tell me more, please","What ? Let me alone")==2) close;
+				next;
+				mes "[^FF0000"+getarg(0)+"^000000]";
+				mes "So, there are many kinds of mission:";
+				mes "Mission ^0000FF1^000000: You Can use Clones to help you when dropping Gold.";
+				mes "Mission ^0000FF2^000000: You Can get buffs when killing monster inside Gold Room.";
+				mes "Mission ^0000FF3^000000: You Can Increased The Limit to Kill Mobs per hour by 1.";
+				mes "Mission ^0000FF4^000000: You Can Get extra status (Str, Dex, Luck) for "+$@GRSTTime+", after this the bonus end.";
+				mes "Are you interested in some question ?";
+				if(select("Yes","No")==2) close;
+					mes "Choose your Quest.";
+					next;
+					switch(select("^1000FF->^000000 1","^2000FF->^000000 2","^3000FF->^000000 3","^3000FF->^000000 4")) {
+					case 1:
+						if(GRM1 && !GRM1UP) {
+							next;
+							mes "[^FF0000"+getarg(0)+"^000000]";
+							mes "Did you forget ?";
+							mes "You already is doing this quest.";
+							mes "So are you bringing me those items that I Said?";
+							if(select("Of Course","Not yet.")==2) close;
+								for (set @i, 0; $@GRM1[@i]; set @i, @i + 1) {
+									if(countitem($@GRM1[@i]) < $@GRM1A[@i]) {
+										if(!@Left) set @Left, 0;
+										set @Left, @Left + 1;
+									}
+								}
+										if(@Left > 0) {
+											set @Left, 0;
+											mes "You are forgetting some item, go Back when you got all";
+											close;
+										}
+									for (set @i, 0; $@GRM1[@i]; set @i, @i + 1) delitem $@GRM1[@i], $@GRM1A[@i];
+									mes "Good, Now your Mission 2 is complete now ...";
+									set GR_CanClone, 1;
+									set GRMUP1, 1;
+									close;
+	
+						} else if(GRM1 && GRM1UP) {
+							for (set @y, 0; $@GRM12[@y]; set @y,@y+1) {
+								if(countitem($@GRM12[@y]) < $@GRM12A[@y]) {
+										if(!@Left2) set @Left2, 0;
+										set @Left2, @Left2 + 1;
+									}
+								}
+										if(@Left2 == 0 && GR_CanClone < $@GR_CLLimit) {
+											set @Left2, 0;
+											next;
+											mes "Congratulations ! you got all items";
+											mes "No your Limit to use clones will be increased by 1";
+											for (set @i, 0; $@GRM12[@i]; set @i, @i + 1) delitem $@GRM12[@i], $@GRM12A[@i];
+											set GR_CanClone, GR_CanClone + 1;
+											
+										}
+									close;
+								}
+								if(GR_CanClone == $@GR_CLLimit) {
+									next;
+									mes "[^FF0000"+getarg(0)+"^000000]";
+									mes "I'm Sorry "+strcharinfo(0)+", you Cann't get more Slave Clones.";
+									close;
+								}
+								next;
+								mes "[^FF0000"+getarg(0)+"^000000]";
+								mes "Nice you completed the Mission 1 I Know";
+								mes "Hey If you do something for me I Can increase the limit";
+								mes "Of Slave Clones that  you can use ..";
+								if(select("uh, Tell me more","You Again ? OMG Let me go")==2) {
+									mes "Ok you do what you preffer but you don't know";
+									mes "what you are loosing ...";
+									close;
+								}
+							next;
+							mes "[^FF0000"+getarg(0)+"^000000]";
+							mes "I Just Need those items:";
+							for(set @x, 0; $@GRM12[@i]; set @x, @x + 1)
+								mes " ^FF0000"+$@GRM12A[@x]+"^000000 units of ^CCCCCC"+getitemname($@GRM12[@x])+"^000000";
+							mes "Do you will do this Quest ?";
+							if(select("Of Course","No")==2) close;
+							mes "Ha Ha Ha Good Luck!";
+							close;
+									
+							
+					next;
+					mes "[^FF0000"+getarg(0)+"^000000]";
+					mes "All Right Bring me those Things:";
+					for (set @i, 0; $@GRM1[@i]; set @i, @i + 1)
+						mes " ^FF0000"+$@GRM1A[@x]+"^000000 units of ^CCCCCC"+$@GRM1[@x]+"^000000";
+					next;
+					mes "[^FF0000"+getarg(0)+"^000000]";
+					mes "But, you need to accept this quest,";
+					mes "Do you accept ?";
+					if(select("Of Course","No, I'm Busy")==2) {
+						mes "Hey Young don't make me loose my time";
+						close;
+					}
+					mes "Oh, Good Luck for you";
+					set GRM1, 1;
+					close;
+
+					case 2:
+						if(!GR_CanGetBuff && !M2ChkVar) {
+							mes "[^FF0000"+getarg(0)+"^000000]";
+							mes "Are you Interested in get some buffs Right ?";
+							if(select("Sure !","Not Really")==2) close;
+							mes "to do it, bring me those items";
+							next;
+							mes "[^FF0000"+getarg(0)+"^000000]";
+							for (set @i, 0; $@GRM2[@i]; set @i, @i + 1)
+								mes " ^FF0000"+$@GRM2A[@i]+"^000000 units of ^CCCCCC"+$@GRM2[@i]+"^000000";
+							if(select("All Right I'll Got them","No I Don't want get those items")==2) {
+								mes "uh, Don't use my Free time for nothing ok?";
+								close;
+							}
+							set M2ChkVar, 1;
+							mes "Ok I'll wait for you.";
+							close;
+						} else if(M2ChkVar && !GR_CanGetBuff) {
+							mes "[^FF0000"+getarg(0)+"^000000]";
+							mes "So are you bring me the items ?";
+							if(select("Yes","No ...")==2) {
+								mes "ok I'm still waiting for you";
+								close;
+							}
+							mes "Let me see if you have all items ..";
+							for (set @i, 0; $@GRM2[@i]; set @i, @i + 1) {
+							if(countitem($@GRM2[@i]) < $@GRM2A[@i]) {
+								if(!@Left3) set @Left3, 0;
+								set @Left3, @Left3 + 1;
+							}
+						}
+							if(@Left3 > 0) {
+								set @Left3, 0;
+								mes "You are forgetting some item, go Back when you got all";
+								close;
+							}
+							for (set @i, 0; $@GRM2[@i]; set @i, @i + 1) delitem $@GRM2[@i], $@GRM2A[@i];
+							set GR_CanGetBuff, 1;
+							mes "Congratulations, now you can get";
+							mes "Buffs just saying ^FF0000Buff^000000 on";
+							mes "Gold Room";
+							close;
+						}
+						mes "[^FF0000"+getarg(0)+"^000000]";
+						mes "You Already did this quest, bye bye";
+						close;
+
+
+
+					case 3:
+						mes "[^FF0000"+getarg(0)+"^000000]";
+						if(MobLim == $@GR_MobLim) {
+							mes "I'm sorry you are in the limit";
+							mes "you cann't ncrease your Limit now";
+							close;
+						}
+						if(!M3Chk && !M3Done) {
+							mes "To Increase the Limit to kill monster per hour";
+							mes "Inside Gold Room Bring me:";
+							for (set @i, 0; $@GRM3[@i]; set @i, @i + 1)
+								mes " ^FF0000"+$@GRM3A[@i]+"^000000 units of ^CCCCCC"+$@GRM3[@i]+"^000000";
+							mes "Do you'll bring me those items ?";
+							if(select("Yes","No")==2) close;
+							mes "Ok, I'll wait for you";
+							set M3Chk, 1;
+							close;
+						} else if(M3Chk && !M3Done) {
+								mes "Do you got all items sir "+strcharinfo(0)+" ?";
+								if(select("Yes","No")==2) {
+									mes "Come back when you do it.";
+									close;
+								}
+								mes "Let me Check ...";
+								for (set @i, 0; $@GRM3[@i]; set @i, @i + 1) {
+								if(countitem($@GRM3[@i]) < $@GRM3A[@i]) {
+									if(!@Left4) set @Left4, 0;
+									set @Left4, @Left4 + 1;
+								}
+								}	
+							if(@Left4 > 0) {
+								set @Left4, 0;
+								mes "You are forgetting some item, go Back when you got all";
+								close;
+							}
+							for (set @i, 0; $@GRM3[@i]; set @i, @i + 1) delitem $@GRM3[@i], $@GRM3A[@i];
+							set M3Done, 1;
+							mes "Congratulations, now your Limit was Increased by 1";
+							set ##GRDefault, ##GRDefault + 1;
+							close;
+							}
+					case 4:
+						mes "[^FF0000"+getarg(0)+"^000000]";
+						mes "What Kind of Stats you what get ?";
+						switch(select("Str","Dex","Luck","^0000FFNothing^000000")) {
+						case 1:
+							if(GRSt_Str) {
+								mes "Hey, You already did this quest, you cann't do it again.";
+								close;
+							}
+							if(!M4Var && !GRSt_Str) {
+								mes "Just Bring me:";
+								next;
+								mes "[^FF0000"+getarg(0)+"^000000]";
+								for (set @i, 0; $@GRM4Str[@i]; set @i, @i + 1)
+										mes " ^FF0000"+$@GRM4StrA[@i]+"^000000 units of ^CCCCCC"+$@GRM4Str[@i]+"^000000";
+								if(select("Ok Let's Continue","No I Don't want")==2) close;
+								set M4Var, 1;
+								mes "Good Luck";
+								close;
+							} else if(M4Var && !GRSt_Str) {
+									mes "Did you got all those items ?";
+									if(select("Yes","No Let me go back")==2) close;
+									mes "Let me see..";
+									for (set @i, 0; $@GRM4Str[@i]; set @i, @i + 1) {
+									if(countitem($@GRM4Str[@i]) < $@GRM4StrA[@i]) {
+										if(!@Left5) set @Left5, 0;
+										set @Left5, @Left5 + 1;
+									}
+									}	
+								if(@Left5 > 0) {
+									set @Left5, 0;
+									mes "You are forgetting some item, go Back when you got all";
+									close;
+								}
+								for (set @i, 0; $@GRM4Str[@i]; set @i, @i + 1) delitem $@GRM4Str[@i], $@GRM4StrA[@i];
+								set GRSt_Str, 1;
+								mes "Now you can get increase your Str while is fighting,";
+								mes "Talk to the Helper inside Goold Room for More informations ...";
+								close;
+								}
+								
+								
+								
+						case 2:
+							if(GRSt_Dex) {
+								mes "Hey, You already did this quest, you cann't do it again.";
+								close;
+							}
+							if(!M42Var && !GRSt_Dex) {
+								mes "Just Bring me:";
+								next;
+								mes "[^FF0000"+getarg(0)+"^000000]";
+								for (set @i, 0; $@GRM4Dex[@i]; set @i, @i + 1)
+										mes " ^FF0000"+$@GRM4DexA[@i]+"^000000 units of ^CCCCCC"+$@GRM4Dex[@i]+"^000000";
+								if(select("Ok Let's Continue","No I Don't want")==2) close;
+								set M42Var, 1;
+								mes "Good Luck";
+								close;
+							} else if(M42Var && !GRSt_Dex) {
+									mes "Did you got all those items ?";
+									if(select("Yes","No Let me go back")==2) close;
+									mes "Let me see..";
+									for (set @i, 0; $@GRM4Dex[@i]; set @i, @i + 1) {
+									if(countitem($@GRM4Dex[@i]) < $@GRM4DexA[@i]) {
+										if(!@Left5) set @Left5, 0;
+										set @Left5, @Left5 + 1;
+									}
+									}	
+								if(@Left5 > 0) {
+									set @Left5, 0;
+									mes "You are forgetting some item, go Back when you got all";
+									close;
+								}
+								for (set @i, 0; $@GRM4Dex[@i]; set @i, @i + 1) delitem $@GRM4Dex[@i], $@GRM4DexA[@i];
+								set GRSt_Dex, 1;
+								mes "Now you can get increase your Str while is fighting,";
+								mes "Talk to the Helper inside Goold Room for More informations ...";
+								close;
+								}
+
+						case 3:
+							if(GRSt_Luk) {
+								mes "Hey, You already did this quest, you cann't do it again.";
+								close;
+							}
+							if(!M43Var && !GRSt_Luk) {
+								mes "Just Bring me:";
+								next;
+								mes "[^FF0000"+getarg(0)+"^000000]";
+								for (set @i, 0; $@GRM4Luk[@i]; set @i, @i + 1)
+										mes " ^FF0000"+$@GRM4LukA[@i]+"^000000 units of ^CCCCCC"+$@GRM4Luk[@i]+"^000000";
+								if(select("Ok Let's Continue","No I Don't want")==2) close;
+								set M43Var, 1;
+								mes "Good Luck";
+								close;
+							} else if(M3Var && !GRSt_Luk) {
+									mes "Did you got all those items ?";
+									if(select("Yes","No Let me go back")==2) close;
+									mes "Let me see..";
+									for (set @i, 0; $@GRM4Luk[@i]; set @i, @i + 1) {
+									if(countitem($@GRM4Luk[@i]) < $@GRM4LukA[@i]) {
+										if(!@Left5) set @Left5, 0;
+										set @Left5, @Left5 + 1;
+									}
+									}	
+								if(@Left5 > 0) {
+									set @Left5, 0;
+									mes "You are forgetting some item, go Back when you got all";
+									close;
+								}
+								for (set @i, 0; $@GRM4Luk[@i]; set @i, @i + 1) delitem $@GRM4Luk[@i], $@GRM4LukA[@i];
+								set GRSt_Luk, 1;
+								mes "Now you can get increase your Str while is fighting,";
+								mes "Talk to the Helper inside Goold Room for More informations ...";
+								close;
+								}
+								
+						case 4:
+							mes "Ok, But doon't make me";
+							mes "Loose my time again ok ?";
+							close2;
+							emotion e_pif;
+							end;
+						}
+				}
+									
+		}
+	}

@@ -1,0 +1,48 @@
+Index: script.c
+===================================================================
+--- script.c	(revision 14215)
++++ script.c	(working copy)
+@@ -14272,6 +14272,36 @@
+     return 0;
+ }
+ 
++BUILDIN_FUNC(successunrefitem)
++{
++	int i=-1,num,ep;
++	TBL_PC *sd;
++
++	num=script_getnum(st,2);
++	sd = script_rid2sd(st);
++	if( sd == NULL )
++		return 0;
++
++	if (num > 0 && num <= ARRAYLENGTH(equip))
++		i=pc_checkequip(sd,equip[num-1]);
++	if(i >= 0) {
++	
++		ep=sd->status.inventory[i].equip;
++		
++		sd->status.inventory[i].refine--;
++		pc_unequipitem(sd,i,2);
++
++		clif_refine(sd->fd,0,i,sd->status.inventory[i].refine);
++		clif_delitem(sd,i,1);
++
++		clif_additem(sd,i,1,0);
++		pc_equipitem(sd,i,ep);
++		clif_misceffect(&sd->bl,3);
++	}
++
++	return 0;
++}
++
+ // declarations that were supposed to be exported from npc_chat.c
+ #ifdef PCRE_SUPPORT
+ BUILDIN_FUNC(defpattern);
+@@ -14668,5 +14698,6 @@
+ 	BUILDIN_DEF(checkquest, "i*"),
+ 	BUILDIN_DEF(changequest, "ii"),
+ 	BUILDIN_DEF(showevent, "ii"),
++	BUILDIN_DEF(successunrefitem,"i"),
+ 	{NULL,NULL,NULL},
+ };

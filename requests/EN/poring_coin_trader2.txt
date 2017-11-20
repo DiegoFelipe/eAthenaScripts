@@ -1,0 +1,65 @@
+prontera,174,215,6	script	Custom Trader	718,{
+
+	mes "[Custom Trader]";
+	mes "Are you interested in buy something ?";
+	mes "I trade item for poring coins.":
+	if(select("Yes:No") == 1) {
+		mes "Choose one:";
+		switch(select("item 1:item 2:item 3")) {
+
+		case 1:
+			mes "This item coast PRICEHERE poring coins.";
+			mes "continue ?";
+			if(select("Yes:No")==1) {
+				if(countitem(7359) >= PRICEHERE) {
+					delitem 7539, PRICEHRE;
+					getitem ITEM1,1;
+					mes "Done";
+				} else {
+					mes "You don't have poring coins enought";
+				}
+			} else {
+				mes "Come back when you wish.";
+			}
+			break;
+
+		case 2:
+			mes "This item coast PRICEHERE poring coins.";
+			mes "continue ?";
+			if(select("Yes:No")==1) {
+				if(countitem(7359) >= PRICEHERE) {
+					delitem 7539, PRICEHRE;
+					getitem ITEM1,1;
+					mes "Done";
+				} else {
+					mes "You don't have poring coins enought";
+				}
+			} else {
+				mes "Come back when you wish.";
+			}
+			break;
+
+		case 3:
+			mes "This item coast PRICEHERE poring coins.";
+			mes "continue ?";
+			if(select("Yes:No")==1) {
+				if(countitem(7359) >= PRICEHERE) {
+					delitem 7539, PRICEHRE;
+					getitem ITEM1,1;
+					mes "Done";
+				} else {
+					mes "You don't have poring coins enought";
+				}
+			} else {
+				mes "Come back when you wish.";
+			}
+			break;
+		}
+	} else {
+		mes "All right when you want to trade.";
+		mes "you can come back, I'll be waiting";
+		mes "for you";
+	}
+	close;
+}
+	

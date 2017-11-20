@@ -1,0 +1,147 @@
+Index: db/item_restrict.txt
+===================================================================
+--- db/item_restrict.txt	(revision 0)
++++ db/item_restrict.txt	(revision 0)
+@@ -0,0 +1,36 @@
++//-------------------------------------------------------------------------------------------------------------------\\
++// 	  ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___    \\
++//       /\  \     /\  \     /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\__\     /\  \   \\
++//       \:\  \   /::\  \   /::\  \   /:| _|_   /::\  \   /::\  \   /::\  \   /::\  \   /:| _|_   /:/ _/_   /::\  \  \\
++//       /::\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/\:\__\ /:/\:\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/_/\__\ /\:\:\__\ \\
++//      /:/\/__/ \:\:\/  / \:\ \/__/ \/|::/  / \:\/:/  / \:\ \/__/ \;:::/  / \:\/:/  / \/|::/  / \:\/:/  / \:\:\/__/ \\
++//      \/__/     \:\/  /   \:\__\     |:/  /   \::/  /   \:\__\    |:\/__/   \::/  /    |:/  /   \::/  /   \::/  /  \\
++//      	   \/__/     \/__/     \/__/     \/__/     \/__/     \|__|     \/__/     \/__/     \/__/     \/__/   \\
++//														     \\
++//-------------------------------------------------------------------------------------------------------------------\\
++// -> Novas Restrições de Item											     \\
++//-------------------------------------------------------------------------------------------------------------------\\
++// => Modo de usar: <itemid>,<flag>										     \\
++//														     \\
++//  itemid = id do item que você deseja aplicar a restrição							     \\
++//  flag   = id da 'flag' adicionada ao item.									     \\
++//														     \\
++// => Flags:													     \\
++//														     \\
++// Os id especificam modos que os jogador não poderá usarou equipar o item:					     \\
++//														     \\
++// 1   = Se o jogador está escondido.										     \\
++// 2   = Se o jogador está 50% acima do peso.									     \\
++// 4   = Se o jogador está 90% acima do peso.									     \\
++// 8   = Se o jogador não tiver um Clã.										     \\
++// 16  = Se o jogador não tiver em um grupo									     \\
++// 32  = Se o jogador não tem um PET.										     \\
++// 64  = Se a WOE/GDE estiver ativa.										     \\
++// 128 = Se a WOE/GDE SE estiver ativa.										     \\
++//														     \\
++// => Mais de um modo no mesmo item:										     \\
++//														     \\
++// Se Você deseja usar mais de um modo é só somar os ids das flags, por exemplo, se você quer que a porção vermelha  \\
++// não possa ser usado enquanto o jogador está escondido e a WOE/GDE está ativa é só somar 1 + 64 = 65, ficando:     \\
++// 501, 65													     \\
++//-------------------------------------------------------------------------------------------------------------------\\
+Index: src/map/itemdb.c
+===================================================================
+--- src/map/itemdb.c	(revision 2888)
++++ src/map/itemdb.c	(working copy)
+@@ -906,7 +906,51 @@
+ 
+ 	return 0;
+ }
++/*======================================
++ * Função que lê item_restrict [TecnoCronus]
++ *======================================*/
++static int itemdb_read_noequip2(void)
++{
++	FILE *fp;
++	char line[1024];
++	int ln=0;
++	int nameid,j;
++	char *str[32],*p;
++	struct item_data *id;
+ 
++	sprintf(line, "%s/item_restrict.txt", db_path);
++	if( (fp=fopen(line,"r"))==NULL ){
++		ShowError("Nao foi possivel ler %s\n", line);
++		return -1;
++	}
++	while(fgets(line, sizeof(line), fp))
++	{
++		if(line[0]=='/' && line[1]=='/')
++			continue;
++		memset(str,0,sizeof(str));
++		for(j=0,p=line;j<2 && p;j++){
++			str[j]=p;
++			p=strchr(p,',');
++			if(p) *p++=0;
++		}
++		if(str[0]==NULL)
++			continue;
++
++		nameid=atoi(str[0]);
++		if(nameid<=0 || !(id=itemdb_exists(nameid)))
++			continue;
++
++		id->flag.no_equip2 |= atoi(str[1]);
++
++		ln++;
++
++	}
++	fclose(fp);
++	if (ln > 0) {
++		ShowStatus("Leitura de '"CL_WHITE"%d"CL_RESET"' entradas em '"CL_WHITE"%s"CL_RESET"' concluida.\n",ln,"item_restrict.txt");
++	}	
++	return 0;
++}
+ #ifndef TXT_ONLY
+ /*======================================
+  * item_db table reading
+@@ -971,6 +1015,7 @@
+ 	itemdb_read_itemavail();
+ 	itemdb_read_noequip();
+ 	itemdb_read_itemtrade();
++	itemdb_read_noequip2();
+ }
+ 
+ /*==========================================
+Index: src/map/itemdb.h
+===================================================================
+--- src/map/itemdb.h	(revision 2888)
++++ src/map/itemdb.h	(working copy)
+@@ -69,6 +69,7 @@
+ 		unsigned value_notdc : 1;
+ 		unsigned value_notoc : 1;
+ 		short no_equip;
++		int no_equip2;
+ 		unsigned no_refine : 1;	// [celest]
+ 		unsigned delay_consume : 1;	// Signifies items that are not consumed immediately upon double-click [Skotlex]
+ 		unsigned trade_restriction : 7;	//Item restrictions mask [Skotlex]
+Index: src/map/pc.c
+===================================================================
+--- src/map/pc.c	(revision 2888)
++++ src/map/pc.c	(working copy)
+@@ -627,7 +627,7 @@
+ 	if (itemdb_isspecial(item->card[0]))
+ 		return 1;
+ 	
+-	ARR_FIND( 0, s, i, item->card[i] && (data = itemdb_exists(item->card[i])) != NULL && data->flag.no_equip&flag );
++	ARR_FIND( 0, s, i, item->card[i] && (data = itemdb_exists(item->card[i])) != NULL && (data->flag.no_equip&flag || data->flag.no_equip2&flag) );
+ 	return( i < s ) ? 0 : 1;
+ }
+ 
+@@ -3533,7 +3533,15 @@
+ 	if (
+ 		(map[sd->bl.m].flag.pvp && item->flag.no_equip&1) || // PVP
+ 		(map_flag_gvg(sd->bl.m) && item->flag.no_equip&2) || // GVG
+-		(map[sd->bl.m].flag.restricted && item->flag.no_equip&map[sd->bl.m].zone) // Zone restriction
++		(map[sd->bl.m].flag.restricted && item->flag.no_equip&map[sd->bl.m].zone) || // Zone restriction
++		(pc_ishiding(sd) && item->flag.no_equip2&1) || // Novas Restrições de Item [TecnoCronus]
++        	(pc_is50overweight(sd) && item->flag.no_equip2&2) ||
++	        (pc_is90overweight(sd) && item->flag.no_equip2&4) ||
++        	(sd->status.guild_id <= 0 && item->flag.no_equip2&8) ||
++	        (sd->status.party_id <= 0 && item->flag.no_equip2&16) ||
++		(sd->status.pet_id <= 0 && item->flag.no_equip&32) ||
++        	((agit_flag) && item->flag.no_equip2&64) ||
++	        ((agit2_flag) && item->flag.no_equip2&128)
+ 	)
+ 		return 0;
+ 

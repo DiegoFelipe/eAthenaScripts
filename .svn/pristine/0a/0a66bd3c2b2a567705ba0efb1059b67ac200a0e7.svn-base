@@ -1,0 +1,10 @@
+prontera,158,173,4 script MySkelBone 111,{
+
+	if (hasSkel) end;
+	mes "Found Skel...";
+	if (select("Take Item:Leave It") == 1) {
+		getitem 501,1;
+		set hasSkel, 1;
+	}
+	close;
+}

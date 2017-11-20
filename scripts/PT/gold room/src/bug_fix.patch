@@ -1,0 +1,12 @@
+Index: script.c
+===================================================================
+--- script.c	(revision 14193)
++++ script.c	(working copy)
+@@ -3696,6 +3696,7 @@
+ 	}
+ 	else if( sd->npc_menu == 0xff )
+ 	{// Cancel was pressed
++		status_change_end(&sd->bl,SC_INVINCIBLE,-1);
+ 		sd->state.menu_or_input = 0;
+ 		st->state = END;
+ 	}

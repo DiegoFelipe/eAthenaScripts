@@ -1,0 +1,89 @@
+Index: npc.c
+===================================================================
+--- npc.c	(revision 2839)
++++ npc.c	(working copy)
+@@ -3046,6 +3046,8 @@
+ 		map[m].flag.nostorage=state;
+ 	else if (!strcmpi(w3,"noguildstorage"))
+ 		map[m].flag.noguildstorage=state;
++	else if (!strcmpi(w3,"nowhisp"))
++		map[m].flag.nowhisp=state;
+ 	else
+ 		ShowError("npc_parse_mapflag: unrecognized mapflag '%s' (file '%s', line '%d').\n", w3, filepath, strline(buffer,start-buffer));
+Index: db/const.txt
+===================================================================
+--- db/const.txt	(revision 2839)
++++ db/const.txt	(working copy)
+@@ -226,6 +226,7 @@
+ mf_guildlock	45
+ mf_nostorage    46 
+ mf_noguildstorage       47
++mf_nowhisp    48
+ 
+ cell_walkable	0
+ cell_shootable	1
+Index: src/map/clif.c
+===================================================================
+--- src/map/clif.c	(revision 2839)
++++ src/map/clif.c	(working copy)
+@@ -8859,6 +8859,10 @@
+ 		}
+ 		sd->cantalk_tick = gettick() + battle_config.min_chat_delay;
+ 	}
++	if(map[sd->bl.m].flag.nowhisp) {
++		clif_displaymessage(sd->fd,"Você não pode enviar mensagens nesse mapa");
++		return;
++	}
+ 
+ 	// Chat logging type 'W' / Whisper
+ 	if( log_config.chat&1 || (log_config.chat&4 && !((agit_flag || agit2_flag) && log_config.chat&64)) )
+Index: src/map/map.h
+===================================================================
+--- src/map/map.h	(revision 2839)
++++ src/map/map.h	(working copy)
+@@ -469,6 +469,7 @@
+ 		unsigned src4instance : 1; // To flag this map when it's used as a src map for instances
+ 		unsigned nostorage :1; // [SoulBlaker]
+ 		unsigned noguildstorage :1; // [SoulBlaker]
++		unsigned nowhisp : 1; // [TecnoCronus]
+ 	} flag;
+ 	struct point save;
+ 	struct npc_data *npc[MAX_NPC_PER_MAP];
+Index: src/map/script.c
+===================================================================
+--- src/map/script.c	(revision 2839)
++++ src/map/script.c	(working copy)
+@@ -338,7 +338,8 @@
+ 	MF_NOEXPPENALTY,
+ 	MF_GUILDLOCK,	//45
+ 	MF_NOSTORAGE,
+-	MF_NOGUILDSTORAGE
++	MF_NOGUILDSTORAGE,
++	MF_NOWHISP
+ };
+ 
+ const char* script_op2name(int op)
+@@ -9248,6 +9249,7 @@
+ 			case MF_GUILDLOCK:		script_pushint(st,map[m].flag.guildlock); break;
+ 			case MF_NOSTORAGE:		script_pushint(st,map[m].flag.nostorage); break;
+ 			case MF_NOGUILDSTORAGE:	script_pushint(st,map[m].flag.noguildstorage); break;
++			case MF_NOWHISP:		script_pushint(st,map[m].flag.nowhisp); break;
+ 		}
+ 	}
+ 
+@@ -9314,6 +9316,7 @@
+ 			case MF_GUILDLOCK:     map[m].flag.guildlock=1; break;
+ 			case MF_NOSTORAGE:     map[m].flag.nostorage=1; break;
+ 			case MF_NOGUILDSTORAGE: map[m].flag.noguildstorage=1; break;
++			case MF_NOWHISP:     map[m].flag.nowhisp=1; break;
+ 		}
+ 	}
+ 
+@@ -9377,6 +9380,7 @@
+ 			case MF_GUILDLOCK:     map[m].flag.guildlock=0; break;
+ 			case MF_NOSTORAGE:     map[m].flag.nostorage=0; break;
+ 			case MF_NOGUILDSTORAGE: map[m].flag.noguildstorage=0; break;
++			case MF_NOWHISP:     map[m].flag.whisp=0; break;
+ 		}
+ 	}
+ 

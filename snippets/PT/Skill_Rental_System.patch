@@ -1,0 +1,200 @@
+Index: common/mmo.h
+===================================================================
+--- common/mmo.h	(revision 2889)
++++ common/mmo.h	(working copy)
+@@ -203,6 +203,7 @@
+ 
+ struct s_skill {
+ 	unsigned short id,lv,flag;
++	unsigned skill_rental_timer;
+ };
+ 
+ struct global_reg {
+Index: map/pc.c
+===================================================================
+--- map/pc.c	(revision 2889)
++++ map/pc.c	(working copy)
+@@ -1094,6 +1094,7 @@
+ 
+ #ifndef TXT_ONLY
+ 	pc_inventory_rentals(sd);
++	skill_rentals(sd);
+ #endif
+ 	return 1;
+ }
+@@ -8056,6 +8057,7 @@
+ 	add_timer_func_list(pc_invincible_timer, "pc_invincible_timer");
+ 	add_timer_func_list(pc_eventtimer, "pc_eventtimer");
+ 	add_timer_func_list(pc_inventory_rental_end, "pc_inventory_rental_end");
++	add_timer_func_list(skill_rental_end, "skill_rental_end");
+ 	add_timer_func_list(pc_calc_pvprank_timer, "pc_calc_pvprank_timer");
+ 	add_timer_func_list(pc_autosave, "pc_autosave");
+ 	add_timer_func_list(pc_spiritball_timer, "pc_spiritball_timer");
+Index: map/pc.h
+===================================================================
+--- map/pc.h	(revision 2889)
++++ map/pc.h	(working copy)
+@@ -392,6 +392,9 @@
+ 	const char* debug_file;
+ 	int debug_line;
+ 	const char* debug_func;
++
++	// Sistema de Aluguel de Skill
++	int skill_rental_time;
+ };
+ 
+ 
+Index: map/script.c
+===================================================================
+--- map/script.c	(revision 2889)
++++ map/script.c	(working copy)
+@@ -8104,7 +8104,31 @@
+ 	script_pushint(st,0);
+ 	return 0;
+ }
++/*==========================================
++ * rentskill <skill id>,<nivel>,<segundos>;    [TecnoCronus]
++ * rentskill "<skill name>",<nível>,<segundos>;
++ *------------------------------------------*/
++BUILDIN_FUNC(rentskill)
++{
++	struct map_session_data *sd;
++	int seconds, id, level, flag;
+ 
++
++	id = ( script_isstring(st,2) ? skill_name2id(script_getstr(st,2)) : script_getnum(st,2) );
++
++	if( (sd = script_rid2sd(st)) == NULL || (id <= 0 || id > MAX_SKILL) )
++		return 0;
++
++	flag = 0;
++	level = script_getnum(st,3);
++	pc_skill(sd, id, level, flag);
++	seconds = script_getnum(st,4);
++	sd->status.skill[id].skill_rental_timer = (unsigned int)(time(NULL) + seconds);
++
++	pc_skill_rental_add(sd, seconds);
++	
++	return 0;
++}
+ /*==========================================
+  * detaches a player rid from the timer [Celest]
+  *------------------------------------------*/
+@@ -14786,5 +14810,6 @@
+ 	BUILDIN_DEF(changequest, "ii"),
+ 	BUILDIN_DEF(showevent, "ii"),
+ 	BUILDIN_DEF(GetCastleMobRespawnInfo, ""),
++	BUILDIN_DEF(rentskill,"vii"),
+ 	{NULL,NULL,NULL},
+ };
+Index: map/skill.c
+===================================================================
+--- map/skill.c	(revision 2889)
++++ map/skill.c	(working copy)
+@@ -9647,6 +9647,73 @@
+ 	}
+ }
+ /*==========================================
++ * Sistema de Aluguel de Skill [TecnoCronus]
++ *------------------------------------------*/
++void pc_skill_rental_add(struct map_session_data *sd, int seconds)
++{
++	const struct TimerData * td;
++	int tick = seconds * 1000;
++
++	if ( sd == NULL ) return;
++
++	if( sd->skill_rental_time != INVALID_TIMER )
++	{
++		td = get_timer(sd->skill_rental_time);
++		if( DIFF_TICK(td->tick, gettick()) > tick ) {
++
++			if( sd->rental_timer != INVALID_TIMER ) {
++				delete_timer(sd->skill_rental_time, skill_rental_end);
++				sd->skill_rental_time = -1;
++			}	
++			sd->skill_rental_time = add_timer(gettick() + tick, skill_rental_end, sd->bl.id, 0);
++		}
++	}
++	else
++		sd->skill_rental_time = add_timer(gettick() + min(tick,3600000), skill_rental_end, sd->bl.id, 0);
++}
++
++int skill_rental_end(int tid, unsigned int tick, int id, intptr data)
++{
++	struct map_session_data *sd = map_id2sd(id);
++	if( sd == NULL )
++		return 0;
++	if( tid != sd->skill_rental_time )
++	{
++		ShowError("skill_rental_end: invalid timer id.\n");
++		return 0;
++	}
++
++	skill_rentals(sd);
++	return 1;
++}
++void skill_rentals(struct map_session_data *sd)
++{
++
++	unsigned int expire_tick, next_tick = UINT_MAX;
++	int i;
++
++	for( i = 0; i < MAX_SKILL; i++ )
++	{
++		if( sd->status.skill[i].skill_rental_timer == 0 )
++			continue;
++
++		if( sd->status.skill[i].skill_rental_timer <= time(NULL) )
++		{
++			sd->status.skill[i].id = 0;
++			sd->status.skill[i].lv = 0;
++			sd->status.skill[i].flag = 0;
++			clif_deleteskill(sd,i);
++		}
++		else
++		{
++			expire_tick = (unsigned int)(sd->status.skill[i].skill_rental_timer - time(NULL)) * 1000;
++			next_tick = min(expire_tick, next_tick);
++		}
++	}
++		sd->skill_rental_time = INVALID_TIMER;
++}
++
++/*==========================================
+  *
+  *------------------------------------------*/
+ int skill_clear_group (struct block_list *bl, int flag)
+Index: map/skill.h
+===================================================================
+--- map/skill.h	(revision 2889)
++++ map/skill.h	(working copy)
+@@ -250,6 +250,11 @@
+ const char*	skill_get_name( int id ); 	// [Skotlex]
+ const char*	skill_get_desc( int id ); 	// [Skotlex]
+ 
++
++int skill_rental_end(int tid, unsigned int tick, int id, intptr data); // [TecnoCronus]
++void skill_rentals(struct map_session_data *sd);
++void pc_skill_rental_add(struct map_session_data *sd, int seconds);
++
+ int skill_name2id(const char* name);
+ 
+ int skill_isammotype(struct map_session_data *sd, int skill);
+Index: map/unit.c
+===================================================================
+--- map/unit.c	(revision 2889)
++++ map/unit.c	(working copy)
+@@ -1989,6 +1989,12 @@
+ 				
+ 			if( sd->duel_invite > 0 )
+ 				duel_reject(sd->duel_invite, sd);
++
++			// Skill Rental System
++			if( sd->rental_timer != INVALID_TIMER ) {
++				delete_timer(sd->skill_rental_time, skill_rental_end);
++				sd->skill_rental_time = -1;
++			}
+ 		
+ 			// Notify friends that this char logged out. [Skotlex]
+ 			map_foreachpc(clif_friendslist_toggle_sub, sd->status.account_id, sd->status.char_id, 0);

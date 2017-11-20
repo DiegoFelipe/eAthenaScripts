@@ -1,0 +1,36 @@
+//===== Cronus / eAthena Script ==============================
+//= Sistema de Clonagem
+//===== By: ==================================================
+//= TecnoCronus
+//= DeMoN (Evanio) - Tradução
+//===== Versão : =============================================
+//= 1.1
+//===== Compativél com: ======================================
+//= eAthena SVN SQL/TXT
+//= Cronus SVN SQL/TXT
+//===== Discrição: ===========================================
+//= Este NPC só pode ser usado, quando um jogador falar
+//= "Clone-me por favor" dentro da Gold Room.
+//= Mais só pode ser usado se ele tiver feito a Missão.
+//============================================================
+
+-	script	GRSys_Clone	-1,{
+
+	getmapxy(@map$,@x,@y,0);
+	if(@map$!="bat_c01") end;
+	if(GR_CanClone == 0) {
+		dispbottom "Ei "+strcharinfo(0)+" você não fez a missão para usar clones.";
+		dispbottom "Eu não posso clonar você agora.";
+		end;
+	}
+	if(GR_CanClone == GR_Cloned) {
+		dispbottom "Parece que ja chegou no seu limite de clones.";
+		dispbottom "Eu só posso clonar você quando você morrer.";
+		end;
+	}
+	dispbottom "Ok, vou clonar você agora.";
+	atcommand "@slaveclone "+strcharinfo(0);
+	set $GRSYS_Clones,$GRSYS_Clones+1;
+	set GR_Cloned, GR_Cloned + 1;
+	end;
+}

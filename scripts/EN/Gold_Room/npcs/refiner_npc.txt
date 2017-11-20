@@ -1,0 +1,100 @@
+//===== eAthena Script =======================================
+//= Refiner NPC
+//===== By: ==================================================
+//= TecnoCronus
+//===== Current Version: =====================================
+//= 1.1
+//===== Compatible With: =====================================
+//= eAthena SVN SQL/TXT
+//===== Description: =========================================
+//= This NPC refines an Weapon as well, but the price is in GP
+//============================================================
+ra_in01,292,148,3	script	Refiner#GRRefiner	813,{
+
+	mes "[Refiner]";
+	mes "Hello sir "+strcharinfo(0);
+	if(##GRMob == 0 || !##GRMob) {
+		mes "I'm sorry but you don't have any GP";
+		mes "I Cann't do nothing for you";
+		close2;
+		emotion e_sry;
+		end;
+	}
+	mes "Choose the item that you want refine.";
+	next;
+	setarray .@position$[1], "Head","Body","Left hand","Right hand","Robe","Shoes","Accessory 1","Accessory 2","Head 2","Head 3";
+	set .@menu$,"";
+	for( set .@i,1; .@i <= 10; set .@i,.@i+1 )
+	{
+		if( getequipisequiped(.@i) )
+			set .@menu$, .@menu$ + .@position$[.@i] + "-" + "[" + getequipname(.@i) + "]";
+		set .@menu$, .@menu$ + ":";
+	}
+	set .@part,select(.@menu$);
+	if(!getequipisequiped(.@part)) {
+		mes "[Refiner]";
+		mes "You're not wearing";
+		mes "anything there that";
+		mes "I can refine.";
+		close2;
+		emotion 6;
+		end;
+	}
+
+	if(!getequipisenableref(.@part)) {
+		mes "[Refiner]";
+		mes "I don't think I can";
+		mes "refine this item at all...";
+		close2;
+		emotion e_sry;
+		end;
+	}
+
+	if(!getequipisidentify(.@part)) {
+		mes "[Refiner]";
+		mes "You can't refine this";
+		mes "if you haven't appraised";
+		mes "it first. Make sure your";
+		mes "stuff is identified before";
+		mes "I can refine it.";
+		close;
+
+	}
+
+	if(getequiprefinerycnt(.@part) >= 10) {
+		mes "[Refiner]";
+		mes "I can't refine this";
+		mes "any more. This is as";
+		mes "refined as it gets!";
+		close;
+	}
+	mes "How much times you want refine your equip ?";
+	set @time, 10 - getequiprefinerycnt(.@part);
+	mes "You can refine this item";
+	mes "At maximum "+@time+" times.";
+	mes "Each upgrade will coast "+$@GRSys_RefPrice;
+	input @up;
+	if(@up > @time) {
+		next;
+		mes "[Refiner]";
+		mes "OMG I said, the limit is "+@time;
+		close2;
+		emotion e_omg;
+		end;
+	}
+	set @price, @up * $@GRSys_RefPrice * getequiprefinerycnt(.@part);
+	if(@price < ##GRMob) {
+		mes "I'm sorry but you have The GP that i need";
+		mes "You Don't have "+@price+" GP";
+		close;
+	}
+	
+		for (set @t, 1; @t <= @up; set @t, @t + 1) successrefitem .@part;
+		set ##GRMob, ##GRMob - @price;
+		next;
+		mes "[Refiner]";
+		mes "Thaks for using my services ..";
+		close2;
+		emotion e_heh;
+		end;
+}

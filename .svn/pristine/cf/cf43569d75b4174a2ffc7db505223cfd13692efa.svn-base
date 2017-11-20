@@ -1,0 +1,76 @@
+//===== Cronus / eAthena Script ==============================
+//= NPC Ajudante
+//===== By: ==================================================
+//= TecnoCronus
+//= DeMoN (Evanio) - Tradução
+//===== Versão : =============================================
+//= 1.2
+//===== Compativél com: ======================================
+//= eAthena SVN SQL/TXT
+//= Cronus SVN SQL/TXT
+//===== Discrição: ===========================================
+//= Este NPC fornece algumas informações sobre a Gold Room
+//============================================================
+
+bat_c01,143,58,3	script	Ajudante da GR	763,{
+	if(!##GRDefault) set ##GRDefault, $@GR_MobDefault;
+	if(!GR_CanClone) set GR_CanClone, 0;
+	if(!GR_Cloned) set GR_Cloned, 0;
+	sc_start SC_INVINCIBLE,3600000,0;
+	set @HowMuch,getmapmobs ("bat_c01");
+	set @HowMuch, @HowMuch - $GRSYS_Clones;
+	if(@HowMuch<=0) {
+		monster "bat_c01",0,0,$@GR_MobName$,$@GR_MobId,$@GRAmount,"GRManager::OnMyMobKilled";
+		monster "bat_c01",0,0,$@GR_GuardianName$,1900,$@GRAmount2,"GRManager::OnMyMobKilled";
+		set @HowMuch, $@GRAmount;
+	}
+	emotion 1;
+	mes "[^77B700Ajudante^000000]";
+	mes "Olá "+strcharinfo(0)+".";
+	mes "Em que posso ajuda-lo ?";
+	next;
+	switch(select("Ainda tem muitos monstros vivos?","Informação","Como trocar meus pontos GP por Ouro?","Quero falar com o gerente da Gold Room","^05FF00Nada^000000","^FF0000Tire-me desta sala^000000")) {
+	case 1:
+		mes "[^77B700Ajudante^000000]";
+		mes "Deixe-me ver ...";
+		mes "...^AA00AA"+@HowMuch+"^000000 monstros ainda estão vivos";
+		mes "Vá e mate-os.";
+		sc_end SC_INVINCIBLE;
+		close;
+	case 2:
+		mes "[^77B700Ajudante^000000]";
+		mes "Você pode matar no maximo 100 monstros por hora, cara monstro que você matar, você receberá 1 ponto que poderá trocar por Ouro.";
+		next;
+		mes "[^77B700Ajudante^000000]";
+		mes "Ou você poderá comprar itens na Gold Room Shopping Center";
+		sc_end SC_INVINCIBLE;
+		close;
+	case 3:
+		mes "[^77B700Ajudante^000000]";
+		mes "Fale com o gerente da Gold Room";
+		mes "e troque seus pontos por Ouro.";
+		mes "Ele se encontra em ^55AAFFProntera^000000.";		
+		sc_end SC_INVINCIBLE;
+		close;
+		
+	case 4:
+		sc_end SC_INVINCIBLE;
+		warp "prontera",147,165;
+		end;
+	case 5:
+		
+		mes "[^77B700Ajudante^000000]";
+		mes "Ok, Saia daqui.";
+		sc_end SC_INVINCIBLE;
+		close;
+
+	case 6:
+		mes "[^77B700Ajudante^000000]";
+		mes "Ahh, entendi.";
+		close2;
+		emotion e_sry;
+		warp "prontera",0,0;
+		end;
+		
+	}
+}

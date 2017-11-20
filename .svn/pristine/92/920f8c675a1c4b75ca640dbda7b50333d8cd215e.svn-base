@@ -1,0 +1,16 @@
+Index: status.c
+===================================================================
+--- status.c	(revision 14281)
++++ status.c	(working copy)
+@@ -4673,7 +4673,11 @@
+ 	// Changed to 5 seconds according to recent tests [Playtester]
+ 	if (type == SC_ANKLE && tick < 5000)
+ 		tick = 5000;
++	if(type != SC_ENDURE)
+ 	return tick<=0?0:tick;
++
++	tick = 10 + 10*(((((TBL_PC*)bl)->status.skill[8].lv)/2)-1);
++	return tick;
+ }
+ 
+ /*==========================================

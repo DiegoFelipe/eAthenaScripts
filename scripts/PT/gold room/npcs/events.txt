@@ -1,0 +1,108 @@
+//===== Cronus / eAthena Script ==============================
+//= NPC de Eventos
+//===== By: ==================================================
+//= TecnoCronus
+//= DeMoN (Evanio) - Tradução
+//===== Versão : =============================================
+//= 1.0
+//===== Compativél com: ======================================
+//= eAthena SVN SQL/TXT
+//= Cronus SVN SQL/TXT
+//===== Discrição: ===========================================
+//= Aqui vai a Rev 3, 2 Eventos.
+//= Evento #1:
+//= Este evento irá invocar os monstros, de acordo com a var '$@GR_Amount2', sendo
+//= que os monstros podem ter uma porcentagem de chance de ganhar 1 GP, e se o
+//= jogador morrer poderá perder 1 GP.
+//= Evento #2:
+//= Este evento (NPC) irá convocar um GTB especial de 30 em 30 minutos,
+//= Quem mator o GTB consiguirá o aumento do limite de Slaves Clones em 1.
+//============================================================
+
+-	script	GRSYS_EVENT#1	-1,{
+	OnInit:
+
+//	O jogador vai perder pontos quando morrer? 0 = não, 1= sim.
+	set .@GRSYS_event1_loosepoints, 1;
+
+//	Quantidade de monstros que será gerado em cada cidade.
+	set $@GR_Amount2, 12;
+
+//	MOD ID do monstro (sprite).
+	set .GR_MobId, 1257;
+
+//	Nome a ser monstrado do monstro.
+	set $@GR_MobName$,"Monstro Dourado";
+
+
+		if(.Array) end;
+	
+			setarray $@GRSys_Maps[0],"prontera","morocc","geffen","payon","alberta","izlude","aldebaran",
+			"lutie","comodo","yuno","amatsu","gonryu","umbala","niflheim","louyang","jawaii","Ayothaya",
+			"einbroch","lighthalzen","einbech","hugel","rachel","veins";
+			set .Array, 1;
+			end;
+
+
+	Event:
+	OnWhisperGlobal:
+		for(set .@map, 0; $@GRSys_Maps[.@map]; set .@map, .@map + 1)
+		monster $@GRSys_Maps[.@map],0,0,.GR_MobName$,.GR_MobId,$@GR_Amount2,"GRSYS_EVENT#1::OnMyMobKilled";
+		announce "Besouro-Ladrão Dourado, O Deus do Ouro, está agora em todas as cidades, Mate-os, mais tome cuidado ou você morrerá ...",bc_all|bc_blue;
+		end;
+
+	OnMyMobKilled:
+		if(!$@GRSYS_mobcount) set $@GRSYS_mobcount, 0;
+		set $@GRSYS_mobcount, $@GRSYS_mobcount + 1;
+		if(rand(99)<=$@GRSYS_Event1_Rand) {
+			if(!##GRMob) set ##GRMob, 0;
+			message strcharinfo(0),"Nossa que sorte enorme !!! você recebeu 1 Ponto GP!";
+			set ##GRMob, ##GRMob + 1;
+		}
+		end;
+
+	OnPCDieEvent:
+		if(GR_Cloned && GR_Cloned > 0) {
+		set GR_Cloned,GR_Cloned -1;
+		}
+		if(!##GRMob) set ##GRMob, 0;
+		if(.@GRSYS_event1_loosepoints > 0) {
+		set ##GRMob, ##GRMob - 1;
+		dispbottom "Você perdeu 1 Ponto GP.";
+		set $GRSYS_Clones,$GRSYS_Clones-1;
+		}
+		end;
+
+		
+}
+
+-	script	GRSYS_EVENT#2	-1,{
+OnInit:
+	initnpctimer;
+
+//	ID do Item (Recompensa)
+	set $@GTB_REW, 607;
+
+//	Level da GTB (Somente do Evento):
+	set $@GTBLvL, 99;
+	end;
+
+	OnTimer1800000:
+		monster "bat_c01",0,0,"GoldRoom's GTB,$@GTBLvL",1086,1,"Helper::OnGTBDies";
+		announce "Gold Room: Um GTB apareceu na Gold Room !!!, Todos nós temos que mata-lo agora !",bc_blue|bc_all;
+		end;
+
+
+		OnGTBDies:
+			setnpctimer 0;
+			announce "Parabéns "+strcharinfo(0)+", você matou o GTB, agora você receberá seu devido prêmio.",bc_blue|bc_all;
+			mes "[^77B700Helper^000000]";
+			mes "Agora seu limite de Clones foi aumentado em 1.";
+			set GR_CanClone, GR_CanClone+1;
+			if(rand(99)<=$@GRSys_CardDrop) {
+				close2;
+				getitem $@GTB_REW, 1;
+				announce " WooW !"+strcharinfo(0)+" pegou a Carta da Gold Room !!",bc_all|bc_blue;
+			}s
+			close;
+}

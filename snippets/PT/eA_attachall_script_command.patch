@@ -1,0 +1,31 @@
+Index: script.c
+===================================================================
+--- script.c	(revision 14243)
++++ script.c	(working copy)
+@@ -5732,6 +5732,26 @@
+ 	return 1;
+ }
+ 
++/*==========================================
++ * Attachall "{NPC NAME}::<event label>"; // [TecnoCronus]
++ *------------------------------------------*/
++BUILDIN_FUNC(attachall)
++{
++	struct map_session_data* pl_sd;
++	struct s_mapiterator* iter;
++	const char* event = script_getstr(st,2);
++
++	iter = mapit_getallusers();
++	check_event(st, event);
++	for( pl_sd = (TBL_PC*)mapit_first(iter); mapit_exists(iter); pl_sd = (TBL_PC*)mapit_next(iter) )
++	{
++		npc_event_do(event);
++
++	}
++	mapit_free(iter);
++	return 0;
++}
++
+ /// Deletes items from the target/attached player.
+ ///
+ /// delitem2 <item id>,<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>{,<account ID>}

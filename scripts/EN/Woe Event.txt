@@ -1,0 +1,315 @@
+/* 	  ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___   
+         /\  \     /\  \     /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\__\     /\  \  
+         \:\  \   /::\  \   /::\  \   /:| _|_   /::\  \   /::\  \   /::\  \   /::\  \   /:| _|_   /:/ _/_   /::\  \ 
+         /::\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/\:\__\ /:/\:\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/_/\__\ /\:\:\__\
+        /:/\/__/ \:\:\/  / \:\ \/__/ \/|::/  / \:\/:/  / \:\ \/__/ \;:::/  / \:\/:/  / \/|::/  / \:\/:/  / \:\:\/__/
+        \/__/     \:\/  /   \:\__\     |:/  /   \::/  /   \:\__\    |:\/__/   \::/  /    |:/  /   \::/  /   \::/  / 
+        	   \/__/     \/__/     \/__/     \/__/     \/__/     \|__|     \/__/     \/__/     \/__/     \/__/ 
+
+
+
+					  (C) Copyright TecnoCronus 03/06/15
+			    	 	
+	*-------------------------------------------Hercules Script---------------------------------------------*
+	*- WOE Event				       								*
+	*------------------------------------------------ By: --------------------------------------------------*
+	*- TecnoCronus	                                                                                       	*
+	*------------------------------------------ Current Version: -------------------------------------------*
+	*- 2.1.0											       	*
+	*------------------------------------------ Description: -----------------------------------------------*
+	*													*
+	* - EVENT NPC, unofficial, made by me, based on Norse Mythology. Every time WOE Starts, this script 	*
+	*   will, with a percent chance, start this event, the Iris NPC will be activated, the player who talks	*
+	*   to the NPC, while the event is ON, can make a little quest to be able to participate, the main goal	*
+	*   of this event is to kill 100 players (or more, just chance the '$WEPKAmount' variable) to get the	*
+	*   prize, the prize is one Hat of Sungod.								*
+	*													*
+	*---------------------------------------- Additional Comments: -----------------------------------------*
+	*													*
+	* - While the event, there's a chance to the player get buffs when kill someone at prontera castles	*
+	* - The prize goes to the 1st player who kills the 100 players.						*
+	* 											       		*
+	*-------------------------------------------- Changelog ------------------------------------------------*
+	*- http://trac.xp-dev.com/TC_Scripts/log/scripts/EN/Woe Event.txt				       	*
+	*-------------------------------------------------------------------------------------------------------*/
+
+
+prontera,168,187,4	script	Iris	4_M_KNIGHT_GOLD,{
+
+	if($WEventON == 1) {
+
+		@PName$ = strcharinfo(0);
+
+		if(IrisH==1) {
+
+			mes "^D8202F [Iris] ^000000";
+			mes "^3FF000 "+ @PName$ +" ^000000, I Forgot to tell you something:";
+			mes "The Spell of Chaos will always exist, the human's hearth are cursed by the greed";
+			mes "And it's Chaos' power source";
+			close;
+		}
+
+		if(IrisComplete==1) {
+
+			mes "^D8202F [Iris] ^000000";
+			mes "My most important subordinate, you've completed your journey";
+			mes "^0F0F0F "+ @PName$ +" ^000000, you proved your honor and courage";
+			mes "And now, take what I've promised to you, your Hat of SunGod";
+			mes "Midgard Gods are happy, because I could prove that I'm a good leader";
+			getitem 5022, 1;
+			close2;
+			npctalk "Thank you "+ @PName$ +" now I'm free";
+			sleep2 1500;
+			npctalk "I'll be in heaven, always look at you....";
+			IrisComplete = 0;
+			IrisHelper = 0;
+			IrisTest = 0;
+			IrisKill = 0;
+			IrisH = 1;
+			movenpc "Iris",rand(1,600),rand(1,600);
+			end;
+		}
+
+		if(IrisHelper==1) {
+
+			@MyQuest = countitem(7165);
+			mes "^D8202F [Iris] ^000000";
+
+			if(@MyQuest<100 || isequipped(2513) != 1) {
+
+				mes "Listen, ^6E26D7 "+ @PName$ +" ^000000, complete the requeriments to begin your mission";
+				mes "They are: ^FF0000 100 Transparent Celestial Robe ^000000";
+				mes "and be using one Heavenly Maiden Robe (Armor)";
+				mes "You got ^333333 "+ @MyQuest +" ^000000 Celestial Robes";
+				close;
+			}
+
+			mes "Congratulations!, you prove that you got enought strength and honor";
+			mes "Now you can start your mission !";
+			mes "Do you remember your mission ?";
+			next;
+
+			if(select("Yes my master","I'm Sorry master, I forgot")==2) {
+
+				mes "^D8202F [Iris] ^000000";
+				mes "No need to apologize, your mission is as follow:";
+				mes "Kill "+$WEPKAmount+" humans in WOE, at Prontera Castles";
+				mes "When you do it, I'll call you here and give you the reward";
+				mes "A Legendary ^FF0000 Hat of the SunGod ^000000, which I won gift from the Gods";
+				mes "Now let's start the ritual, you'll receive 50 white potions now";
+				mes "And also my Buffs now and when you kill someone at WOE";
+	
+			} else {
+
+				mes "All right, now I should tell you anout the reward, it's something very valuable";
+				mes "A Legendary ^FF0000 Hat of the Sun God ^000000, which I won gift from the gods";
+				mes "Now go and complete your mission";
+				mes "Agora vá e Complete sua Missão";
+				mes "Now let's start the ritual, you'll receive 50 white potions now";
+				mes "And also my Buffs now and when you kill someone at WOE";
+
+			}
+
+			IrisTest = 1;
+			close2;
+			callfunc "WETakeBuffs";
+			end;
+		}
+
+		if (BaseLevel<60 || Upper < 1) {
+
+			mes "^D8202F [Iris] ^000000";
+			mes "Forgive me, ^6E26D7 "+ @PName$ +" ^000000, I Don't need your help,";
+			mes "You're  too wake";
+			close;
+		}
+
+		mes "^D8202F [Iris] ^000000";
+		mes "Hello ^6E26D7 "+ @PName$ +" ^000000";
+		mes "I'm a ancient warrior, I'm findind loyal warrios to help me";
+		mes "Do you want to hear my history ?";
+
+		if(select("Please, tell me more","No, I don't") ==2) {
+
+			mes "What a pity ! ^6E26D7 "+ @PName$ +" ^000000...";
+			mes "It's a gret honor to help a valkyrie warrior";
+			close;
+
+		}
+
+		mes "A long time ago, the Rune Midgard Gods were anxious";
+		mes "They feared the end of the world, the terrible ^FF1200 Ragnarok ^000000, the day when the world would ends.";
+		mes "These concern times, the gods cull, in all Rune Midgard";
+		mes "The most brave warriors to form the celestial guard, which should protect the humans";
+		next;
+		mes "^D8202F [Iris] ^000000";
+		mes "The Celestial Guard warriors were too strong and feared";
+		mes "and blessed by the gods and adored by mortals";
+		next;
+		mes "^D8202F [Iris] ^000000";
+		mes "I was the first leader of the Celestial Guard";
+		mes "The rune midgard gods blessed me with immortality";
+		mes "But my main subordinate ^D50000Chaos^000000 kept envy in his heart";
+		mes "and with the help of demons, they planned destroy the Rune Midgard";
+		mes "They managed to bewitch me and take away my immortality";
+		next;
+		mes "^D8202F [Iris] ^000000";
+		mes "The gods were concerned, but they didn't knew";
+		mes "about the betray of ^D50000Chaos^00000, and thus";
+		mes "elected him as new leader";
+		next;
+		mes "^D8202F [Iris] ^000000";
+		mes "Chaos, together the demons, rebelled agains";
+		mes "the Rune Midgard gods, thus began the feared ^ff1200Ragnarok^000000";
+		mes "Gods and Demons fought a battle that lasted for";
+		mes "7 days and 7 nights, terror was spread in rune midgard...";
+		mes "The gods won, but, before being destroyed, chaos";
+		mes "realeased his last and most malignant speel";
+		next;
+		mes "^D8202F [Iris] ^000000";
+		mes "He got what he wanted, planted evil ambition in humans hearts";
+		mes "He created the ^FFC733War of Emperium^000000, cursing the 17 temples of gods, where mortals would seek power";
+		mes "The gods couldn't stay at Rune midgard anymore.";
+		mes "this way the gods went up to heaven, where they are now";
+		next;
+		mes "^D8202F [Iris] ^000000";
+		mes "Chaos said in his speel, that the gods only could free me from this prison";
+		mes "When I prove again that I deserve to be the leader of Celestial Guard";
+		mes "Then I seek warriors who can help my in this long journey";
+		mes "The gods were prevented to break free, only when I complete this mission";
+		mes "But in last god's act, they gave me a ^FF0000Hast of Sun God^000000 to reward";
+		mes "The one who helps me.";
+		next;
+		mes "^D8202F [Iris] ^000000";
+		mes "But first, you got to pass in my test.";
+		mes "To prove your strength and honor, I need you to";
+		mes "bring me ^FF0000 100 Transparent Celestial Robe ^000000";
+		mes "and suit up one ^0258E3Heavenly Maiden Robe^000000";
+		mes "Then, you'll be to help in my mission that is:";
+		mes "Kill ^FF0000"+$WEPKAmount+"^00000 Humans at ^FF0000Prontera's Castles^000000";
+
+		if(select("Ok, I want this mission","No, I'm so weak...")==2) {
+
+			emotion 23;
+			mes "What a pity, ^6E26D7 "+ @PName$ +" ^000000, I see you're";
+			mes "really weak and coward, go away !";
+			close;
+		}
+
+		next;
+		emotion 21;
+		mes "^D8202F [Iris] ^000000";
+		mes "Thank you, ^6E26D7 "+ @PName$ +" ^000000";
+		mes "When you kill someone at WOE I may help you with buffs";
+		mes "Hurry up, the clock is ticking";
+		IrisHelper = 1;
+		close;
+
+	}
+
+end;
+
+
+}
+
+
+function	script	WETakeBuffs	{
+
+		delitem 7165, 100;
+		percentheal 100,100;
+		sc_start 32,240000,10; 		// Increase Agi.
+		sc_start 30,240000,10; 		// Blessing
+		sc_start 39,240000,10; 		// Kyrie Eleison
+		sc_start 21,240000,10; 		// Endure
+		sc_start 43,240000,10; 		// Adrenaline Rush
+		sc_start 46,240000,10; 		// Maximize Power
+		sc_start 110,240000,10; 	// Improve Concentration
+		sc_start 40,240000,10; 		// Magnificat
+		if(checkweight(505,50)==1) getitem 505,50;
+		return;
+}
+
+-	script	OnPCKillEvent	-1,{
+
+		if(IrisTest!=1) end;
+		if(IrisH == 1) end;
+		if (getmapxy(@mapname$,@mapx,@mapy,0) == -1) end;
+
+		if (@mapname$ == "prtg_cas01") || (@mapname$ == "prtg_cas02") || (@mapname$ == "prtg_cas03") || (@mapname$ == "prtg_cas04") || (@mapname$ == "prtg_cas05") {
+
+			IrisKill = IrisKill+1;
+
+			if(IrisKill==$WEPKAmount) {
+
+				IrisComplet = 1;
+				announce "Iris message: You've complete your mission, came here to get your reward",bc_self,0;
+				sleep2 2000;
+				getmapxy(@WEmapname$,@WEmapX,@WEmapY,1,"Iris");
+				warp @WEmapname$,@WEmapX,@WEmapY;
+				end;
+
+			}
+
+		dispbottom "IRIS: That's it ! continue this way, until kill the"+$WEPKAmount;
+
+			if (rand(1,100)<=$WEBuffChance) {
+
+				callfunc("WETakeBuffs");
+				dispbottom "SUNNA: Iris is helping you...";
+			}	
+		
+		}
+
+		end;
+}
+			
+-	script	WEventControl	-1,{
+
+	end;
+
+/****************************************************
+* SCRIPT CONFIGURATION - MODIFY THE PARAMETERS HERE *
+*****************************************************/
+
+OnInit:
+
+	// Percent chance to start the event. (1%-100%)
+	$WEChance = 10;
+
+	// Percent chance to buff the player
+	$WEBuffChance = 10;
+
+	// Amount of players that hast to be killed.
+	$WEPKAmount = 100;
+
+	disablenpc "Iris";
+	end;
+
+OnAgitStart:
+	
+
+	if(rand(1,100)<=$WEChance) {
+
+		enablenpc "Iris";
+
+		// NOTE"SUNNA" or "SÓL" is the sun of god in Norse Mthology. 
+
+		announce "SUNNA: A Legendary warrior called Iris needs help  she's at Prontera and seek for great warriors to help her...",bc_all,0xFF0000;
+		$WEventON = 1;
+
+	}
+	end;
+
+OnAgitEnd:
+		
+	if($WEvent == 1) {
+
+		$WEvent = 0;
+		disablenpc "Iris";
+		announce "SUNNA: Something weird just happened ! Iris warrior that was in prontera just vanished...",bc_all,0xFF0000;
+
+	}
+
+	end;
+
+}

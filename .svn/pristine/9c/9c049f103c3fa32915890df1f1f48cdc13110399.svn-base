@@ -1,0 +1,93 @@
+//===== eAthena Script =======================================
+//= Treasure Hunter Script
+//===== Converted By =========================================
+//= Fredzilla
+//= Original
+//////////////////////////////////////////////////////////////
+//                  Treasure Hunter Quests                  //
+//                       By: Ezekial                        //
+//             for the use on nRO run by Newbe5             //
+//                    revised By Warlock                    //
+//////////////////////////////////////////////////////////////
+//===== Version ==============================================
+//= 1.1 - Adapted to Portuguese Language [TecnoCronus].
+//= 1.0 - Straight conversion of Aegis NPC file
+//===== Compatible With ======================================
+//= eAthena 1.0
+//===== Description ==========================================
+//= Start for Treasure hunter quests
+//===== Comments =============================================
+//= 1.2 - Added the variable @price [TecnoCronus].
+//= 1.1 - Portuguese Mode [TecnoCronus]
+//= 1.0 - Event_THQS - Used to check if you have already registered
+//= #Treasure_Token - used to keep track of tokens
+//============================================================
+
+
+yuno_in01,124,164,6	script	Líder do Clã	108,{
+	set @price,25000;//OBS: AQUI VOCÊ DEVE POR O PREÇO A SER PAGO.
+	mes "[Keegan]";
+	mes "O Que te traz aqui?, tem alguma coisa a diser??";
+	next;
+	menu "Eu quero ser um Caçador de Tesouros",-,"Pegar uma nova missão.",N_NQuest,"Me leve à loja oficial.",N_OShop,"Nada.",N_NVM;
+	if(Event_THQS==1) goto N_AlreadyReg;
+	mes "[Keegan]";
+	mes "Bem "+strcharinfo(0)+" se você quer ser um Caçador de Tesouros, você deve...";
+	mes " ";
+	mes "^FF00001.^000000 Você deve pagar ^FF0000"+@price+"^000000 para que eu te torne um Caçador de Tesouros.";
+	mes " ";
+	mes "Umm... Bem isso é tudo o que você precisa fazer. Hahaha.";
+	next;
+	menu "Pagar ^FF0000"+@price+"^000000.",-,"Isso é muito caro!!",N_HighPrice;
+	if (zeny < 25000) goto N_NoZeny;
+	set Zeny,Zeny-@price;
+	//getitem 7950, 1;
+	//getitem 7951, 1;
+	set Event_THQS,1;
+	mes "[Keegan]";
+	mes "Parabéns!";
+	emotion 46;
+	next;
+	mes "[Keegan]";
+	mes "Bem-vindo ao clã dos caçadores de tesouro.";
+	mes "Você deve pegar uma missão para provar que você é um bom Caçador de Tesouros.";
+	close;
+N_NoZeny:
+	mes "[Keegan]";
+	mes "Hmmm Você precisa ter ^FF000025,000z^000000 "+strcharinfo(0)+". Por Favor, volte quando tiver.";
+	close;
+N_HighPrice:
+	mes "[Keegan]";
+	mes "Bem, se você não pode pagar ^FF0000"+@price+"^000000, Você não deve ser um Caçador de Tesouro.";
+	close;
+N_AlreadyReg:
+	mes "[Keegan]";
+	mes "Ha ha ha...Você já é um membro do Clã de Caçadores de Tesouro.";
+	close;
+N_NQuest:
+	if (Event_THQS!=1) goto A_NeedReg;
+	mes "[Keegan]";
+	mes "Bem "+strcharinfo(0)+" se você quiser pegar uma nova missão fale com o Caçador de Tesouro na outra sala aqui.";
+	close;
+A_NeedReg:
+	mes "[Keegan]";
+	mes "Desculpe, você deve ser um membro do Clã de Caçadores de Tesouro se quiser pegar um missão.";
+	close;
+N_OShop:
+	if (Event_THQS!=1) goto N_NeedMem;
+	mes "[Keegan]";
+	mes "Sim "+strcharinfo(0)+" Eu vou te levar ao shop agora mesmo!";
+	next;
+	warp "prt_in",166,171;
+	close;
+	end;
+N_NeedMem:
+	mes "[Keegan]";
+	mes "Me desculpe, somente membros do clã podem ir à loja.";
+	close;
+N_NVM:
+	mes "[Keegan]";
+	mes "Certo volte quando tiver um tempo livre pra gastar.";
+	close;
+
+}

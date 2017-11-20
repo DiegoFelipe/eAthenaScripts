@@ -1,0 +1,457 @@
+/* 	  ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___   
+         /\  \     /\  \     /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\__\     /\  \  
+         \:\  \   /::\  \   /::\  \   /:| _|_   /::\  \   /::\  \   /::\  \   /::\  \   /:| _|_   /:/ _/_   /::\  \ 
+         /::\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/\:\__\ /:/\:\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/_/\__\ /\:\:\__\
+        /:/\/__/ \:\:\/  / \:\ \/__/ \/|::/  / \:\/:/  / \:\ \/__/ \;:::/  / \:\/:/  / \/|::/  / \:\/:/  / \:\:\/__/
+        \/__/     \:\/  /   \:\__\     |:/  /   \::/  /   \:\__\    |:\/__/   \::/  /    |:/  /   \::/  /   \::/  / 
+        	   \/__/     \/__/     \/__/     \/__/     \/__/     \|__|     \/__/     \/__/     \/__/     \/__/ 
+
+ 					           Advanced Scripts
+
+					  (C) Copyright TecnoCronus 25/07/2009
+			    	 	
+	*------------------------------------------ eAthena Script ---------------------------------------------*
+	*- Sistema de Refinagem de Armas			       						*
+	*----------------------------------------------- By: ---------------------------------------------------*
+	*- TecnoCronus                                                                                         	*
+	*------------------------------------------ Current Version: -------------------------------------------*
+	*- 1.0												       	*
+	*------------------------------------------ Compatible With: -------------------------------------------*
+	*- eAthena	 	             								       	*
+	*------------------------------------------- Description: ----------------------------------------------*
+	*- Este é um pequeno Sistema para o jogador refinar sua arma enquanto estiver lutando.			*
+	*---------------------------------------- Additional Comments: -----------------------------------------*
+	*- A Calculação dos Pontos Funciona:								       	*
+	*- Se Matando outra pessoa: Se a chance de pegar o nível do morto como pontos for verdadeira:		*
+	*-				 Killedrid LvL - Número random($WRSystem_EXPRandPoints) - Número random	*
+	*-				 of WeaponLvL.								*
+	*- 	Se a chance de pegar o nível do morto como pontos for falsa:					*
+	*-	Número random($WRSystem_EXPRandPoints) - Número random do nível da arma				*
+	*- Se Matando um monstro: mesma coisa só muda que no lugar do nível da pessoa - Nível do Monstro	*
+	*- Nível da Arma diminui os pontos a serem recebidos.							*
+	*- as Flags do items são usadas para restringir a pessoa de pegar pontos, são elas:			*
+	*- 1 Qualquer Lugar (O Jogador poderá receber EXP em qualquer lugar).					*
+	*- 2 PvP Maps Somente (O Jogador só receberá EXP em Mapas de PVP)					*
+	*- 4 SOMENTE durante a Guerra do Empério 								*
+	*- 8 Em qualquer lugar, se não estiver em WOE								*
+	*- 16 Em Qualquer Lugar, exceto em Mapas de PVP								*
+	*- 32 Só em Mapas de GVG										*
+	*- 64 Qualquer Lugar, exceto em Mapas de GVG								*
+	*- Você ainda Pode mudar o Rate enviando uma mensagem em privado para npc:WRSystem			*
+	*--------------------------------------------- Changelog:  ---------------------------------------------*
+	*- Data			Ação										*
+	*-													*
+	*- 25/07/2009		Script Criado [TecnoCronus]							*
+	*- 25/07/2009		Script Traduzido para PT-Br [TecnoCronus]					*
+	*-------------------------------------------------------------------------------------------------------*/
+
+
+-	script	WRSysConfig	-1,{
+OnInit:
+//	*******************************************************************************************
+//	***				Configuração do Script 					***
+//	*******************************************************************************************
+//	Chance Percentual (1-100)% de Pegar o nível do Monstro ou Jogador como pontos.
+//	Nota: Só use números inteiros.
+	set $WRSystem_EXPChance, 3;
+
+//	Diferença entre o nível do Matador e do Morto como restrição.
+	set $WRSystem_DiffLvL, 50;
+
+//	Pontos Randômicos Padrão.
+//	Nota: Essa é a base da Calculação dos Pontos.
+	set $WRSystem_EXPRandPoints, 10;
+
+//	Diferença entre o nível do Jogador e Monstro como Restrição.
+	set $WRS_lvl_unterschied, 30;
+
+//	Pontos a serem pegos quando o jogador morre.
+//	Nota: Por padrão inativo, para ativá-lo apenas aumente o Zero.
+	set $WRSystem_GetEXP, 0;
+
+//	Nível de GM mínimo para mudar os Rates.
+//	Nota: Usando Whisper System.
+	set $WRSystem_GmLvL, 60;
+
+//	*~ NOTA IMPORTANTE ~*
+//	As próximas variáveis são usadas para configurar, de acordo com o fim do nome delas, os pontos a serem
+//	aumentados, como requerimento de pontos para refinar a arma. Exemplo:
+//	$WRSystem_1to2 -> Pontos a serem requeridos além da variável ##ItemRate, por exemplo, ##ItemRate é igual à 500.
+//	e $WRSystem_1to2 = 200,esse valor de ##ItemRate é requerido para refinar a arma do Nível 0 para 1,
+//	quando o jogador for refinar sua arma para o Nível 2 os pontos requeridos serão: 500+200 = 700 pontos,
+//	e quando refinarem do Nícel 2 para 3, supondo que $WRSystem_2to3 = 300, os pontos requeridos serão 700+300 =
+//	1000 pontos.
+	set $WRSystem_1to2, 100;
+	set $WRSystem_2to3, 200;
+	set $WRSystem_3to4, 300;
+	set $WRSystem_4to5, 400;
+	set $WRSystem_5to6, 500;
+	set $WRSystem_6to7, 600;
+	set $WRSystem_7to8, 700;
+	set $WRSystem_8to9, 800;
+	set $WRSystem_9to10, 900;
+
+
+	set .@AutoD, query_sql("select version()");
+	if(.@AutoD < 0) { 
+		set $@UseMySQL,0; debugmes "Sistema de Refinagem de Armas Não funcionará em eAthena TxT";
+		disablenpc "WRSysConfig";
+		disablenpc "WRSystem";
+	} else
+		debugmes "WRSystem: eAthena MySQL(Ver. "+.@AutoD+") Detectado";
+	end;
+}
+
+
+function	script	WRSystem	{
+
+//	*******************************
+//	*** On "UnequipEvent" Check ***
+//	*******************************
+//
+//	Setting All Variables to 0 ...
+
+	if(getarg(0) == -1) {
+		set ##InMission, 0;
+		set ##ItemID, 0;
+		set ##ItemRate, 0;
+		set ##ItemFlag, 0;
+		set ##MinKilledLvL, 0;
+		set ##TimesKillSamePeople, 0;
+		set ##InMission, 0;
+		set getd(getitemname(##ItemID)), WRSys_Points;
+		set ##SavePoints, getd(getitemname(##ItemID));
+		if(WRSys_Points > 0) set WRSys_Points, WRSys_Points - ##SavePoints;
+		end;
+	}
+
+	if(!getarg(0) || !getarg(1) || !getarg(2) || !getarg(3) || !getarg(4)) {
+	if(getarg(0))
+		debugmes "Erro ! Chamando Sistem de Refinagem de Armas faltando argumento(s) veja a arma "+getarg(4)+" para fixar esse bug";
+	else
+		debugmes "Erro ! Chamando Sistem de Refinagem de Armas faltando argumento(s), veja todos os items que chama essa função para fixar o Bug";
+	end;
+	}
+	if(getiteminfo(getarg(0),2)!=4) {
+		debugmes "Erro! Chamando Sistema de Refinagem de Armas fora de uma arma, veja o item "+getarg(5)+" para fixar Bug!";
+		end;
+	}
+		if(##InMission == 1) {
+			mes "[^FF00FFWeapon Refine System^000000]";
+			mes "Você não pode Ganhar EXP de Refinagem de Arma com 2 armas";
+			close;
+		}
+
+	set ##ItemID, getarg(0);
+	set ##ItemRate, getarg(1);
+	set ##ItemFlag, getarg(2);
+	set ##MinKilledLvL, getarg(3);
+	set ##TimesKillSamePeople, getarg(4);
+	set ##InMission, 1;
+
+		if(##SavePoints > 0) set WRSys_Points, WRSys_Points + ##SavePoints;
+		end;
+
+		
+			
+	}
+function	script	WRSystemRefine	{
+		dispbottom "refinando ... ";
+		set @Weapon_RLvl, getequiprefinerycnt(4);
+		if(@Weapon_RLvl >= 10) close;
+		switch(@Weapon_RLvl) {
+		default:
+			successrefitem 4;
+			set WRSystem_Points,WRSystem_Points-##ItemRate;
+			mes "[^FF00FF Sistema de Refinagem de Arma ^000000]";
+			mes "Parabéns ^FF00FF"+strcharinfo(0)+"^000000, Sua arma foi refinada !";
+			break;		
+
+		case 1:
+			set @WRSystem_ChkRate,##ItemRate+$WRSystem_1to2;
+			if(WRSystem_Points < @WRSystem_ChkRate) { set ##ItemRate, @WRSystem_ChkRate; break; }
+			successrefitem 4;
+			set WRSystem_Points,WRSystem_Points-##ItemRate;
+			mes "[^FF00FF Sistema de Refinagem de Arma ^000000]";
+			mes "Parabéns ^FF00FF"+strcharinfo(0)+"^000000, Sua arma foi refinada !";
+			break;
+		case 2:
+			set @WRSystem_ChkRate,##ItemRate+$WRSystem_2to3;
+			if(WRSystem_Points < @WRSystem_ChkRate) { set ##ItemRate, @WRSystem_ChkRate; break; }
+			successrefitem 4;
+			set WRSystem_Points,WRSystem_Points-##ItemRate;
+			mes "[^FF00FF Sistema de Refinagem de Arma ^000000]";
+			mes "Parabéns ^FF00FF"+strcharinfo(0)+"^000000, Sua arma foi refinada !";
+			break;
+		case 3:
+			set @WRSystem_ChkRate,##ItemRate+$WRSystem_3to4;
+			if(WRSystem_Points < @WRSystem_ChkRate) { set ##ItemRate, @WRSystem_ChkRate; break; }
+			successrefitem 4;
+			set WRSystem_Points,WRSystem_Points-##ItemRate;
+			mes "[^FF00FF Sistema de Refinagem de Arma ^000000]";
+			mes "Parabéns ^FF00FF"+strcharinfo(0)+"^000000, Sua arma foi refinada !";
+			break;
+		case 4:
+			set @WRSystem_ChkRate,##ItemRate+$WRSystem_4to5;
+			if(WRSystem_Points < @WRSystem_ChkRate) { set ##ItemRate, @WRSystem_ChkRate; break; }
+			successrefitem 4;
+			set WRSystem_Points,WRSystem_Points-##ItemRate;
+			mes "[^FF00FF Sistema de Refinagem de Arma ^000000]";
+			mes "Parabéns ^FF00FF"+strcharinfo(0)+"^000000, Sua arma foi refinada !";
+			break;
+		case 5:
+			set @WRSystem_ChkRate,##ItemRate+$WRSystem_5to6;
+			if(WRSystem_Points < @WRSystem_ChkRate) { set ##ItemRate, @WRSystem_ChkRate; break; }
+			successrefitem 4;
+			set WRSystem_Points,WRSystem_Points-##ItemRate;
+			mes "[^FF00FF Sistema de Refinagem de Arma ^000000]";
+			mes "Parabéns ^FF00FF"+strcharinfo(0)+"^000000, Sua arma foi refinada !";
+			break;
+		case 6:
+			set @WRSystem_ChkRate,##ItemRate+$WRSystem_6to7;
+			if(WRSystem_Points < @WRSystem_ChkRate) { set ##ItemRate, @WRSystem_ChkRate; break; }
+			successrefitem 4;
+			set WRSystem_Points,WRSystem_Points-##ItemRate;
+			mes "[^FF00FF Sistema de Refinagem de Arma ^000000]";
+			mes "Parabéns ^FF00FF"+strcharinfo(0)+"^000000, Sua arma foi refinada !";
+			break;
+		case 7:
+			set @WRSystem_ChkRate,##ItemRate+$WRSystem_7to8;
+			if(WRSystem_Points < @WRSystem_ChkRate) { set ##ItemRate, @WRSystem_ChkRate; break; }
+			successrefitem 4;
+			set WRSystem_Points,WRSystem_Points-##ItemRate;
+			mes "[^FF00FF Sistema de Refinagem de Arma ^000000]";
+			mes "Parabéns ^FF00FF"+strcharinfo(0)+"^000000, Sua arma foi refinada !";
+			break;
+		case 8:
+			set @WRSystem_ChkRate,##ItemRate+$WRSystem_8to9;
+			if(WRSystem_Points < @WRSystem_ChkRate) { set ##ItemRate, @WRSystem_ChkRate; break; }
+			successrefitem 4;
+			set WRSystem_Points,WRSystem_Points-##ItemRate;
+			mes "[^FF00FF Sistema de Refinagem de Arma ^000000]";
+			mes "Parabéns ^FF00FF"+strcharinfo(0)+"^000000, Sua arma foi refinada !";
+			break;
+		case 9:
+			set @WRSystem_ChkRate,##ItemRate+$WRSystem_9to10;
+			if(WRSystem_Points < @WRSystem_ChkRate) { set ##ItemRate, @WRSystem_ChkRate; break; }
+			successrefitem 4;
+			set WRSystem_Points,WRSystem_Points-##ItemRate;
+			mes "[^FF00FF Sistema de Refinagem de Arma ^000000]";
+			mes "Parabéns ^FF00FF"+strcharinfo(0)+"^000000, Sua arma foi refinada !";
+			set ##InMission, 0;
+			set ##ErsTKSPm, 1;
+			break;
+		}
+	dispbottom "arma refinada";
+	
+	close;
+	}
+-	script	WRSys_Label	-1,{
+end;
+
+OnPCLoginEvent:
+		mes "você tem "+WRSystem_Points+" Pontos";
+		close;
+OnPCKillEvent:
+			dispbottom "aff label ok";
+
+			if(!##InMission || ##InMission == 0 || isequipped(##ItemID) == 0) end;
+			query_sql "SELECT char_id FROM char WHERE char_id = "+killedrid+"",@IsPC;
+			if(!@IsPC) end;
+			getmapxy(@map$,@x,@y,0);
+			switch(##ItemFlag)  {
+			case 1://Any Where
+				break;
+			case 2://PvP Maps Only~
+				set @WRSystem_ChkFlag, getmapflag (@map$,mf_pvp);
+				if(@WRSystem_ChkFlag == 0) break;
+				end;
+			case 4://Only while Woe
+				if(agitcheck() || agitcheck2()) break;
+				end;
+			case 8://Any Where execept War of Emperium
+				if(agitcheck() || agitcheck2()) end;
+				break;
+			case 16://Any Where Execepts PvP Maps
+				set @WRSystem_ChkFlag, getmapflag (@map$,mf_pvp);
+				if(@WRSystem_ChkFlag == 0) end;
+				break;
+			case 32://GvG Maps Only
+				set @WRSystem_ChkFlag, getmapflag (@map$,mf_gvg);
+				if(@WRSystem_ChkFlag == 0) end;
+				break;
+			case 64://Any Where except in GvG Maps
+				set @WRSystem_ChkFlag, getmapflag (@map$,mf_gvg);
+				if(@WRSystem_ChkFlag == 0) break;
+				end;
+			}
+			dispbottom "flag ok";
+		query_sql "SELECT base_level FROM char WHERE char_id = "+killedrid+"",@KilledLvL;
+		if(@KilledLvL < ##MinKilledLvL) end;
+		if(##ErsTKSP == 1) {
+			query_sql "SELECT erased_id FROM WeaponRefineSystem WHERE char_id = "+killedrid+"",@Rid;
+			if(@rid == killedrid) goto L_Else;
+			query_sql "REPLACE INTO WeaponRefineSystem (kill_times,killer_id) VALUES (1,"+getcharid(0)+") WHERE char_id = "+killedrid+"";
+			set @ktimes, 1;
+			query_sql "REPLACE INTO WeaponRefineSystem (erased_id,Killer_id2) VALUES ("+killedrid+","+getcharid(0)+") WHERE char_id = "+killedrid+"";
+		} else {
+			L_Else:
+			query_sql "SELECT kill_times FROM WeaponRefineSystem WHERE char_id = "+killedrid+" AND killer_id = "+getcharid(0)+"",@Ktimes;
+			if (@Ktimes == ##TimesKillSamePeople) end;
+		}
+		set @Ktimes, @Ktimes + 1;
+		query_sql "REPLACE INTO WeaponRefineSystem (kill_times,killer_id) VALUES ("+@Ktimes+","+getcharid(0)+") WHERE char_id = "+killedrid+"";
+		if(!WRSystem_Points) set WRSystem_Points, 0;
+		if(BaseLevel - @KilledLvL < $WRSystem_DiffLvL) { dispbottom "Esse nível do Jogador é muito pequeno para ganhar EXP de Refinagem de Armas"; end; }
+		if(rand(100) <= $WRSystem_EXPChance)
+		set WRSystem_Points,WRSystem_Points+@KilledLvL-rand(1,$WRSystem_EXPRandPoints)-getequipweaponlv(EQI_HAND_R);
+		else
+		set WRSystem_Points,WRSystem_Points+rand(1,$WRSystem_EXPRandPoints)-getequipweaponlv(EQI_HAND_R);
+		if(WRSystem_Points >= ##ItemRate) callfunc("WRSystemRefine");
+		end;
+
+			OnNPCKillEvent:
+				dispbottom "você tem "+WRSystem_Points+" Pontos !!!";
+				if(!##InMission || ##InMission == 0 || isequipped(##ItemID) == 0) end;
+					getmapxy(@map$,@x,@y,0);
+				switch(##ItemFlag)  {
+				case 1://Any Where
+					break;
+				case 2://PvP Maps Only~
+					set @WRSystem_ChkFlag, getmapflag (@map$,mf_pvp);
+					if(@WRSystem_ChkFlag == 0) break;
+					end;
+				case 4://Only while Woe
+					if(agitcheck() || agitcheck2()) break;
+						end;
+				case 8://Any Where execept War of Emperium
+					if(agitcheck() || agitcheck2()) end;
+					break;
+				case 16://Any Where Execepts PvP Maps
+					set @WRSystem_ChkFlag, getmapflag (@map$,mf_pvp);
+					if(@WRSystem_ChkFlag == 0) end;
+					break;
+				case 32://GvG Maps Only
+					set @WRSystem_ChkFlag, getmapflag (@map$,mf_gvg);
+					if(@WRSystem_ChkFlag == 0) end;
+					break;
+				case 64://Any Where except in GvG Maps
+					set @WRSystem_ChkFlag, getmapflag (@map$,mf_gvg);
+					if(@WRSystem_ChkFlag == 0) break;
+					end;
+				}
+			dispbottom "depois flag";
+			
+			set @ismob, getmonsterinfo(killedrid,0);
+			if(getstrlen(@ismob) <= 0) end;
+			if (BaseLevel - strmobinfo(3,killedrid) > $WRS_lvl_unterschied) { dispbottom "Esse monstro é muito fraco para ganha EXP de Refinagem de Armas"; end; }
+			if(rand(100) <= $WRSystem_EXPChance)
+
+			set WRSystem_Points,WRSystem_Points+strmobinfo(3,killedrid)-rand(1,$WRSystem_EXPRandPoints)-getequipweaponlv(EQI_HAND_R);
+			else
+
+			set WRSystem_Points,WRSystem_Points+rand(1,$WRSystem_EXPRandPoints)-getequipweaponlv(EQI_HAND_R);
+			dispbottom "funfo";
+			dispbottom ##ItemRate;
+			if(WRSystem_Points >= ##ItemRate) callfunc("WRSystemRefine");
+			end;
+
+					OnPCDieEvent:
+						if($WRSystem_GetEXP > 0 && ##InMission == 1) set WRSystem_Points, WRSystem_Points-rand(1,$WRSystem_GetEXP);
+						end;
+
+
+OnWhisperGlobal:
+				if(getgmlevel() < $WRSystem_GmLvL) {
+					dispbottom "Ei "+strcharinfo(0)+", Você não é Gm, então me deixe em paz";
+					end;
+				 } else {
+					mes "[^FF00FB Weapon Refine System ^000000]";
+					mes "Como posso te ajudar ?";
+					switch(select("Mudar os Rates","Nada")) {
+					case 1:
+						mes "Qual Rtae você quer mudar ?";
+						switch(select("1-2","2-3","3-4","4-5","5-6","6-7","7-8","8-9","9-10")) {
+						case 1:
+							mes "O Rate usado agora é ^FF00FA"+$WRSystem_1to2+"^000000 você está realmente certo que você vai mudar ?";
+							if(select("Sim","Não")==2) break;
+							mes "Insira o novo Rate:";
+							input @WRSys_NewRate;
+							set $WRSystem_1to2, @WRSys_NewRate;
+							mes "Rate Mudado";
+							break;
+						case 2:
+							mes "O Rate usado agora é ^FF00FA"+$WRSystem_2to3+"^000000 você está realmente certo que você vai mudar ?";
+							if(select("Sim","Não")==2) break;
+							mes "Insira o novo Rate:";
+							input @WRSys_NewRate;
+							set $WRSystem_2to3, @WRSys_NewRate;
+							mes "Rate Mudado";
+							break;
+						case 3:
+							mes "O Rate usado agora é ^FF00FA"+$WRSystem_3to4+"^000000 você está realmente certo que você vai mudar ?";
+							if(select("Sim","Não")==2) break;
+							mes "Insira o novo Rate:";
+							input @WRSys_NewRate;
+							set $WRSystem_3to4, @WRSys_NewRate;
+							mes "Rate Mudado";
+							break;
+						case 4:
+							mes "O Rate usado agora é ^FF00FA"+$WRSystem_4to5+"^000000 você está realmente certo que você vai mudar ?";
+							if(select("Sim","Não")==2) break;
+							mes "Insira o novo Rate:";
+							input @WRSys_NewRate;
+							set $WRSystem_4to5, @WRSys_NewRate;
+							mes "Rate Mudado";
+							break;
+						case 5:
+							mes "O Rate usado agora é ^FF00FA"+$WRSystem_5to6+"^000000 você está realmente certo que você vai mudar ?";
+							if(select("Sim","Não")==2) break;
+							mes "Insira o novo Rate:";
+							input @WRSys_NewRate;
+							set $WRSystem_5to6, @WRSys_NewRate;
+							mes "Rate Mudado";
+							break;
+						case 6:
+							mes "O Rate usado agora é ^FF00FA"+$WRSystem_6to7+"^000000 você está realmente certo que você vai mudar ?";
+							if(select("Sim","Não")==2) break;
+							mes "Insira o novo Rate:";
+							input @WRSys_NewRate;
+							set $WRSystem_6to7, @WRSys_NewRate;
+							mes "Rate Mudado";
+							break;
+						case 7:
+							mes "O Rate usado agora é ^FF00FA"+$WRSystem_7to8+"^000000 você está realmente certo que você vai mudar ?";
+							if(select("Sim","Não")==2) break;
+							mes "Insira o novo Rate:";
+							input @WRSys_NewRate;
+							set $WRSystem_7to8, @WRSys_NewRate;
+							mes "Rate Mudado";
+							break;
+						case 8:
+							mes "O Rate usado agora é ^FF00FA"+$WRSystem_8to9+"^000000 você está realmente certo que você vai mudar ?";
+							if(select("Sim","Não")==2) break;
+							mes "Insira o novo Rate:";
+							input @WRSys_NewRate;
+							set $WRSystem_8to9, @WRSys_NewRate;
+							mes "Rate Mudado";
+							break;
+						case 9:
+							mes "O Rate usado agora é ^FF00FA"+$WRSystem_9to10+"^000000 você está realmente certo que você vai mudar ?";
+							if(select("Sim","Não")==2) break;
+							mes "Insira o novo Rate:";
+							input @WRSys_NewRate;
+							set $WRSystem_9to10, @WRSys_NewRate;
+							mes "Rate Mudado";
+							break;
+						}
+					break;
+
+
+					case 2:
+						break;
+				}
+			close;
+
+		}
+}

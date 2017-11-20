@@ -1,0 +1,226 @@
+/* 	  ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___   
+         /\  \     /\  \     /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\__\     /\  \  
+         \:\  \   /::\  \   /::\  \   /:| _|_   /::\  \   /::\  \   /::\  \   /::\  \   /:| _|_   /:/ _/_   /::\  \ 
+         /::\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/\:\__\ /:/\:\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/_/\__\ /\:\:\__\
+        /:/\/__/ \:\:\/  / \:\ \/__/ \/|::/  / \:\/:/  / \:\ \/__/ \;:::/  / \:\/:/  / \/|::/  / \:\/:/  / \:\:\/__/
+        \/__/     \:\/  /   \:\__\     |:/  /   \::/  /   \:\__\    |:\/__/   \::/  /    |:/  /   \::/  /   \::/  / 
+        	   \/__/     \/__/     \/__/     \/__/     \/__/     \|__|     \/__/     \/__/     \/__/     \/__/ 
+
+
+
+					  (C) Copyright TecnoCronus 05/06/15
+			    	 	
+	*-------------------------------------------Hercules Script---------------------------------------------*
+	*- Abracadabra Event			       								*
+	*------------------------------------------------ By: --------------------------------------------------*
+	*- TecnoCronus	                                                                                       	*
+	*------------------------------------------ Current Version: -------------------------------------------*
+	*- 1.0.0											       	*
+	*------------------------------------------ Description: -----------------------------------------------*
+	*													*
+	* - EVENT NPC: NPC Will use Abracadabra skill in the players the last to stand will receive one reward.	*
+	*													*
+	*---------------------------------------- Additional Comments: -----------------------------------------*
+	*													*
+	* - The NPC will "act as a GM" i.e: when the room gets full he'll warp himself to the room, will walk	*
+	*   close to the player and use Abacadabra skill.							*
+	* - The player will not gear any equipment, and he can't use potions or use skills.			*
+	* - The NPC will reset status and skills								*
+	* 											       		*
+	*-------------------------------------------- Changelog ------------------------------------------------*
+	*- http://trac.xp-dev.com/TC_Scripts/log/scripts/EN/Abracadabra_Event.txt			       	*
+	*-------------------------------------------------------------------------------------------------------*/
+
+prontera,175,215,4	script	Sidhr#AbracadabraEvent	4_M_FARIYKING,{
+
+
+	if ($AEActive == 1) {
+
+		dispbottom "Don't disturb me";
+		end;
+
+	}
+	mes "[^993399Sidhr^000000]";
+	mes "I'm the host of Abracadabra Event !";
+	mes "In this event I'll use abracadabra skill";
+	mes "until all players dies, the last";
+	mes "man standing will get one good reward.";
+	mes "but you can't use equips";
+	mes "and your skills and status will be reseted.";
+	next;
+	mes "[^993399Sidhr^000000]";
+	mes "Let me check if the event is";
+	mes "active now...";
+	sleep2 1000;
+
+	if($AEOn == 0) {
+
+		mes "I'm sorry "+$AEOn == 0 ? "it's not activated now":"The room is full";
+		close;
+
+	}
+
+	mes "Ok, the event is active";
+	mes "Do you wish to participate ?";
+
+	if (select("Yes","No") == 1) {
+
+		mes "Warping now..";
+		close2;
+		AEPlayer = 1;
+		.@i += 1;
+		AEPlayerIndex = .@i;
+		.@AEPlayerGID[.@i] = getcharid(3);
+		unequip EQI_HEAD_TOP;
+		unequip EQI_ARMOR;
+		unequip EQI_HAND_L;
+		unequip EQI_HAND_R;
+		unequip EQI_GARMENT;
+		unequip EQI_SHOES;
+		unequip EQI_ACC_L;
+		unequip EQI_ACC_R;
+		unequip EQI_HEAD_MID;
+		unequip EQI_HEAD_LOW;
+		unequip EQI_COSTUME_HEAD_LOW;
+		unequip EQI_COSTUME_HEAD_MID;
+		unequip EQI_COSTUME_HEAD_TOP;
+		resetstatus;
+		resetskill;
+		warp .AEMap$,0,0;
+		detachrid;		
+
+		if (getmapusers($AEMap$)==$AEPlayerAmount) {
+
+			$AEActive = 1;
+			announce "Abracadabra Event: the event will start now!",bc_all,0xFF0000;
+			.@AENPCID = getnpcid(0,"Sidhr#AbracadabraEvent");
+			unitwarp .@AENPCID,$AEMap$,0,0;
+			.@i = 1;
+			.@ArraySize = getarraysize(.@AEPlayerGID);
+
+			while(.@AEPlayerGID[.@i] >= 0) {
+
+				if ($AEOn == 0 || $AEActive == 0) break;
+				if (.@AEPlayerGID[.@i] > 0) {
+
+					.@AENPCAttackID$ = rid2name (.@AEPlayerGID[.@i]);
+					getmapxy (.@AEAimMap$,.@AEAimX,.@AEAimY,0,.@AENPCAttackID$);
+					unitwalk .@AEPlayerGID[.@i],.@AEAimX-1,.@AEAimY-1;
+					unitskilluseid .@AENPCID,290,10,.@AEPlayerGID[.@i];
+				}
+				.@i += 1;
+				if(.@i > .@ArraySize) .@i = 1;
+
+			}
+
+			end;	
+
+		}
+
+		announce "Abracadabra Event: Run and talk to Sidhr to partipate, there's "+($AEPlayerAmount-getmapusers($AEMap$))+" Vacancies left.",bc_all,0xff0000;
+		end;
+
+	}
+
+	mes "Ok, no problems.";
+	close;
+	
+
+OnPCDieEvent:
+
+	if ($AEOn == 0) end;
+
+	getmapxy(@AEMap$,@AEMapX,@AEMapY,0);
+
+	if (@AEMap$ == $AEMap$) {
+
+		.@AEPlayerGID[AEPlayerIndex] = 0;
+		announce "Abracadabra Event: "+strcharinfo(0)+" just died!",bc_all,0xf25f22;
+		warp "prontera",0,0;
+		detachrid;
+
+		if (getmapusers($AEMap$)==1) {
+
+			$AEOn = 0;
+			$AEActive = 0;
+			announce "Abracadabra Event: The Event is over !",bc_all,0cx993333;
+
+			.@i2 = 1;
+			while(.@AEPlayerGID[.@i2] == 0) {
+
+				.@i2 += 1;
+				if(.@AEPlayerGID[.@i2] > 1) break;
+
+			}
+
+			.@AEWinnerName$ = rid2name (.@AEPlayerGID[.@i2]);
+			announce "Abracadabra Event: The winner is :"+.@AEWinnerName$,bc_all,0xF522F5;
+			.@AEWinnerAID = getcharid(3,.@AEWinnerName$);
+			getitem $AERewardID, $AERewardAmount, .@AEWinnerAID;
+			cleararray .@AEPlayerGID[0],0,getarraysize(.@AEPlayerGID);
+			end;			
+
+		}
+	
+
+	}
+
+	end;
+
+
+OnInit:
+
+	$AEOn = 0;
+
+	/************************************
+	* CONFIGURATION - MAKE CHANGES HERE *
+	*************************************/
+
+
+	$AEMap$ = "YOURMAPHERE";
+	$AERewardID = 505;
+	$AERewardAmount = 1;
+
+	setmapflag $AEMap$,mf_nopvp;
+	setmapflag $AEMap$,mf_noskill;
+	setmapflag $AEMap$,mf_nowarpto;
+	setmapflag $AEMap$,mf_nosave;
+	setmapflag $AEMap$,mf_nomemo;
+	setmapflag $AEMap$,mf_nosave;
+	end;
+
+
+OnHour00:
+OnHour01:	
+OnHour02:
+OnHour03:
+OnHour04:
+OnHour05:
+OnHour06:
+OnHour07:
+OnHour08:
+OnHour09:
+OnHour10:
+OnHour11:
+OnHour12:
+OnHour13:
+OnHour14:
+OnHour15:
+OnHour16:
+OnHour17:
+OnHour18:
+OnHour19:
+OnHour20:
+OnHour21:
+OnHour22:
+OnHour23:
+
+	if(rand(1,100) <= $AEStartChance) {	
+
+		$AEOn = 1;
+		announce "Abracadabra Event: The event begun ! Run to prontera and talk with Sidhr !",bc_all,0x00ff52;
+
+	}
+
+
+}

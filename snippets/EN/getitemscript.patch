@@ -1,0 +1,30 @@
+Index: script.c
+===================================================================
+--- script.c	(revision 14189)
++++ script.c	(working copy)
+@@ -6256,6 +6256,18 @@
+ 
+ 	return 0;
+ }
++BUILDIN_FUNC(getitemscript)
++{
++	int item_id;
++	struct item_data *i_data;
++	item_id = script_getnum(st,2);
++	i_data = itemdb_exists(item_id);
++	if(!i_data)
++		script_pushint(st,0);
++	else
++		script_pushstr(st,i_data->script);
++	return 0;
++}
+ 
+ /*==========================================
+  * getbrokenid [Valaris]
+@@ -14668,5 +14680,6 @@
+ 	BUILDIN_DEF(checkquest, "i*"),
+ 	BUILDIN_DEF(changequest, "ii"),
+ 	BUILDIN_DEF(showevent, "ii"),
++	BUILDIN_DEF(getitemscript,"s"),
+ 	{NULL,NULL,NULL},
+ };

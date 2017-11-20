@@ -1,0 +1,47 @@
+Index: db/skill_unit_db.txt
+===================================================================
+--- db/skill_unit_db.txt	(revision 14275)
++++ db/skill_unit_db.txt	(working copy)
+@@ -37,7 +37,7 @@
+  85,0x86,    ,  0, 6:6:6:6:6:6:6:6:6:6:8,1250,enemy,0x018	//WZ_VERMILION
+  87,0x8d,    , -1, 0,  -1,all,   0x010	//WZ_ICEWALL
+  89,0x86,    ,  0, 5, 450,enemy, 0x018	//WZ_STORMGUST
+- 91,0x86,    ,  0, 2,1000,enemy, 0x010	//WZ_HEAVENDRIVE
++ 91,0x86,    ,  0, 2,1000,enemy, 0x800	//WZ_HEAVENDRIVE
+  92,0x8e,    ,  2, 0,  -1,enemy, 0x010	//WZ_QUAGMIRE
+ 115,0x90,    ,  0, 1,1000,enemy, 0x006	//HT_SKIDTRAP
+ 116,0x93,    ,  0, 1,1000,enemy, 0x006	//HT_LANDMINE
+Index: src/map/battle.c
+===================================================================
+--- src/map/battle.c	(revision 14275)
++++ src/map/battle.c	(working copy)
+@@ -3209,6 +3209,7 @@
+ 					case WZ_SIGHTBLASTER:
+ 					case SM_MAGNUM:
+ 					case MS_MAGNUM:
++					case WZ_HEAVENDRIVE:
+ 						state |= BCT_ENEMY;
+ 						strip_enemy = 0;
+ 						break;
+Index: src/map/skill.c
+===================================================================
+--- src/map/skill.c	(revision 14275)
++++ src/map/skill.c	(working copy)
+@@ -7200,6 +7200,17 @@
+ 	nullpo_retr(0, sg=src->group);
+ 	nullpo_retr(0, ss=map_id2bl(sg->src_id));
+ 
++   if (skill_get_inf2(sg->skill_id)&INF2_TRAP) 
++    {    
++	 if (bl->type == BL_SKILL) 
++        {   //Ground skill hitting a trap? Only heaven's drive can do this, so kill the trap. 
++            skill_delunitgroup(sg); 
++        } else {    //Traps can be pushed around. 
++            skill_blown(bl,&src->bl,2,1); 
++            damage = 0; 
++        } 
++    } else
++
+ 	if( skill_get_type(sg->skill_id) == BF_MAGIC && map_getcell(bl->m, bl->x, bl->y, CELL_CHKLANDPROTECTOR) && sg->skill_id != SA_LANDPROTECTOR )
+ 		return 0; //AoE skills are ineffective. [Skotlex]
+ 

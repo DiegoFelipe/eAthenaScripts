@@ -1,0 +1,32 @@
+//===== eAthena Script =======================================
+//= Manager of GR
+//===== By: ==================================================
+//= TecnoCronus
+//===== Current Version: =====================================
+//= 1.0++
+//===== Compatible With: =====================================
+//= eAthena SVN SQL/TXT
+//===== Description: =========================================
+//= Here goes all questors NPCs
+//============================================================
+
+prontera,175,216,4	script	Gold Room Questor#1	710,{
+
+	callfunc("GRSysQuest","^654321Prontera Questor^000000");
+	end;
+
+}
+
+payon,173,225,4	script	Gold Room Questor#2	866,{
+
+	callfunc("GRSysQuest","^00FF00Payon Questor^000000");
+	end;
+
+}
+
+alberta,197,151,4	script	Gold Room Questor#3	897,{
+
+	callfunc("GRSysQuest","^ABFFCDAlberta Questor^000000");
+	end;
+
+}

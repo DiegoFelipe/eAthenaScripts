@@ -1,0 +1,154 @@
+/* 	  ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___   
+         /\  \     /\  \     /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\__\     /\  \  
+         \:\  \   /::\  \   /::\  \   /:| _|_   /::\  \   /::\  \   /::\  \   /::\  \   /:| _|_   /:/ _/_   /::\  \ 
+         /::\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/\:\__\ /:/\:\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/_/\__\ /\:\:\__\
+        /:/\/__/ \:\:\/  / \:\ \/__/ \/|::/  / \:\/:/  / \:\ \/__/ \;:::/  / \:\/:/  / \/|::/  / \:\/:/  / \:\:\/__/
+        \/__/     \:\/  /   \:\__\     |:/  /   \::/  /   \:\__\    |:\/__/   \::/  /    |:/  /   \::/  /   \::/  / 
+        	   \/__/     \/__/     \/__/     \/__/     \/__/     \|__|     \/__/     \/__/     \/__/     \/__/ 
+
+
+					  (C) Copyright TecnoCronus 12/25/09
+			    	 	
+	*--------------------------------------------Hercules Script--------------------------------------------*
+	*- Amon Ra Event			       								*
+	*------------------------------------------------ By: --------------------------------------------------*
+	*- TecnoCronus	                                                                                       	*
+	*------------------------------------------ Current Version: -------------------------------------------*
+	*- 1.0												       	*
+	*---------------------------------------- Additional Comments: -----------------------------------------*
+	*- A Event NPC that starts every day 15 of the month							*
+	*-------------------------------------------- Changelog ------------------------------------------------*
+	*- http://trac.xp-dev.com/TC_Scripts/log/scripts/EN/AmonRa_Event.txt				       	*
+	*-------------------------------------------------------------------------------------------------------*/
+
+-	script	Guardiao_AmonRA	-1,{
+
+	OnDay0115:
+	OnDay0215:
+	OnDay0315:
+	OnDay0415:
+	OnDay0515:
+	OnDay0615:
+	OnDay0715:
+	OnDay0815:
+	OnDay0915:
+	OnDay1015:
+	OnDay1115:
+	OnDay1215:
+
+		donpcevent "Timer_AmonRa::OnEvent";
+		end;
+
+
+	OnFaraoKilled:
+		set $FaMum,$FaMum - 1;
+		announce "Thanks "+strcharinfo(0)+" for killing the Pharaoh, you will receive a "+getitemname(.@item3)+", as reward",bc_all,0x00FF00;
+		getitem .@item3,1;
+		end;
+
+	OnOsirisKilled:
+		set $FaMum,$FaMum - 1;
+		announce "Thanks "+strcharinfo(0)+" for killing the Osiris, you'll receive a "+getitemname(.@item4)+", as reward",bc_all,0x00FF00;
+		getitem .@item4,1;
+		end;
+
+	OnMumiaKilled:
+		set $FaMum,$FaMum - 1;
+		dispbottom "You killed a Mummy";
+		set Zeny,Zeny + .@Zeny;
+		end;
+
+	OnFalseAnubisKilled:
+		set Zeny,Zeny + .@Zeny;
+		dispbottom "You killed a false Anubis";
+		end;
+
+	OnTrueAnubisKilled:
+
+		announce "Congratulations "+strcharinfo(0)+" you saved the world you will receive a "+getitemname(.@item2)+", as reward! Thanks !!!",bc_all,0x00FF00;
+		getitem .@item2,1;
+		killmonsterall $AmMap$;
+		set $OnEvent, 0;
+		end;
+
+	OnInit:
+		// Item id of the reward to who kills the true Anubis
+		set .@item2, 504;
+
+		// Item id of the reward to who kills the Pharao
+		set .@item3, 504;
+
+		// Item id of the reward to who kills Osiris
+		set .@item4, 504;
+
+		// Zeny to give to who kills mummys and false anubis
+		set .@Zeny, 1;
+
+		// Amount of False anubis to summon
+		set $Fanubis, 30;
+
+		// Amount of Mummys to summon
+		set $MumAmEvent, 60;
+
+		// Map name, where the invasion will happen
+		set $AmMap$, "prontera";
+
+		set $FaMum,$MumAmEvent+$Fanubis;
+}
+
+-	script	Timer_AmonRa	-1,{
+
+	end;
+
+	OnEvent:
+
+		set $FaMum,$MumAmEvent+$MumAmEvent;
+		announce "The powerfull darkness king Anubis was awaken",bc_all,0X00FF00;
+		initnpctimer;
+		end;
+
+	OnTimer5000:
+
+		monster $AmMap$,0,0,"Pharao",1157,1,"Guardiao_AmonRA::OnFaraoKilled";
+		monster $AmMap$,0,0,"Osiris",1038,1,"Guardiao_AmonRA::OnOsirisKilled";
+		monster $AmMap$,0,0,"Mummy",1041,$MumAmEvent,"Guardiao_AmonRA::OnMumiaKilled";
+		announce "Something unbelievable happened: Anubis hypnotized Pharao and Osiris, They are killing everyone in "+$AmMap$,bc_all,0x00FF00;
+		end;
+
+	OnTimmer30000:
+
+		announce "Let's go !! everybody needs to kill the invaders",bc_all,0x00FF00;
+		end;
+
+	OnTimer60000:
+
+		announce "AmonRa will reward everyone who helps to end the invasion",bc_all,0x00FF00;
+		monster $AmMap$,0,0,"Mummy",1041,$MumAmEvent,"AmonRA_Guardian::OnMumiaKilled";
+		announce "Anubis will appear when Osiris, Pharao and the Mummys dies",bc_all,0x00FF00;
+		setnpctimer 0;
+		stopnpctimer;
+		donpcevent "Timer_AmonRa2::OnEvent";	
+
+}
+-	script	Timer_AmonRa2	-1,{
+
+	end;
+
+	OnEvent:
+		initnpctimer;
+		end;
+
+	OnTimer60000:
+
+		if(mobcount($AmMap$,"all") > $FaMum) {
+
+			announce "The time is passing and there's still invaders left in "+$AmMap$,bc_all,0x00FF00;
+			setnpctimer 0;
+
+		}
+		announce "AmonRa said that Anubis cloned himself, there are many os falses Anubis in "+$AmMap$+", However, just one is the true ",bc_all,0x00FF00;
+		monster $AmMap$,0,0,"Anubis",1098,$Fanubis,"Guardiao_AmonRA::OnFalseAnubisKilled";
+		monster $AmMap$,0,0,"Anubis",1098,1,"Guardiao_AmonRA::OnTrueAnubisKilled";
+		end;
+
+}

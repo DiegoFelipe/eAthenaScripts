@@ -1,0 +1,153 @@
+//= This is the function of Shopping NPC, the shopping center
+//= can be found in ra_in01
+//============================================================
+//===== Cronus / eAthena Script ==============================
+//= NPCs do Shopping
+//===== By: ==================================================
+//= TecnoCronus
+//= DeMoN (Evanio) - Tradução
+//===== Versão : =============================================
+//= 1.1
+//===== Compativél com: ======================================
+//= eAthena SVN SQL/TXT
+//= Cronus SVN SQL/TXT
+//===== Discrição: ===========================================
+//= Esta é a função dos NPCs do Shopping, o shopping center
+//= se encontra em ra_in01
+//============================================================
+
+function	script	GRSys_Shopping	{
+
+	mes "["+getarg(0)+"]";
+	if(!##GRMob) {
+		mes "Olá jovem "+strcharinfo(0)+",";
+		mes "Eu sou um vendedor especial ...";
+		mes "As coisas aqui não são compradas com Zeny.";
+		mes "Você pode compra-los com Gold Point...";
+		next;
+		mes "["+getarg(0)+"]";
+		if(select("Hã! Especial Gold Point ? O que é isto ?","Desculpe-me, preciso ir.")==2) {
+			next;
+			mes "["+getarg(0)+"]";
+			mes "Sem problema, volte se estiver interessado.";
+			close2;
+			emotion e_no1;
+			end;
+		}
+		mes "Sim, existe um tipo de pontos especial";
+		mes "que nós, vendedores, amamos, mas, esse ponto";
+		mes "Só pode ser retirado na \"Gold Room\".";
+		next;
+		mes "["+getarg(0)+"]";
+		if(select("Interessante, fale-me mais por favor","Gold Room ??? Deixe-me ir")==2) {
+			mes "...";
+			close2;
+			emotion e_shy;
+			end;
+		}
+		mes "É uma sala onde você mata monstros para ganhar pontos ...";
+		mes "E voc~e pode troca-los por ouro ...";
+		next;
+		mes "["+getarg(0)+"]";
+		mes "Nós trocamos esses pontos por itens";
+		mes "com as pessoas que entram nessa sala.";
+		mes "Nós chamamos estes pontos de ^555666GP^000000 ou ^555666Gold Points^000000";
+		next;
+		mes "["+getarg(0)+"]";
+		mes "Você esta interessado em conseguir estes pontos ?";
+		mes "Se quiser posso teleporta-lo para uma pessoa que pode";
+		mes "lhe explicar mais sobre a Gold Room.";
+		if(select("Sim, por favor","Não, Obrigado")==2) {
+			next;
+			mes "["+getarg(0)+"]";
+			mes "Se mudar de ideia, por favor, volte aqui.";
+			close2;
+			emotion e_no1;
+			end;
+		}
+		close2;
+		warp "prontera",174,215;
+		dispbottom "Fale com o \"Gerente da Gold Room\" ele está bem proximo de você.";
+		end;
+	}
+	mes "Olá ^00FF00"+strcharinfo(0)+"^000000, Vejo que você estava na Gold Room há um tempo certo ?";
+	select("Ha Ha Ha, Sim eu estava");
+	if(##GRMob == 0) {
+		mes "Vejo que você não tem pontos ...";
+		mes "Desculpe-me mas não posso fazer nada por você ...";
+		close2;
+		emotion e_sry;
+		end;
+	}
+	mes "Você está interessado em comprar alguma coisa?";
+	mes "Eu tenho muitas coisas para vender.";
+	if(select("Ok deixe-me ver","Não, Obrigado.")==2) {
+		next;
+		mes "["+getarg(0)+"]";
+		mes "Sem problemas ...";
+		mes "Volte depois.";
+		close2;
+		emotion e_no1;
+		end;
+	}
+	next;
+	mes "["+getarg(0)+"]";
+	mes "Os itens que tenho para vender, são:";
+	mes "Item  /  Preço (em GP Points) ";
+	set @xy, 3;
+	set @i, 1;
+	set @arg, getarg(1);
+	for(set @c, 2; @i <= @arg; set @c, @c + 2) {
+	mes "->"+@i+"º: ^0F02FF"+getitemname(getarg(@c))+"^000000 Para ^55AAff"+getarg(@xy)+"^000000 GP.";
+	set @xy, @xy + 2;
+	set @i, @i + 1;
+	}
+	next;
+	mes "["+getarg(0)+"]";
+	mes "Tem algum item que você se interessou ?";
+	input @item;
+	if(getarg(@item) && @item > 0 && @item <= 10) {
+		switch(@item) {
+		case 1:	set @item, 3; break;
+		case 2:	set @item, 5; break;
+		case 3:	set @item, 7; break;
+		case 4:	set @item, 9; break;
+		case 5:	set @item, 11; break;
+		case 6:	set @item, 13; break;
+		case 7:	set @item, 15; break;
+		case 8:	set @item, 17; break;
+		case 9:	set @item, 19; break;
+		case 10: set @item, 21;	break;
+		}
+		set @iname, @item - 1;
+		mes "Esse ^AA11FF"+getitemname(getarg(@iname))+"^000000 custa ^00FF00"+getarg(@item)+"^000000 GP (Gold Points)";
+		if(##GRMob < getarg(@item)) {
+			next;
+			mes "["+getarg(0)+"]";
+			mes "Vejo que você não tem o GP (Gold Point) Necessário ...";
+			mes "Desculpe ...";
+			close2;
+			emotion e_sry;
+			end;
+		}
+		mes "Você que este ?";
+		if(select("Sim","Não")==2) {
+			next;
+			mes "["+getarg(0)+"]";
+			mes "Entendido, Lhe espero aqui quando você se interessar.";
+			close2;
+			emotion e_no1;
+			end;
+		}
+		set ##GRMob, ##GRMob - getarg(@item);
+		set @item, @item - 1;
+		getitem getarg(@item), 1;
+		mes "Espero que você aproveite o item.";
+		close2;
+		emotion e_ok;
+		end;
+	}
+	mes "O Item não foi encontrado.";
+	close;
+	
+}
