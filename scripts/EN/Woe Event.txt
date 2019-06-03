@@ -1,15 +1,15 @@
-/* 	  ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___   
-         /\  \     /\  \     /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\__\     /\  \  
-         \:\  \   /::\  \   /::\  \   /:| _|_   /::\  \   /::\  \   /::\  \   /::\  \   /:| _|_   /:/ _/_   /::\  \ 
+/* 	  ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___
+         /\  \     /\  \     /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\__\     /\  \
+         \:\  \   /::\  \   /::\  \   /:| _|_   /::\  \   /::\  \   /::\  \   /::\  \   /:| _|_   /:/ _/_   /::\  \
          /::\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/\:\__\ /:/\:\__\ /::\:\__\ /:/\:\__\ /::|/\__\ /:/_/\__\ /\:\:\__\
         /:/\/__/ \:\:\/  / \:\ \/__/ \/|::/  / \:\/:/  / \:\ \/__/ \;:::/  / \:\/:/  / \/|::/  / \:\/:/  / \:\:\/__/
-        \/__/     \:\/  /   \:\__\     |:/  /   \::/  /   \:\__\    |:\/__/   \::/  /    |:/  /   \::/  /   \::/  / 
-        	   \/__/     \/__/     \/__/     \/__/     \/__/     \|__|     \/__/     \/__/     \/__/     \/__/ 
+        \/__/     \:\/  /   \:\__\     |:/  /   \::/  /   \:\__\    |:\/__/   \::/  /    |:/  /   \::/  /   \::/  /
+        	   \/__/     \/__/     \/__/     \/__/     \/__/     \|__|     \/__/     \/__/     \/__/     \/__/
 
 
 
 					  (C) Copyright TecnoCronus 03/06/15
-			    	 	
+
 	*-------------------------------------------Hercules Script---------------------------------------------*
 	*- WOE Event				       								*
 	*------------------------------------------------ By: --------------------------------------------------*
@@ -28,6 +28,7 @@
 	*													*
 	* - While the event, there's a chance to the player get buffs when kill someone at prontera castles	*
 	* - The prize goes to the 1st player who kills the 100 players.						*
+	* - The points are reseted after woe
 	* 											       		*
 	*-------------------------------------------- Changelog ------------------------------------------------*
 	*- http://trac.xp-dev.com/TC_Scripts/log/scripts/EN/Woe Event.txt				       	*
@@ -98,13 +99,12 @@ prontera,168,187,4	script	Iris	4_M_KNIGHT_GOLD,{
 				mes "A Legendary ^FF0000 Hat of the SunGod ^000000, which I won gift from the Gods";
 				mes "Now let's start the ritual, you'll receive 50 white potions now";
 				mes "And also my Buffs now and when you kill someone at WOE";
-	
+
 			} else {
 
 				mes "All right, now I should tell you anout the reward, it's something very valuable";
 				mes "A Legendary ^FF0000 Hat of the Sun God ^000000, which I won gift from the gods";
 				mes "Now go and complete your mission";
-				mes "Agora vá e Complete sua Missão";
 				mes "Now let's start the ritual, you'll receive 50 white potions now";
 				mes "And also my Buffs now and when you kill someone at WOE";
 
@@ -229,13 +229,29 @@ function	script	WETakeBuffs	{
 		return;
 }
 
+// Check if the player can get points
+//
+// *** Rules applied to get points:
+//
+// 1 - Don't kill the same account's characters, in the same woe, more than (.WEMaxAccountKillBound) times
+// 2 - Don't kill the differents accounts's characters, but in the same IP Address more than (.WEMaxIPKillBound) times
+// 3 - Get free points from the first (.WEMaxFreePoints) players, thereafter, you only get points if you kill players with points
+// 4 - After the above free points limit, you get (.WEGainPoints) and the player who died loose (.WELostPoints) points
+// 5 - Only get points from level (.WEMinLevelPoints) players
+// (@mapname$ == "prtg_cas01") || (@mapname$ == "prtg_cas02") || (@mapname$ == "prtg_cas03") || (@mapname$ == "prtg_cas04") || (@mapname$ == "prtg_cas05")
+
+
+function	script	WECanGetPoints	{
+
+}
+
 -	script	OnPCKillEvent	-1,{
 
 		if(IrisTest!=1) end;
 		if(IrisH == 1) end;
 		if (getmapxy(@mapname$,@mapx,@mapy,0) == -1) end;
 
-		if (@mapname$ == "prtg_cas01") || (@mapname$ == "prtg_cas02") || (@mapname$ == "prtg_cas03") || (@mapname$ == "prtg_cas04") || (@mapname$ == "prtg_cas05") {
+		if (callfunc("WECanGetPoints") {
 
 			IrisKill = IrisKill+1;
 
@@ -256,13 +272,13 @@ function	script	WETakeBuffs	{
 
 				callfunc("WETakeBuffs");
 				dispbottom "SUNNA: Iris is helping you...";
-			}	
-		
+			}
+
 		}
 
 		end;
 }
-			
+
 -	script	WEventControl	-1,{
 
 	end;
@@ -282,17 +298,20 @@ OnInit:
 	// Amount of players that hast to be killed.
 	$WEPKAmount = 100;
 
+  // Amount of times that the player can kill the same account characters in the same woe
+  .WEMaxAccountKillBound = 10;
+
 	disablenpc "Iris";
 	end;
 
 OnAgitStart:
-	
+
 
 	if(rand(1,100)<=$WEChance) {
 
 		enablenpc "Iris";
 
-		// NOTE"SUNNA" or "SÓL" is the sun of god in Norse Mthology. 
+		// NOTE"SUNNA" or "Sï¿½L" is the sun of god in Norse Mthology.
 
 		announce "SUNNA: A Legendary warrior called Iris needs help  she's at Prontera and seek for great warriors to help her...",bc_all,0xFF0000;
 		$WEventON = 1;
@@ -301,7 +320,7 @@ OnAgitStart:
 	end;
 
 OnAgitEnd:
-		
+
 	if($WEvent == 1) {
 
 		$WEvent = 0;
