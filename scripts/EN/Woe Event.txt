@@ -11,19 +11,19 @@
 					  (C) Copyright TecnoCronus 03/06/15
 
 	*-------------------------------------------Hercules Script---------------------------------------------*
-	*- WOE Event				       								*
+	*- WOE Event				       								                                                              *
 	*------------------------------------------------ By: --------------------------------------------------*
 	*- TecnoCronus	                                                                                       	*
 	*------------------------------------------ Current Version: -------------------------------------------*
-	*- 2.1.0											       	*
+	*- 2.1.0											       	                                                                  *
 	*------------------------------------------ Description: -----------------------------------------------*
-	*													*
-	* - EVENT NPC, unofficial, made by me, based on Norse Mythology. Every time WOE Starts, this script 	*
+	*													                                                                              *
+	* - EVENT NPC, unofficial, made by me, based on Norse Mythology. Every time WOE Starts, this script 	  *
 	*   will, with a percent chance, start this event, the Iris NPC will be activated, the player who talks	*
 	*   to the NPC, while the event is ON, can make a little quest to be able to participate, the main goal	*
-	*   of this event is to kill 100 players (or more, just chance the '$WEPKAmount' variable) to get the	*
-	*   prize, the prize is one Hat of Sungod.								*
-	*													*
+	*   of this event is to kill 100 players (or more, just chance the '$WEPKAmount' variable) to get the	  *
+	*   prize, the prize is one Hat of Sungod.								                                              *
+	*													                                                                              *
 	*---------------------------------------- Additional Comments: -----------------------------------------*
 	*													*
 	* - While the event, there's a chance to the player get buffs when kill someone at prontera castles	*
@@ -229,6 +229,7 @@ function	script	WETakeBuffs	{
 		return;
 }
 
+// ===================================
 // Check if the player can get points
 //
 // *** Rules applied to get points:
@@ -239,9 +240,30 @@ function	script	WETakeBuffs	{
 // 4 - After the above free points limit, you get (.WEGainPoints) and the player who died loose (.WELostPoints) points
 // 5 - Only get points from level (.WEMinLevelPoints) players
 // (@mapname$ == "prtg_cas01") || (@mapname$ == "prtg_cas02") || (@mapname$ == "prtg_cas03") || (@mapname$ == "prtg_cas04") || (@mapname$ == "prtg_cas05")
+// arg(0) = killedrid
+// arg(1) = killed rid IP Address
 
 
 function	script	WECanGetPoints	{
+
+  if ((getd("WESameAccCount" + getarg(0)) >= .WEMaxAccountKillBound) ||
+      (getd("WESameIPCount" + getarg(1)) > .WEMaxIPKillBound) ||
+     )
+
+}
+
+function  script WEAddPoints {
+
+  if (getarg(0) >= .WEMaxFreePoints)
+    return .WEGainPoints
+
+  else
+    return 1
+}
+
+function script WEGetPoints {
+
+
 
 }
 
@@ -250,10 +272,15 @@ function	script	WECanGetPoints	{
 		if(IrisTest!=1) end;
 		if(IrisH == 1) end;
 		if (getmapxy(@mapname$,@mapx,@mapy,0) == -1) end;
+    set @killedridIP, getcharip(killedrid);
 
-		if (callfunc("WECanGetPoints") {
+		if (callfunc("WECanGetPoints", killedrid, @killedridIP) {
 
-			IrisKill = IrisKill+1;
+			IrisKill = IrisKill + callfunc("WEAddPoints", IrisKill);
+
+      setd "WESameAccCount"+killedrid, getd("WESameAccCount"+killedrid") + 1
+      setd "WESameIPCount"+@killedridIP, getd("WESameIPCount"+@killedridIP)+1
+
 
 			if(IrisKill==$WEPKAmount) {
 
