@@ -31,7 +31,7 @@
 	* - The points are reseted after woe
 	* 											       		*
 	*-------------------------------------------- Changelog ------------------------------------------------*
-	*- http://trac.xp-dev.com/TC_Scripts/log/scripts/EN/Woe Event.txt				       	*
+	*- https://github.com/DiegoFelipe/eAthenaScripts/commits/master/scripts/EN/Woe%20Event.txt		       	*
 	*-------------------------------------------------------------------------------------------------------*/
 
 
@@ -236,22 +236,37 @@ function	script	WETakeBuffs	{
 //
 // 1 - Don't kill the same account's characters, in the same woe, more than (.WEMaxAccountKillBound) times
 // 2 - Don't kill the differents accounts's characters, but in the same IP Address more than (.WEMaxIPKillBound) times
-// 3 - Get free points from the first (.WEMaxFreePoints) players, thereafter, you only get points if you kill players with points
-// 4 - After the above free points limit, you get (.WEGainPoints) and the player who died loose (.WELostPoints) points
-// 5 - Only get points from level (.WEMinLevelPoints) players
-// (@mapname$ == "prtg_cas01") || (@mapname$ == "prtg_cas02") || (@mapname$ == "prtg_cas03") || (@mapname$ == "prtg_cas04") || (@mapname$ == "prtg_cas05")
+// 3 - Only get points from level (.WEMinLevelPoints) players
+//
+// Expected Argumentss:
+//
 // arg(0) = killedrid
 // arg(1) = killed rid IP Address
-
+// arg(2) = killed player BaseLevel
+//
+// ===================================
 
 function	script	WECanGetPoints	{
 
-  if ((getd("WESameAccCount" + getarg(0)) >= .WEMaxAccountKillBound) ||
-      (getd("WESameIPCount" + getarg(1)) > .WEMaxIPKillBound) ||
-     )
+	if ((getd("WESameAccCount" + getarg(0)) >= .WEMaxAccountKillBound) ||
+       (getd("WESameIPCount" + getarg(1)) > .WEMaxIPKillBound) ||
+	   (getarg(2) >= .WEMinLevelPoints))
+	 {
+		 return 0;
+	 }
+	
+	return 1;
 
 }
-
+// ===================================
+// Function that calculates how much points should the player receive
+// 
+// Rules
+//
+// 1 - Get free points from the first (.WEMaxFreePoints) players, thereafter, you only get points if you kill players with points
+// 2 - After the above free points limit, you get (.WEGainPoints) and the player who died loose (.WELostPoints) points
+//
+// ===================================
 function  script WEAddPoints {
 
   if (getarg(0) >= .WEMaxFreePoints)
@@ -272,15 +287,17 @@ function script WEGetPoints {
 		if(IrisTest!=1) end;
 		if(IrisH == 1) end;
 		if (getmapxy(@mapname$,@mapx,@mapy,0) == -1) end;
-    set @killedridIP, getcharip(killedrid);
 
-		if (callfunc("WECanGetPoints", killedrid, @killedridIP) {
+    	set @WEkilledridIP, getcharip(killedrid);
+		set @WEKilledAccID, rid2name(getcharid(3));
+		set @WEKilledBaseLevel, readparam(BaseLevel, @WEKilledAccID);
+
+		if (callfunc("WECanGetPoints", @WEKilledAccID, @WEkilledridIP, @WEKilledBaseLevel) {
 
 			IrisKill = IrisKill + callfunc("WEAddPoints", IrisKill);
 
-      setd "WESameAccCount"+killedrid, getd("WESameAccCount"+killedrid") + 1
-      setd "WESameIPCount"+@killedridIP, getd("WESameIPCount"+@killedridIP)+1
-
+			setd "WESameAccCount"+killedrid, getd("WESameAccCount"+killedrid") + 1;
+			setd "WESameIPCount"+@killedridIP, getd("WESameIPCount"+@killedridIP)+1;
 
 			if(IrisKill==$WEPKAmount) {
 
