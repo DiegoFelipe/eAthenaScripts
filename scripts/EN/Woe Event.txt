@@ -253,6 +253,9 @@ function	script	WECanGetPoints	{
 	   (getarg(2) >= .WEMinLevelPoints))
 	 {
 		 return 0;
+		 
+	 } else if () {
+		 return -1;
 	 }
 	
 	return 1;
